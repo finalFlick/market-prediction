@@ -1,0 +1,91 @@
+---
+description: Research third-party libraries before adding or upgrading them.
+alwaysApply: true
+---
+
+# Library research
+
+Before introducing a new third-party dependency, or upgrading an existing
+one, **search the web for current information**. The training cutoff of an
+LLM is older than the package; assume nothing.
+
+This rule complements [`coding-standards.mdc`](mdc:.cursor/rules/coding-standards.mdc)
+and [`security.mdc`](mdc:.cursor/rules/security.mdc). The companion hook
+[`check_dependency_research.py`](mdc:.cursor/hooks/check_dependency_research.py)
+prompts for confirmation when an install command or manifest edit fires
+without evidence of research.
+
+## Required before introducing a dependency
+
+For every package you propose to add (`pip install`, `uv add`,
+`poetry add`, `npm install`, `yarn add`, `pnpm add`, or a new line in
+`pyproject.toml` / `requirements*.txt` / `package.json`):
+
+1. **Search the web for current docs.** Use `WebSearch` or `WebFetch` to
+   read the official documentation, the package's GitHub README, and the
+   most recent release notes / CHANGELOG. Cite at least one URL in your
+   response.
+2. **Check version compatibility.** Verify the package's declared
+   support against this repo's Python version (`pyproject.toml`
+   `requires-python`) and Node engines (`package.json` `engines` if
+   relevant). Pin a known-compatible version — never leave a dependency
+   unpinned.
+3. **Read the latest release notes.** Look for breaking changes,
+   deprecation warnings, and security advisories within the last 12
+   months.
+4. **Identify best practices and idiomatic usage.** A `WebSearch` for
+   `<package> best practices <year>` or `<package> common pitfalls` is
+   usually enough to surface footguns.
+5. **Prefer what's already here.** Run `rg <topic> pyproject.toml` (and
+   `package.json` for the frontend) before introducing anything new. A
+   library already used by the repo is almost always better than a new
+   one with the same surface area.
+6. **Check the project's allow-list.** `docker.mdc`, `security.mdc`, and
+   `architecture.mdc` already constrain what is permissible (e.g. local
+   Ollama only, no third-party LLM SDKs). New dependencies must not
+   violate them.
+
+## Required when upgrading a dependency
+
+- Read the diff of release notes between the current pinned version and
+  the target.
+- Search for `<package> <new version> migration` and `<package> breaking
+  changes`.
+- Re-run the full test suite and the relevant backtest smoke; record
+  results in the PR description.
+
+## Evidence in the PR / SESSION_LOG
+
+Every PR that adds or upgrades a dependency must include:
+
+- The package name and pinned version.
+- The URL(s) of the docs / release notes / CHANGELOG you consulted.
+- A one-sentence rationale: why this package, and why this version.
+- Confirmation that it satisfies the version constraints in
+  `pyproject.toml` / `package.json`.
+
+Without this evidence the change is `partial` per
+[`pr-review.mdc`](mdc:.cursor/rules/pr-review.mdc) and should not be
+merged.
+
+## Forbidden
+
+- Adding a dependency on the basis of training-data recall alone
+  ("I think `xyz` is the standard library for this"). Verify first.
+- Unpinned versions. `package = "*"` or `^0.x` ranges are blockers.
+- Introducing a new HTTP client, ORM, test framework, or LLM SDK when
+  one is already wired into the repo.
+- Adding a third-party LLM API client (OpenAI, Anthropic, etc.) to any
+  module — see [`llm-usage.mdc`](mdc:.cursor/rules/llm-usage.mdc).
+- Adding a package whose latest release is older than the project's
+  minimum Python (`requires-python`) without an explicit
+  `DECISIONS.md` entry justifying the exception.
+
+## What the hook does
+
+`check_dependency_research.py` runs on `beforeShellExecution` and
+`afterFileEdit`. It does not — and cannot — verify that a web search
+actually happened. It only fires `permission: "ask"` when an install
+command or manifest edit is observed, with a reminder pointing back at
+this rule. The user is expected to approve only after seeing the
+research evidence in the agent's response.
