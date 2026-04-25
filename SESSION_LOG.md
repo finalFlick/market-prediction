@@ -16,6 +16,32 @@ Format:
 
 ---
 
+## 2026-04-25 — trading-lab spec site (MkDocs + GitHub Pages, worktree)
+
+- **Agent**: Developer
+- **Goal**: Add a themed MkDocs + GitHub Pages deploy for
+  `specs/trading-lab-platform/` and project docs, entirely on
+  `experiment/specs-gh-pages` in a sibling git worktree so `main` stays
+  untouched by other agent work.
+- **Done**:
+  - Sibling worktree: `../market-prediction-pages` on
+    `experiment/specs-gh-pages`.
+  - `mkdocs.yml` + `docsite/` (index, kitsune-cyberpunk `extra.css`, sync
+    hook, mermaid `fence_div_format` + `javascripts/mermaid-init.js`, pinned
+    `docsite/requirements.txt` — not in `pyproject.toml`).
+  - `.github/workflows/pages.yml` (path-filtered push, `concurrency: pages`,
+    `actions/deploy-pages@v4` + `upload-pages-artifact@v3`).
+- **Verified**:
+  - `py -3.12 -m pip install -r docsite/requirements.txt` in worktree
+  - `py -3.12 -m mkdocs build` in worktree (success; link warnings to
+    out-of-doc paths like `.cursor/` expected)
+  - Built HTML contains `<div class="mermaid">` in
+    `specs/trading-lab-platform/design/`
+- **Blocked / next**:
+  - Push `experiment/specs-gh-pages` to `origin` (needs network + auth).
+  - Repo **Settings → Pages → Source: GitHub Actions** (one-time).
+  - Rebase worktree on `origin/main` when you want the latest spec content.
+
 ## 2026-04-25 — mvp-0 live broker registration lock slice
 
 - **Agent**: Developer

@@ -1,0 +1,82 @@
+/* Layer 1: align with frontend/tailwind.config.ts (dark dashboard). */
+/* Layer 2: subtle kitsune-cyberpunk — foxfire on links, no animation. */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Serif+JP:wght@600&display=swap");
+
+/* Material “custom” primary/accent (used in mkdocs.yml palette). */
+[data-md-color-primary="custom"] {
+  --md-primary-fg-color: hsl(160 84% 50%);
+  --md-primary-bg-color: hsl(160 84% 50% / 0.15);
+}
+
+[data-md-color-accent="custom"] {
+  --md-accent-fg-color: hsl(20 95% 55%);
+  --md-accent-bg-color: hsl(220 13% 14%);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: hsl(220 13% 7%);
+  --md-default-fg-color: hsl(220 9% 96%);
+  --md-typeset-color: hsl(220 9% 96%);
+  --md-typeset-a-color: hsl(20 95% 55%);
+  --md-accent-fg-color: hsl(20 95% 55%);
+  --md-accent-bg-color: hsl(220 13% 14%);
+  --md-primary-fg-color: hsl(160 84% 50%);
+  --md-primary-bg-color: hsl(160 84% 50% / 0.15);
+  --md-footer-bg-color: hsl(220 13% 5%);
+  --md-code-bg-color: hsl(220 13% 10%);
+  --md-code-fg-color: hsl(220 9% 90%);
+  --md-typeset-a-color: hsl(20 95% 55%);
+  --md-typeset-a-color--hover: hsl(25 100% 65%);
+  --md-admonition-fg-color: hsl(220 9% 96%);
+  --md-admonition-bg-color: hsl(220 13% 10%);
+  --md-shadow-z1: 0 0.2rem 0.5rem hsl(160 84% 50% / 0.12),
+    0 0.1rem 0.15rem hsl(20 95% 55% / 0.04);
+  --md-shadow-z2: 0 0.4rem 0.8rem hsl(160 84% 50% / 0.1),
+    0 0.2rem 0.2rem hsl(20 95% 55% / 0.04);
+  --md-shadow-z3: 0 0.6rem 1.2rem hsl(160 84% 50% / 0.15),
+    0 0.2rem 0.4rem hsl(20 95% 55% / 0.05);
+  --md-nav-bg: hsl(220 13% 5%);
+  --md-header-bg: linear-gradient(
+    90deg,
+    hsl(220 13% 7%) 0%,
+    hsl(220 18% 9%) 50%,
+    hsl(220 13% 7%) 100%
+  );
+}
+
+/* Display headings: kitsune + mono body */
+.md-typeset h1 {
+  font-family: "Noto Serif JP", "Times New Roman", serif;
+  font-weight: 600;
+  text-shadow: 0 0 1px hsl(20 95% 55% / 0.45);
+  color: hsl(220 9% 98%);
+}
+
+.md-typeset h2,
+.md-typeset h3,
+.md-header__topic,
+.md-ellipsis,
+.md-content__inner {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* Danger / "live" tone — neon magenta, still readable on dark. */
+.md-typeset .admonition.danger,
+.md-typeset details.danger {
+  border-color: hsl(320 90% 60%);
+  background-color: hsl(320 30% 12%);
+}
+
+/* Mermaid: subtle frame */
+.md-typeset .mermaid {
+  background: hsl(220 13% 5%);
+  border: 1px solid hsl(220 13% 18%);
+  border-radius: 0.2rem;
+  padding: 0.5rem;
+}
+
+/* Search highlight — foxfire */
+.md-search-result__article--highlighted {
+  outline: 1px solid hsl(20 95% 55% / 0.4);
+  box-shadow: 0 0 0.2rem hsl(20 95% 55% / 0.2);
+}
