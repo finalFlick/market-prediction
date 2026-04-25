@@ -44,12 +44,15 @@ jobs:
         with:
           path: site
 
-  # No `environment: github-pages` here: that environment often restricts deploy
-  # to `main` only, which blocks this branch. `deploy-pages@v4` works with
-  # workflow `permissions: pages: write, id-token: write` only (see plan).
+  # `actions/deploy-pages@v4` requires `environment: github-pages`. If deploy is
+  # rejected, allow branch `experiment/specs-gh-pages` in that environment
+  # (Repo → Settings → Environments → github-pages → Deployment branches).
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - id: deploy
         name: deploy to GitHub Pages
