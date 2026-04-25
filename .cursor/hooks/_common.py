@@ -77,9 +77,7 @@ def ensure_state() -> None:
 
 
 def now_iso() -> str:
-    # Use ``timezone.utc`` (not the 3.11+ ``datetime.UTC`` alias) so this
-    # module works on whatever Python the user has on PATH for hooks.
-    return datetime.now(tz=timezone.utc).isoformat()  # noqa: UP017
+    return datetime.now(tz=timezone.utc).isoformat()
 
 
 def redact(text: str) -> str:

@@ -1,0 +1,168 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "risk-policy",
+      "priority": 100,
+      "description": "Risk policy and the non-bypassable risk engine.",
+      "match": {
+        "prompt_regex": [
+          "(?i)\\b(risk|kill[- ]?switch|position[- ]?siz(e|ing)|drawdown|max\\s*loss|risk[_\\s]*engine|stop[- ]?loss)\\b"
+        ],
+        "tool_input_regex": [
+          "risk[\\\\/](engine|sizing|errors|limits)\\.py",
+          "configs[\\\\/]risk\\.yaml"
+        ],
+        "agent_message_regex": [
+          "(?i)\\b(risk|position\\s*size|kill\\s*switch)\\b"
+        ]
+      },
+      "snippets": [
+        { "path": "docs/RISK_POLICY.md", "anchor": null, "max_chars": 1200 },
+        { "path": ".cursor/rules/risk-management.mdc", "anchor": null, "max_chars": 800 }
+      ]
+    },
+    {
+      "id": "evaluation-gates",
+      "priority": 90,
+      "description": "Backtest realism, walk-forward, and acceptance gates.",
+      "match": {
+        "prompt_regex": [
+          "(?i)\\b(backtest|walk[- ]?forward|purg(ed|ing)|embargo|sharpe|deflated|psr|hit\\s*rate|turnover)\\b"
+        ],
+        "tool_input_regex": [
+          "backtests[\\\\/]",
+          "research[\\\\/](cv|features[\\\\/]validation)\\.py"
+        ]
+      },
+      "snippets": [
+        { "path": "docs/EVALUATION.md", "anchor": null, "max_chars": 1500 },
+        { "path": ".cursor/rules/backtesting.mdc", "anchor": null, "max_chars": 800 }
+      ]
+    },
+    {
+      "id": "signal-research",
+      "priority": 80,
+      "description": "Signal hypothesis lifecycle and feature implementation.",
+      "match": {
+        "prompt_regex": [
+          "(?i)\\b(signal|feature|look[- ]?ahead|information\\s*coefficient|\\bIC\\b|hypothesis|alpha)\\b"
+        ],
+        "tool_input_regex": [
+          "research[\\\\/](features|models|labels)",
+          "SIGNALS\\.md"
+        ]
+      },
+      "snippets": [
+        { "path": "SIGNALS.md", "anchor": null, "max_chars": 1000 },
+        { "path": ".cursor/agents/signal.md", "anchor": null, "max_chars": 1000 },
+        { "path": ".cursor/rules/research-workflow.mdc", "anchor": null, "max_chars": 800 }
+      ]
+    },
+    {
+      "id": "data-ingest",
+      "priority": 70,
+      "description": "Market-data ingestion, exchange clients, OHLCV pipelines.",
+      "match": {
+        "prompt_regex": [
+          "(?i)\\b(binance|coinbase|ccxt|ohlcv|ingest|order[- ]?book|tick(s|er)?)\\b"
+        ],
+        "tool_input_regex": [
+          "data[\\\\/](ingest|loaders|schema)"
+        ]
+      },
+      "snippets": [
+        { "path": "docs/DATA_MODEL.md", "anchor": null, "max_chars": 1200 },
+        { "path": ".cursor/agents/research.md", "anchor": null, "max_chars": 800 }
+      ]
+    },
+    {
+      "id": "frontend-dashboard",
+      "priority": 60,
+      "description": "Next.js read-only dashboard.",
+      "match": {
+        "prompt_regex": [
+          "(?i)\\b(frontend|dashboard|next\\.?js|react|tailwind|page\\.tsx)\\b"
+        ],
+        "tool_input_regex": [
+          "frontend[\\\\/]"
+        ]
+      },
+      "snippets": [
+        { "path": "docs/UI_REQUIREMENTS.md", "anchor": null, "max_chars": 1200 },
+        { "path": ".cursor/rules/frontend.mdc", "anchor": null, "max_chars": 600 }
+      ]
+    },
+    {
+      "id": "infra-deployment",
+      "priority": 50,
+      "description": "Container topology and docker-compose deployment.",
+      "match": {
+        "prompt_regex": [
+          "(?i)\\b(docker|compose|container|deployment|kubernetes|service\\s*topology)\\b"
+        ],
+        "tool_input_regex": [
+          "Dockerfile",
+          "docker-compose.*\\.ya?ml"
+        ]
+      },
+      "snippets": [
+        { "path": "docs/INFRASTRUCTURE.md", "anchor": null, "max_chars": 1200 },
+        { "path": ".cursor/rules/docker.mdc", "anchor": null, "max_chars": 600 }
+      ]
+    },
+    {
+      "id": "llm-isolation",
+      "priority": 95,
+      "description": "LLM usage policy and execution-path isolation.",
+      "match": {
+        "prompt_regex": [
+          "(?i)\\b(ollama|llm|prompt\\s*engineering|natural\\s*language|chat\\s*completion)\\b"
+        ],
+        "tool_input_regex": [
+          "research[\\\\/]llm[\\\\/]",
+          "(?i)llm"
+        ]
+      },
+      "snippets": [
+        { "path": ".cursor/rules/llm-usage.mdc", "anchor": null, "max_chars": 1500 },
+        { "path": "AGENTS.md", "anchor": "## LLM usage policy", "max_chars": 800 }
+      ]
+    },
+    {
+      "id": "spec-workflow",
+      "priority": 75,
+      "description": "Kiro-style spec sessions for non-trivial features.",
+      "match": {
+        "prompt_regex": [
+          "(?i)\\b(spec|requirements\\.md|design\\.md|tasks\\.md|kiro|EARS)\\b"
+        ],
+        "tool_input_regex": [
+          "specs[\\\\/]"
+        ]
+      },
+      "snippets": [
+        { "path": ".cursor/rules/spec-sessions.mdc", "anchor": null, "max_chars": 1200 }
+      ]
+    },
+    {
+      "id": "workflow-discipline",
+      "priority": 40,
+      "description": "Test/lint/typecheck loop for definition of done.",
+      "match": {
+        "prompt_regex": [
+          "(?i)\\b(pytest|ruff|mypy|definition\\s*of\\s*done|verify|test\\s*suite)\\b"
+        ],
+        "tool_input_regex": [
+          "(?i)pytest|ruff|mypy"
+        ],
+        "agent_message_regex": [
+          "(?i)\\b(running\\s+tests|lint|typecheck)\\b"
+        ]
+      },
+      "snippets": [
+        { "path": ".cursor/rules/workflow.mdc", "anchor": null, "max_chars": 800 }
+      ]
+    }
+  ]
+}
