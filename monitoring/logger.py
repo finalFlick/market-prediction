@@ -9,7 +9,8 @@ from __future__ import annotations
 import logging
 import os
 import sys
-from typing import Any, MutableMapping, cast
+from collections.abc import MutableMapping
+from typing import Any, cast
 
 import structlog
 

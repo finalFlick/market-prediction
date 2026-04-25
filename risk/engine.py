@@ -9,9 +9,11 @@ violates a limit.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from typing import Literal, NoReturn
 
 from monitoring.logger import get_logger
 from monitoring.metrics import counter, gauge
+from risk.audit import RiskAudit, RiskDecision
 from risk.errors import RiskCheckRejected
 from risk.limits import RiskLimits
 from risk.sizing import clip_quantity_to_min_notional, vol_targeted_quantity
@@ -23,8 +25,18 @@ log = get_logger(__name__)
 class RiskEngine:
     """Convert target weights into safe orders. Reject anything dangerous."""
 
-    def __init__(self, limits: RiskLimits) -> None:
+    def __init__(
+        self,
+        limits: RiskLimits,
+        *,
+        audit: RiskAudit | None = None,
+        run_id: str | None = None,
+        client_id: str | None = None,
+    ) -> None:
         self.limits = limits
+        self._audit = audit
+        self._run_id = run_id
+        self._client_id = client_id
 
     def check_and_size(
         self,
@@ -43,7 +55,7 @@ class RiskEngine:
 
         equity = portfolio.equity(marks)
         if equity <= 0:
-            raise RiskCheckRejected("equity_non_positive", f"equity={equity}")
+            self._reject("equity_non_positive", f"equity={equity}", equity=equity)
 
         gauge("equity", equity)
         gauge("gross_exposure", portfolio.gross_exposure(marks))
@@ -58,6 +70,12 @@ class RiskEngine:
             if mark is None or vol is None:
                 log.warning("risk.skip", reason="missing_market_data", symbol=t.symbol)
                 counter("risk.reject", rule="missing_market_data")
+                self._emit(
+                    "skip",
+                    "missing_market_data",
+                    f"missing mark or vol for {t.symbol}",
+                    symbol=t.symbol,
+                )
                 continue
             qty = vol_targeted_quantity(
                 target_weight=t.weight,
@@ -86,29 +104,61 @@ class RiskEngine:
         # Final post-check: simulate the new portfolio and verify aggregate caps.
         self._check_aggregate(proposed, portfolio, marks, equity)
         counter("risk.orders_emitted", value=len(proposed))
+        self._emit(
+            "accept",
+            "check_and_size",
+            "orders approved",
+            n_orders=len(proposed),
+        )
         return proposed
+
+    def _emit(
+        self,
+        outcome: Literal["accept", "reject", "skip"],
+        rule: str,
+        message: str = "",
+        **details: object,
+    ) -> None:
+        if self._audit is None:
+            return
+        self._audit.emit(
+            RiskDecision.new(
+                run_id=self._run_id,
+                client_id=self._client_id,
+                rule=rule,
+                outcome=outcome,
+                message=message,
+                **{k: v for k, v in details.items()},
+            )
+        )
+
+    def _reject(self, rule: str, message: str, **details: object) -> NoReturn:
+        self._emit("reject", rule, message, **details)
+        raise RiskCheckRejected(rule, message)
 
     def _check_global(self, portfolio: Portfolio, marks: dict[str, float]) -> None:
         if self.limits.kill_switch:
-            raise RiskCheckRejected("kill_switch", "kill switch is engaged")
+            self._reject("kill_switch", "kill switch is engaged")
 
         equity = portfolio.equity(marks)
         if portfolio.realized_pnl_today < -self.limits.max_daily_loss_pct * equity:
-            raise RiskCheckRejected(
+            self._reject(
                 "max_daily_loss",
                 f"realized={portfolio.realized_pnl_today:.2f} > limit",
+                equity=equity,
             )
 
         if portfolio.high_water_mark > 0:
             dd = (portfolio.high_water_mark - equity) / portfolio.high_water_mark
             if dd > self.limits.max_drawdown_pct:
-                raise RiskCheckRejected("max_drawdown", f"drawdown={dd:.2%}")
+                self._reject("max_drawdown", f"drawdown={dd:.2%}", drawdown=dd, equity=equity)
 
     def _check_per_symbol_weight(self, weight: float) -> None:
         if abs(weight) > self.limits.max_per_symbol_weight:
-            raise RiskCheckRejected(
+            self._reject(
                 "max_per_symbol_weight",
                 f"|weight|={abs(weight):.3f} > {self.limits.max_per_symbol_weight}",
+                abs_weight=abs(weight),
             )
 
     def _check_aggregate(
@@ -127,17 +177,21 @@ class RiskEngine:
         net = sum(q * marks.get(s, 0.0) for s, q in new_positions.items())
 
         if gross > self.limits.max_gross_exposure * equity:
-            raise RiskCheckRejected(
+            self._reject(
                 "max_gross_exposure",
                 f"gross={gross:.2f} > {self.limits.max_gross_exposure * equity:.2f}",
+                gross=gross,
             )
         if abs(net) > self.limits.max_net_exposure * equity:
-            raise RiskCheckRejected(
+            self._reject(
                 "max_net_exposure",
                 f"|net|={abs(net):.2f} > {self.limits.max_net_exposure * equity:.2f}",
+                net=net,
             )
         leverage = gross / equity if equity > 0 else float("inf")
         if leverage > self.limits.max_leverage:
-            raise RiskCheckRejected(
-                "max_leverage", f"leverage={leverage:.2f} > {self.limits.max_leverage}"
+            self._reject(
+                "max_leverage",
+                f"leverage={leverage:.2f} > {self.limits.max_leverage}",
+                leverage=leverage,
             )

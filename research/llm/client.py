@@ -89,8 +89,7 @@ class OllamaClient:
             model=str(self.model),
             prompt_tokens=int(data.get("prompt_eval_count", 0)),
             completion_tokens=int(data.get("eval_count", 0)),
-            total_tokens=int(data.get("prompt_eval_count", 0))
-            + int(data.get("eval_count", 0)),
+            total_tokens=int(data.get("prompt_eval_count", 0)) + int(data.get("eval_count", 0)),
         )
         counter("llm.tokens", value=response.total_tokens, model=self.model)
         log.info(

@@ -4,6 +4,7 @@ import {
   AreaChart,
   Beaker,
   GanttChart,
+  GitBranch,
   Heart,
   LayoutDashboard,
   LineChart,
@@ -12,7 +13,13 @@ import {
 
 const items = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
-  { href: "/trades", label: "Trades", icon: ListChecks },
+  { href: "/runs", label: "Runs (MVP-0)", icon: GitBranch },
+  { href: "/runs/compare", label: "Compare Runs", icon: AreaChart },
+  { href: "/learnings", label: "Learnings", icon: Beaker },
+  { href: "/configuration", label: "Configuration", icon: ListChecks },
+  { href: "/styleguide", label: "Styleguide", icon: Activity },
+  { href: "/login", label: "Login", icon: Heart },
+  { href: "/trades", label: "Trades (legacy)", icon: ListChecks },
   { href: "/strategies", label: "Strategies", icon: GanttChart },
   { href: "/signals", label: "Signals", icon: AreaChart },
   { href: "/diagnostics", label: "Model Diagnostics", icon: Activity },

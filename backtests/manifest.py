@@ -14,12 +14,18 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from monitoring.canonical_json import write_canonical_json
+
 
 def git_commit() -> str:
     try:
-        return subprocess.check_output(
-            ["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL
-        ).decode().strip()
+        return (
+            subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"], stderr=subprocess.DEVNULL
+            )
+            .decode()
+            .strip()
+        )
     except (subprocess.CalledProcessError, FileNotFoundError):
         return "unknown"
 
@@ -38,12 +44,12 @@ def make_run_dir(root: str | Path, *, name: str, config: dict[str, Any]) -> Path
 
 
 def write_manifest(run_dir: Path, *, config: dict[str, Any], extra: dict[str, Any]) -> None:
-    manifest = {
+    manifest: dict[str, Any] = {
         "git_commit": git_commit(),
-        "created_at": datetime.now(tz=UTC).isoformat(),
+        "created_at": datetime.now(tz=UTC),
         "python": platform.python_version(),
         "platform": platform.platform(),
         "config": config,
         **extra,
     }
-    (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, default=str))
+    write_canonical_json(run_dir / "manifest.json", manifest)

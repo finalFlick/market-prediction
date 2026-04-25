@@ -35,9 +35,7 @@ def vol_targeted_quantity(
     return notional / price
 
 
-def clip_quantity_to_min_notional(
-    quantity: float, price: float, min_notional: float
-) -> float:
+def clip_quantity_to_min_notional(quantity: float, price: float, min_notional: float) -> float:
     """Zero out positions smaller than `min_notional` to avoid dust orders."""
     if abs(quantity) * price < min_notional:
         return 0.0

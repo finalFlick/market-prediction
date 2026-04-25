@@ -60,9 +60,7 @@ def _run_router(payload: dict, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any
     return json.loads(out.getvalue())
 
 
-def test_smoke_three_turns_three_rules(
-    project_dir: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_smoke_three_turns_three_rules(project_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     _seed_steering_files(project_dir)
     _copy_routing_table(project_dir)
 

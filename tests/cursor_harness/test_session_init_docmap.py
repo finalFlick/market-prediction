@@ -22,9 +22,7 @@ def _run(monkeypatch: pytest.MonkeyPatch) -> dict:
     return json.loads(out.getvalue())
 
 
-def test_session_init_includes_doc_map(
-    project_dir: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_session_init_includes_doc_map(project_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     (project_dir / "PROJECT_CONTEXT.md").write_text(
         "# PROJECT_CONTEXT\nentry doc body", encoding="utf-8"
     )
@@ -56,9 +54,7 @@ def test_session_init_includes_doc_map(
     assert "session-init" in text
 
 
-def test_session_init_respects_budget(
-    project_dir: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_session_init_respects_budget(project_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     (project_dir / "PROJECT_CONTEXT.md").write_text("Z" * 50000, encoding="utf-8")
     payload = _run(monkeypatch)
     assert len(payload["additional_context"]) <= 8000

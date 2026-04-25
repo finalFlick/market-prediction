@@ -87,12 +87,8 @@ def test_self_test_passes() -> None:
         ("conda install -c conda-forge polars", "polars"),
     ],
 )
-def test_install_commands_ask_for_permission(
-    command: str, expected_pkg_substr: str
-) -> None:
-    rc, out, _err = _run_hook(
-        {"hook_event_name": "beforeShellExecution", "command": command}
-    )
+def test_install_commands_ask_for_permission(command: str, expected_pkg_substr: str) -> None:
+    rc, out, _err = _run_hook({"hook_event_name": "beforeShellExecution", "command": command})
     assert rc == 0
     body = _parse(out)
     assert body["permission"] == "ask"
@@ -118,9 +114,7 @@ def test_install_commands_ask_for_permission(
     ],
 )
 def test_non_install_commands_allow(command: str) -> None:
-    rc, out, _err = _run_hook(
-        {"hook_event_name": "beforeShellExecution", "command": command}
-    )
+    rc, out, _err = _run_hook({"hook_event_name": "beforeShellExecution", "command": command})
     assert rc == 0
     assert _parse(out)["permission"] == "allow"
 
@@ -228,9 +222,7 @@ def _hooks() -> dict:
 
 def test_hooks_json_registers_dependency_research_on_shell() -> None:
     entries = _hooks()["hooks"].get("beforeShellExecution", [])
-    matching = [
-        e for e in entries if "check_dependency_research.py" in e["command"]
-    ]
+    matching = [e for e in entries if "check_dependency_research.py" in e["command"]]
     assert len(matching) == 1
     # Must NOT be failClosed: the hook is advisory, not authoritative.
     assert matching[0].get("failClosed") is not True
@@ -240,9 +232,7 @@ def test_hooks_json_registers_dependency_research_on_shell() -> None:
 
 def test_hooks_json_registers_dependency_research_on_edit() -> None:
     entries = _hooks()["hooks"].get("afterFileEdit", [])
-    matching = [
-        e for e in entries if "check_dependency_research.py" in e["command"]
-    ]
+    matching = [e for e in entries if "check_dependency_research.py" in e["command"]]
     assert len(matching) == 1
     assert matching[0].get("failClosed") is not True
     assert "matcher" not in matching[0]

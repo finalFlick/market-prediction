@@ -1,0 +1,17 @@
+# Gitleaks configuration for trading-lab (MVP-0).
+# Run: gitleaks detect --source . --verbose
+
+title = "trading-lab"
+
+[extend]
+# Use default ruleset; tune via allowlist only.
+useDefault = true
+
+[allowlist]
+description = "Legitimate test fixtures and docs"
+paths = [
+  '''ai_evals/fixtures/.*''',
+  '''\.cursor/.*''',
+  '''pocs/.*''',
+]
+stopwords = ["gitleaks", "example-api-key-placeholder"]

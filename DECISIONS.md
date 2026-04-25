@@ -90,6 +90,30 @@ Status values: `proposed | accepted | superseded`.
 
 ---
 
+## DEC-007 — Canonical JSON for deterministic artifacts
+
+- **Date**: 2026-04-25
+- **Status**: accepted
+- **Context**: MVP-0 requires byte-identical `metrics.json` for identical inputs (Invariant 3).
+- **Decision**: All metrics and audit payloads use `monitoring.canonical_json` (sorted keys, `Decimal` as string, UTC `Z`, reject NaN/Inf).
+- **Consequences**: Writers must not call raw `json.dumps` for `metrics.json` or hash-chain `payload_json` strings.
+
+## DEC-008 — Staggered hash-chained `ha_*` tables
+
+- **Date**: 2026-04-25
+- **Status**: accepted
+- **Context**: Invariant 4 requires append-only, tamper-evident storage for five critical families.
+- **Decision**: `ha_orders`, `ha_fills`, `ha_risk_decisions`, `ha_approvals`, `ha_config_history` in DuckDB; `record_hash = sha256(prev_hash || payload_json)`.
+- **Consequences**: Verifier CLI is the source of truth for audit health in `/api/system/health`.
+
+## DEC-009 — OOS-only lever scoring
+
+- **Date**: 2026-04-25
+- **Status**: accepted
+- **Context**: Req 44.9 / POC 8: no in-sample PnL in learning scores.
+- **Decision**: `learning.types.RunSummary` carries only `oos_metrics`; scorers assert non-empty.
+- **Consequences**: v1 can add richer calibration without backtesting past leaks.
+
 ## How to add a decision
 
 1. Pick the next `DEC-NNN` number.

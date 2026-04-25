@@ -32,9 +32,7 @@ def list_strategies(repo: StrategiesRepoDep) -> list[StrategyOut]:
 
 
 @router.get("/{strategy_id}", response_model=StrategyOut)
-def get_strategy(
-    strategy_id: str, repo: StrategiesRepoDep
-) -> StrategyOut:
+def get_strategy(strategy_id: str, repo: StrategiesRepoDep) -> StrategyOut:
     record = repo.get(strategy_id)
     if record is None:
         raise HTTPException(status_code=404, detail=f"strategy {strategy_id} not found")

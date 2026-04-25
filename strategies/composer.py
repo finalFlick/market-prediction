@@ -29,9 +29,7 @@ def equal_vol_blend(
     inv_vol: dict[str, float] = {}
     for name, targets in weights_by_strategy.items():
         gross = sum(abs(t.weight) for t in targets) or 1.0
-        avg_vol = (
-            sum(abs(t.weight) * realized_vol.get(t.symbol, 1.0) for t in targets) / gross
-        )
+        avg_vol = sum(abs(t.weight) * realized_vol.get(t.symbol, 1.0) for t in targets) / gross
         inv_vol[name] = 1.0 / avg_vol if avg_vol > 0 else 0.0
 
     total = sum(inv_vol.values()) or 1.0

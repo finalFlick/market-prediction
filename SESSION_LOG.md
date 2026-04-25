@@ -16,6 +16,25 @@ Format:
 
 ---
 
+## 2026-04-25 — mvp-0 build slice (full stack)
+
+- **Agent**: Developer
+- **Goal**: Complete MVP-0 build slice: quality gates, invariants, runs/learning/audit/backend/frontend, acceptance e2e, docs, DEC-007/008/009, v0.3.0.
+- **Done**:
+  - **Schema fix:** Renamed `state_transitions` column `at` → `transitioned_at` (DuckDB reserved/parse conflict).
+  - `monitoring.canonical_json`, backtest det smoke anchor, `pytest -m det`, hash-chain `ha_*` + `monitoring.audit verify`.
+  - `RiskAudit` / `RiskDecision`, `data/repositories/audit/duckdb_risk_audit.py`, security scans (path-only risk, no bypass in app roots, `runs/` LLM isolation).
+  - `runs/` (RunConfig, orchestrator, recovery, outbox), `execution` reconcile stub, `learning/` OOS scorers, `data/seeds` + `adjust` helpers.
+  - API: runs list, health+audit+metrics, kill-switch; frontend kitsune + MVP-0 pages.
+  - `docs/MVP0_READINESS.md`, `CHANGELOG` 0.3.0, `DECISIONS` DEC-007/008/009, `pyproject` 0.3.0.
+- **Verified**:
+  - `ruff check .` → all checks passed
+  - `mypy --strict --explicit-package-bases .` → Success (155 source files)
+  - `py -3.12 -m pytest -q` → 256 passed
+  - `py -3.12 -m backtests.smoke` → smoke OK
+  - `py -3.12 -m monitoring.audit verify --tables critical` → all_ok: true
+- **Blocked / next**: n/a
+
 ## 2026-04-25 — mvp-0 live broker registration lock slice
 
 - **Agent**: Developer

@@ -52,9 +52,7 @@ class SignalsRepo:
                 "SELECT * FROM signals WHERE status = ? ORDER BY signal_id ASC", [status]
             ).fetchall()
         else:
-            rows = self._conn.execute(
-                "SELECT * FROM signals ORDER BY signal_id ASC"
-            ).fetchall()
+            rows = self._conn.execute("SELECT * FROM signals ORDER BY signal_id ASC").fetchall()
         cols = [d[0] for d in self._conn.description]
         return [SignalRecord(**dict(zip(cols, r, strict=True))) for r in rows]
 

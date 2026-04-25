@@ -32,9 +32,9 @@ def test_model_reasoning_references_features(
     offline_responses: dict[str, object], online: bool
 ) -> None:
     text = _resolve(online, str(offline_responses["model_reasoning"])).lower()
-    assert any(
-        term in text for term in ("vol", "rsi", "momentum", "feature")
-    ), "must reference at least one feature"
+    assert any(term in text for term in ("vol", "rsi", "momentum", "feature")), (
+        "must reference at least one feature"
+    )
 
 
 def test_model_reasoning_no_certainty_claims(

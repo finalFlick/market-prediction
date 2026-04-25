@@ -47,11 +47,7 @@ STRATEGY_ANALYSIS_V1: Final = Prompt(
         "look-ahead, and suggested ablations. Do NOT recommend deploying. "
         "Output JSON with keys: weaknesses, leakage_risks, ablations."
     ),
-    template=(
-        "Strategy: ${strategy}\n"
-        "Metrics:\n${metrics}\n"
-        "Trade summary:\n${trades_summary}\n"
-    ),
+    template=("Strategy: ${strategy}\nMetrics:\n${metrics}\nTrade summary:\n${trades_summary}\n"),
 )
 
 
@@ -63,10 +59,7 @@ MODEL_REASONING_V1: Final = Prompt(
         "Reference top features by name. Be skeptical: highlight any feature "
         "that may be noisy or regime-specific. Output plain text, <=150 words."
     ),
-    template=(
-        "Model: ${model}\nPrediction: ${prediction}\n"
-        "Top features:\n${top_features}\n"
-    ),
+    template=("Model: ${model}\nPrediction: ${prediction}\nTop features:\n${top_features}\n"),
 )
 
 

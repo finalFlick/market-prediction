@@ -25,6 +25,7 @@ def test_health(client: TestClient) -> None:
     assert body["status"] == "ok"
     assert "version" in body
     assert "env" in body
+    assert "audit_chain_ok" in body
 
 
 @pytest.mark.e2e
@@ -36,6 +37,7 @@ def test_health(client: TestClient) -> None:
         "/api/signals",
         "/api/backtests",
         "/api/system/metrics",
+        "/api/runs",
     ],
 )
 def test_get_endpoints_return_2xx(client: TestClient, path: str) -> None:

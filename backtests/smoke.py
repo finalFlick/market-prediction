@@ -8,7 +8,7 @@ finite Sharpe. Intentionally deterministic (seeded numpy) and fast.
 from __future__ import annotations
 
 import sys
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 import numpy as np
 import pandas as pd
@@ -19,16 +19,13 @@ from risk.limits import RiskLimits
 from strategies.examples.momentum_xover import MomentumXover
 
 
-def _synthetic_bars(n: int = 600, seed: int = 7) -> pd.DataFrame:
+def _synthetic_bars(n: int = 600, seed: int = 7, *, start: datetime | None = None) -> pd.DataFrame:
+    """Synthetic OHLCV. Default anchor is epoch UTC so two runs with same *n*/*seed* match."""
     rng = np.random.default_rng(seed)
     rets = rng.normal(0.0, 0.01, size=n).cumsum()
     price = 100.0 * np.exp(rets)
-    idx = pd.date_range(
-        start=datetime.now(tz=UTC) - timedelta(hours=n),
-        periods=n,
-        freq="1H",
-        tz="UTC",
-    )
+    anchor = start if start is not None else datetime(2020, 1, 1, tzinfo=UTC)
+    idx = pd.date_range(start=anchor, periods=n, freq="1h", tz="UTC")
     df = pd.DataFrame(
         {
             "open": price,

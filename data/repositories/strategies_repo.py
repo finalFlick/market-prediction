@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
+from typing import cast
 
 import duckdb
 from pydantic import BaseModel
@@ -30,9 +31,9 @@ class StrategyRecord(BaseModel):
             universe=[s for s in universe_str.split(",") if s],
             timeframe=str(row["timeframe"]),
             status=str(row["status"]),
-            config_path=row.get("config_path"),  # type: ignore[arg-type]
-            created_at=row["created_at"],  # type: ignore[arg-type]
-            updated_at=row["updated_at"],  # type: ignore[arg-type]
+            config_path=cast(str | None, row.get("config_path")),
+            created_at=cast(datetime, row["created_at"]),
+            updated_at=cast(datetime, row["updated_at"]),
         )
 
 
@@ -66,9 +67,7 @@ class StrategiesRepo:
         )
 
     def list(self) -> list[StrategyRecord]:
-        rows = self._conn.execute(
-            "SELECT * FROM strategies ORDER BY name ASC"
-        ).fetchall()
+        rows = self._conn.execute("SELECT * FROM strategies ORDER BY name ASC").fetchall()
         cols = [d[0] for d in self._conn.description]
         return [StrategyRecord.from_row(dict(zip(cols, r, strict=True))) for r in rows]
 

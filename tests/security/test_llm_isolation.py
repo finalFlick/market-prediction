@@ -23,8 +23,7 @@ _FORBIDDEN_PREFIX = "research.llm"
 
 def _walk_execution_modules() -> list[str]:
     return [
-        m.name
-        for m in pkgutil.walk_packages(execution.__path__, prefix=execution.__name__ + ".")
+        m.name for m in pkgutil.walk_packages(execution.__path__, prefix=execution.__name__ + ".")
     ]
 
 

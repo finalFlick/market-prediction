@@ -46,8 +46,7 @@ class CoinbaseIngester(Ingester):
     ) -> AsyncIterator[OHLCVBar]:
         log.info("coinbase.stream_live", symbol=symbol, timeframe=timeframe.value)
         raise NotImplementedError(
-            "CoinbaseIngester.stream_live: subscribe to candles channel, yield "
-            "completed bars only."
+            "CoinbaseIngester.stream_live: subscribe to candles channel, yield completed bars only."
         )
         yield OHLCVBar(  # pragma: no cover
             exchange=Exchange.COINBASE,

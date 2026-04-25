@@ -190,9 +190,7 @@ def test_agent_message_match() -> None:
 def test_stringify_tool_input_skips_secret_keys() -> None:
     from _router_core import stringify_tool_input
 
-    flat = stringify_tool_input(
-        {"path": "data.csv", "api_key": "sk-xyz", "token": "abc"}
-    )
+    flat = stringify_tool_input({"path": "data.csv", "api_key": "sk-xyz", "token": "abc"})
     assert "data.csv" in flat
     assert "sk-xyz" not in flat
     assert "abc" not in flat

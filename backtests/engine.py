@@ -10,8 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any
-from typing import cast
+from typing import Any, cast
 
 import numpy as np
 import pandas as pd
@@ -87,9 +86,7 @@ class BacktestEngine:
         for i, ts in enumerate(index):
             visible = {sym: df.iloc[: i + 1] for sym, df in bars_by_symbol.items()}
             marks = {
-                sym: float(df["close"].iloc[-1])
-                for sym, df in visible.items()
-                if not df.empty
+                sym: float(df["close"].iloc[-1]) for sym, df in visible.items() if not df.empty
             }
             equity_history.append(portfolio.equity(marks))
 

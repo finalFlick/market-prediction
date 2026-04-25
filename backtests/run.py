@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import importlib
-import json
 from pathlib import Path
 from typing import Any, cast
 
@@ -14,6 +13,7 @@ from backtests.engine import BacktestConfig, BacktestEngine, CostModel
 from backtests.manifest import make_run_dir, write_manifest
 from data.store import OHLCVStore
 from data.types import Exchange, Timeframe
+from monitoring.canonical_json import write_canonical_json
 from monitoring.logger import get_logger
 from risk.limits import RiskLimits
 from strategies.base import Strategy
@@ -91,7 +91,7 @@ def main(strategy_dotted: str, config_path: Path, results_root: Path) -> None:
     run_dir = make_run_dir(results_root, name=strategy.name, config=cfg)
     result.equity.to_frame().to_parquet(run_dir / "equity.parquet")
     result.trades.to_parquet(run_dir / "trades.parquet")
-    (run_dir / "metrics.json").write_text(json.dumps(result.metrics, indent=2, sort_keys=True))
+    write_canonical_json(run_dir / "metrics.json", result.metrics)
     write_manifest(
         run_dir,
         config=cfg,

@@ -1,0 +1,1 @@
+"""Config seeding into DuckDB."""

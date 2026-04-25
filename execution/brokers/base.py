@@ -11,6 +11,13 @@ from pydantic import BaseModel, Field
 from risk.types import Order, Position
 
 
+class ReconcileReport(BaseModel):
+    """Result of a broker state reconciliation (boot or periodic)."""
+
+    ok: bool = True
+    message: str = "ok"
+
+
 class Fill(BaseModel):
     """A confirmed fill from the exchange."""
 
@@ -46,3 +53,7 @@ class Broker(ABC):
     @abstractmethod
     def stream_events(self) -> AsyncIterator[Fill]:
         """Yield fills (and optionally other lifecycle events) in real time."""
+
+    async def reconcile(self) -> ReconcileReport:
+        """Reconcile open orders/positions with venue truth. Default: no local state to fix."""
+        return ReconcileReport(ok=True, message="reconcile: default no-op")

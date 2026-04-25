@@ -41,7 +41,8 @@ def _import_strategy(dotted: str) -> type[Strategy]:
     obj = getattr(mod, attr, None)
     if obj is None:
         candidates = [
-            v for v in vars(mod).values()
+            v
+            for v in vars(mod).values()
             if isinstance(v, type) and issubclass(v, Strategy) and v is not Strategy
         ]
         if not candidates:
@@ -87,9 +88,7 @@ def main(broker_name: str, strategy_dotted: str) -> None:
             broker = broker_cls()
             registry.register(broker)
         except LiveAdapterRegistrationForbidden as exc:
-            raise click.ClickException(
-                f"broker '{exc.broker}' is locked: {exc.reason}"
-            ) from exc
+            raise click.ClickException(f"broker '{exc.broker}' is locked: {exc.reason}") from exc
 
     strategy_cls = _import_strategy(strategy_dotted)
     strategy = strategy_cls()

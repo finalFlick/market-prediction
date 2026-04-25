@@ -77,3 +77,119 @@ CREATE TABLE IF NOT EXISTS backtests (
 );
 
 CREATE INDEX IF NOT EXISTS backtests_strategy ON backtests (strategy_id, started_at);
+
+-- Hash-chained audit (Day-0 Invariant 4). Per-table chain; genesis prev_hash = 64 zero bytes as hex.
+CREATE TABLE IF NOT EXISTS ha_orders (
+  seq            BIGINT       PRIMARY KEY,
+  natural_key    VARCHAR      NOT NULL,
+  run_id         VARCHAR,
+  payload_json   VARCHAR      NOT NULL,
+  prev_hash      CHAR(64)     NOT NULL,
+  record_hash    CHAR(64)     NOT NULL,
+  created_at     TIMESTAMPTZ  NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ha_fills (
+  seq            BIGINT       PRIMARY KEY,
+  natural_key    VARCHAR      NOT NULL,
+  run_id         VARCHAR,
+  payload_json   VARCHAR      NOT NULL,
+  prev_hash      CHAR(64)     NOT NULL,
+  record_hash    CHAR(64)     NOT NULL,
+  created_at     TIMESTAMPTZ  NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ha_risk_decisions (
+  seq            BIGINT       PRIMARY KEY,
+  natural_key    VARCHAR      NOT NULL,
+  run_id         VARCHAR,
+  payload_json   VARCHAR      NOT NULL,
+  prev_hash      CHAR(64)     NOT NULL,
+  record_hash    CHAR(64)     NOT NULL,
+  created_at     TIMESTAMPTZ  NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ha_approvals (
+  seq            BIGINT       PRIMARY KEY,
+  natural_key    VARCHAR      NOT NULL,
+  run_id         VARCHAR,
+  payload_json   VARCHAR      NOT NULL,
+  prev_hash      CHAR(64)     NOT NULL,
+  record_hash    CHAR(64)     NOT NULL,
+  created_at     TIMESTAMPTZ  NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ha_config_history (
+  seq            BIGINT       PRIMARY KEY,
+  natural_key    VARCHAR      NOT NULL,
+  run_id         VARCHAR,
+  payload_json   VARCHAR      NOT NULL,
+  prev_hash      CHAR(64)     NOT NULL,
+  record_hash    CHAR(64)     NOT NULL,
+  created_at     TIMESTAMPTZ  NOT NULL
+);
+
+-- Run engine (MVP-0) — `state_transitions` is append-only; not hash-chained at MVP-0.
+CREATE TABLE IF NOT EXISTS runs (
+  run_id         VARCHAR     NOT NULL PRIMARY KEY,
+  parent_run_id  VARCHAR,
+  experiment_id  VARCHAR,
+  run_type       VARCHAR     NOT NULL,   -- backtest|paper|strategy_test
+  mode           VARCHAR     NOT NULL,   -- backtest|paper|live|dry_run
+  status         VARCHAR     NOT NULL,   -- queued|running|paused|completed|failed|cancelled
+  config_json    VARCHAR     NOT NULL,   -- frozen RunConfig JSON
+  config_hash    VARCHAR     NOT NULL,
+  git_commit     VARCHAR     NOT NULL,
+  artifact_dir   VARCHAR,
+  error_reason   VARCHAR,
+  started_at     TIMESTAMPTZ,
+  finished_at    TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS experiments (
+  experiment_id  VARCHAR     NOT NULL PRIMARY KEY,
+  run_type       VARCHAR     NOT NULL,
+  started_at     TIMESTAMPTZ NOT NULL,
+  last_run_id    VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS state_transitions (
+  st_id          VARCHAR     NOT NULL PRIMARY KEY,
+  run_id         VARCHAR     NOT NULL,
+  from_status    VARCHAR,
+  to_status      VARCHAR     NOT NULL,
+  reason         VARCHAR     NOT NULL,
+  actor          VARCHAR     NOT NULL,
+  transitioned_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS run_events_durable (
+  stream         VARCHAR     NOT NULL,
+  event_id       VARCHAR     NOT NULL,
+  natural_key    VARCHAR     NOT NULL,
+  payload_json   VARCHAR     NOT NULL,
+  created_at     TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (stream, event_id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS run_events_dedup ON run_events_durable (stream, natural_key);
+
+-- YAML → DuckDB seed (MVP-0 read model)
+CREATE TABLE IF NOT EXISTS config_kv (
+  scope          VARCHAR     NOT NULL,
+  key            VARCHAR     NOT NULL,
+  value_json     VARCHAR     NOT NULL,
+  updated_at     TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (scope, key)
+);
+
+-- Lever scoreboard (MVP-0 foundation)
+CREATE TABLE IF NOT EXISTS scoreboard (
+  level          VARCHAR     NOT NULL,   -- strategy|source|feature|llm_calibration
+  key            VARCHAR     NOT NULL,
+  score          DOUBLE      NOT NULL,
+  weight         DOUBLE      NOT NULL DEFAULT 1.0,
+  last_run_id    VARCHAR,
+  updated_at     TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (level, key)
+);

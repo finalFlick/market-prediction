@@ -142,9 +142,10 @@ def _match_install_verb(
 
     # Strip leading ``python -m`` / ``python3 -m`` so ``-m pip install`` works.
     if (
-        tokens[0] in {"python", "python3"}
-        or re.match(r"^python3?\.\d+$", tokens[0])
-    ) and len(tokens) >= MIN_TOKENS_FOR_PYTHON_M and tokens[1] == "-m":
+        (tokens[0] in {"python", "python3"} or re.match(r"^python3?\.\d+$", tokens[0]))
+        and len(tokens) >= MIN_TOKENS_FOR_PYTHON_M
+        and tokens[1] == "-m"
+    ):
         i = MIN_TOKENS_FOR_PYTHON_M
 
     head = tokens[i:]
@@ -324,13 +325,9 @@ def _handle_after_edit(payload: dict[str, Any]) -> None:
     }
     append_jsonl(STATE_DIR / "dependency-touches.jsonl", record)
 
-    formatted_lines = "\n".join(
-        f"  - {line}" for line in added[:MAX_LINES_IN_AGENT_MESSAGE]
-    )
+    formatted_lines = "\n".join(f"  - {line}" for line in added[:MAX_LINES_IN_AGENT_MESSAGE])
     if len(added) > MAX_LINES_IN_AGENT_MESSAGE:
-        formatted_lines += (
-            f"\n  ... and {len(added) - MAX_LINES_IN_AGENT_MESSAGE} more"
-        )
+        formatted_lines += f"\n  ... and {len(added) - MAX_LINES_IN_AGENT_MESSAGE} more"
     write_output(
         {
             "agent_message": EDIT_AGENT_MESSAGE.format(
@@ -481,8 +478,7 @@ def _check_manifest_case(
     added = find_added_dependency_lines(edits) if manifest_match else []
     if expected_added_subset:
         ok = manifest_match and all(
-            any(expected in line for line in added)
-            for expected in expected_added_subset
+            any(expected in line for line in added) for expected in expected_added_subset
         )
     else:
         ok = not added
@@ -498,9 +494,7 @@ def _check_manifest_case(
 
 def run_self_test(
     shell_cases: Iterable[tuple[str, bool, list[str], str]] = SHELL_CASES,
-    manifest_cases: Iterable[
-        tuple[str, list[dict[str, str]], list[str], str]
-    ] = MANIFEST_CASES,
+    manifest_cases: Iterable[tuple[str, list[dict[str, str]], list[str], str]] = MANIFEST_CASES,
 ) -> int:
     failures: list[str] = []
     total = 0
@@ -515,9 +509,7 @@ def run_self_test(
 
     for file_path, edits, expected_added_subset, note in manifest_cases:
         total += 1
-        failure = _check_manifest_case(
-            file_path, edits, expected_added_subset, note
-        )
+        failure = _check_manifest_case(file_path, edits, expected_added_subset, note)
         if failure is None:
             sys.stdout.write(f"  [ok edit]    {note}\n")
         else:

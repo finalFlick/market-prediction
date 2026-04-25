@@ -28,9 +28,7 @@ def compute_metrics(equity: pd.Series, trades: pd.DataFrame) -> dict[str, float]
     drawdown = (equity - running_max) / running_max
     max_dd = float(drawdown.min())
 
-    duration_years = (equity.index[-1] - equity.index[0]).total_seconds() / (
-        365.25 * 24 * 3600
-    )
+    duration_years = (equity.index[-1] - equity.index[0]).total_seconds() / (365.25 * 24 * 3600)
     if duration_years > 0:
         cagr = (equity.iloc[-1] / equity.iloc[0]) ** (1 / duration_years) - 1
     else:

@@ -39,7 +39,7 @@ INLINE_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     # python -c "..."  /  python3 -c '...'  /  python -uc ...
     (
         re.compile(r"\bpython3?(?:\.\d+)?\b\s+-[A-Za-z]*c\b"),
-        "python -c \"...\"",
+        'python -c "..."',
     ),
     # python <<EOF ... (heredoc beginning on the python line)
     (

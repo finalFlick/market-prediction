@@ -26,6 +26,13 @@ const config: Config = {
         danger: "hsl(0 72% 56%)",
         warning: "hsl(38 92% 56%)",
         success: "hsl(142 71% 45%)",
+        /* Kitsune cyberpunk palette (MVP-0 operator console) */
+        night: "#0a0a0f",
+        panel: "#11121a",
+        foxfire: "#ff6a3d",
+        mint: "#5eead4",
+        lavender: "#c4b5fd",
+        magenta: "#f472b6",
       },
       fontFamily: {
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "monospace"],

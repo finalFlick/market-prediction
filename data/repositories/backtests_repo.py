@@ -78,9 +78,7 @@ class BacktestsRepo:
         return [BacktestRecord(**dict(zip(cols, r, strict=True))) for r in rows]
 
     def get(self, run_id: str) -> BacktestRecord | None:
-        row = self._conn.execute(
-            "SELECT * FROM backtests WHERE run_id = ?", [run_id]
-        ).fetchone()
+        row = self._conn.execute("SELECT * FROM backtests WHERE run_id = ?", [run_id]).fetchone()
         if row is None:
             return None
         cols = [d[0] for d in self._conn.description]

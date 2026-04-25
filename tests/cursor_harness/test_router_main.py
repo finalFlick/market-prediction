@@ -73,9 +73,7 @@ def test_router_happy_path_injects(project_dir: Path, monkeypatch: pytest.Monkey
     assert (project_dir / ".cursor" / "state" / "router-log.jsonl").exists()
 
 
-def test_router_no_match_returns_empty(
-    project_dir: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_router_no_match_returns_empty(project_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     (project_dir / "AGENTS.md").write_text("x", encoding="utf-8")
     _seed_routing_table(
         project_dir,
@@ -97,9 +95,7 @@ def test_router_no_match_returns_empty(
     assert json.loads(out) == {}
 
 
-def test_router_stale_prompt_ignored(
-    project_dir: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_router_stale_prompt_ignored(project_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     (project_dir / "AGENTS.md").write_text("x", encoding="utf-8")
     _seed_routing_table(
         project_dir,
@@ -155,9 +151,7 @@ def test_router_disabled_env_short_circuits(
     assert json.loads(out) == {}
 
 
-def test_router_budget_env_override(
-    project_dir: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_router_budget_env_override(project_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("TLAB_ROUTER_BUDGET_CHARS", "10")
     (project_dir / "AGENTS.md").write_text("Q" * 5000, encoding="utf-8")
     _seed_routing_table(

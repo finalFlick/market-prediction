@@ -12,7 +12,7 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from execution.brokers.base import Broker, Fill
+from execution.brokers.base import Broker, Fill, ReconcileReport
 from monitoring.logger import get_logger
 from risk.types import Order, OrderSide, Position
 
@@ -87,6 +87,11 @@ class PaperBroker(Broker):
 
     async def get_balances(self) -> dict[str, float]:
         return {"USD": self.cash}
+
+    async def reconcile(self) -> ReconcileReport:
+        return ReconcileReport(
+            ok=True, message="paper: in-process ledger; no external venue to reconcile (MVP-0)"
+        )
 
     async def stream_events(self) -> AsyncIterator[Fill]:
         while True:

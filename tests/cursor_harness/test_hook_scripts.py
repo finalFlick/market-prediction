@@ -203,9 +203,7 @@ def test_append_session_log_writes_line(tmp_path) -> None:
 
 
 def test_record_thought_appends_jsonl(tmp_path) -> None:
-    body = json.dumps(
-        {"text": "thinking about the problem", "duration_ms": EXPECTED_DURATION_MS}
-    )
+    body = json.dumps({"text": "thinking about the problem", "duration_ms": EXPECTED_DURATION_MS})
     proc = subprocess.run(
         [PYTHON, str(HOOKS_DIR / "record_thought.py")],
         input=body,
