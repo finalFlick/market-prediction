@@ -71,6 +71,23 @@ Status values: `proposed | accepted | superseded`.
   must accommodate both venues' quirks (lot sizes, time-in-force values,
   rate limits).
 
+## DEC-006 — Live broker registration remains locked in MVP-0
+
+- **Date**: 2026-04-25
+- **Status**: accepted
+- **Context**: The v1 design requires live adapters to exist for interface
+  compatibility while still forbidding runtime registration until explicit
+  pre-live gates clear.
+- **Decision**: Introduce `execution.brokers.registry.LiveBrokerRegistry` as
+  the only registration point. `PaperBroker` registers by default. Live
+  adapters (`BinanceLive`, `CoinbaseLive`) raise
+  `LiveAdapterRegistrationForbidden` unless `live_adapters_unlocked=true` is
+  present in `configs/runtime.yaml` (temporary MVP-0 source of truth).
+- **Consequences**: The runner can be written against one broker protocol
+  without paper-vs-live branching, while accidental live path activation is
+  blocked by default. v1.1 will migrate unlock state to `config_kv` with
+  approval-gated workflow.
+
 ---
 
 ## How to add a decision

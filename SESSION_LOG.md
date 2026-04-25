@@ -16,6 +16,39 @@ Format:
 
 ---
 
+## 2026-04-25 — mvp-0 live broker registration lock slice
+
+- **Agent**: Developer
+- **Goal**: Implement the MVP-0 live broker registration lock contract from
+  `specs/trading-lab-platform` with TDD and runner integration.
+- **Done**:
+  - Added `execution/brokers/registry.py` with
+    `LiveBrokerRegistry` and `LiveAdapterRegistrationForbidden`.
+  - Added `configs/runtime.yaml` with default
+    `live_adapters_unlocked: false`.
+  - Added `BinanceLive` / `CoinbaseLive` aliases for design parity.
+  - Updated `execution/runner.py` to register paper by default and reject
+    locked live brokers with a clear Click error.
+  - Added `tests/security/test_live_registration_forbidden.py` (5 tests).
+  - Added resolution notes to FEATURE-0021 and FEATURE-0022 task files.
+  - Added `DEC-006` and created `CHANGELOG.md`; bumped version to `0.2.0`.
+- **Verified**:
+  - `py -3.12 -m pytest -q tests/security/test_live_registration_forbidden.py`
+    → 5 passed
+  - `py -3.12 -m pytest -q tests/security/` → 21 passed
+  - `py -3.12 -m pytest -q -m "not slow and not integration"` → 204 passed
+  - `ruff check execution/brokers/registry.py execution/runner.py tests/security/test_live_registration_forbidden.py` → all checks passed
+  - `py -3.12 -m mypy --strict execution/brokers/registry.py execution/runner.py tests/security/test_live_registration_forbidden.py` → success
+  - `py -3.12 -c "import execution.brokers.binance, execution.brokers.coinbase; print('ok')"` → ok
+  - `ruff check .` → fails on pre-existing unrelated issues in
+    `.cursor/hooks/check_dependency_research.py`, `backtests/engine.py`,
+    and `monitoring/logger.py`.
+- **Blocked / next**:
+  - Continue Wave 1 with FEATURE-0039 (CI/CD quality gates) so global lint and
+    typecheck regressions are enforced systematically.
+
+---
+
 ## 2026-04-25 — trading-lab-platform task system
 
 - **Agent**: Planner / Spec

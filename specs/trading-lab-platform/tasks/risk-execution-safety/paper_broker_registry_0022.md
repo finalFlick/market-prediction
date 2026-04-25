@@ -95,3 +95,33 @@ The implementation should expose enough logs, metrics, audit records, UI state, 
 - [ ] Validation expectations are covered by tests, smoke checks, or documented manual verification.
 - [ ] Source traceability remains accurate after implementation.
 - [ ] Required docs, decisions, and session log entries are updated.
+
+## Resolution
+
+Status: Partial
+
+Implemented:
+- Added `LiveBrokerRegistry` and `LiveAdapterRegistrationForbidden` in `execution/brokers/registry.py`.
+- Added `configs/runtime.yaml` with `live_adapters_unlocked: false` default lock.
+- Added `BinanceLive` and `CoinbaseLive` aliases for design naming parity.
+- Updated `execution/runner.py` to register `paper` by default and refuse locked live brokers at CLI startup.
+
+Tests:
+- `py -3.12 -m pytest -q tests/security/test_live_registration_forbidden.py` -> 5 passed
+- `py -3.12 -m pytest -q tests/security/` -> 21 passed
+
+Files changed:
+- `execution/brokers/registry.py`
+- `execution/brokers/binance.py`
+- `execution/brokers/coinbase.py`
+- `execution/runner.py`
+- `configs/runtime.yaml`
+- `tests/security/test_live_registration_forbidden.py`
+
+Design notes:
+- MVP-0 lock behavior matches `requirements.md` Req 4.6 and `design.md` Component 8 (`LiveBrokerRegistry` refuse-until-unlocked contract).
+
+Known follow-ups:
+- Add paper/live parity checks per broker capability matrix.
+- Migrate unlock source from `configs/runtime.yaml` to `config_kv` once v1.1 pre-live gate work lands.
+- Implement full live gate condition checks and ceremony for `live_adapters_unlocked`.

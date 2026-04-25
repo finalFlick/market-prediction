@@ -46,3 +46,7 @@ class CoinbaseBroker(Broker):
     async def stream_events(self) -> AsyncIterator[Fill]:
         raise NotImplementedError("CoinbaseBroker.stream_events")
         yield  # pragma: no cover
+
+
+# v1 naming parity with design.md; registration stays locked by registry.
+CoinbaseLive = CoinbaseBroker

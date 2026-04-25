@@ -96,3 +96,28 @@ The implementation should expose enough logs, metrics, audit records, UI state, 
 - [ ] Validation expectations are covered by tests, smoke checks, or documented manual verification.
 - [ ] Source traceability remains accurate after implementation.
 - [ ] Required docs, decisions, and session log entries are updated.
+
+## Resolution
+
+Status: Partial
+
+Implemented:
+- Added an explicit broker-registration gate that refuses live adapters by default, reducing accidental non-governed execution paths.
+- Added security tests proving locked live adapters are rejected while paper registration stays available.
+- Updated runner startup flow to enforce the registration gate before strategy execution starts.
+
+Tests:
+- `py -3.12 -m pytest -q tests/security/test_live_registration_forbidden.py` -> 5 passed
+- `py -3.12 -m pytest -q tests/security/` -> 21 passed
+
+Files changed:
+- `execution/brokers/registry.py`
+- `execution/runner.py`
+- `tests/security/test_live_registration_forbidden.py`
+
+Design notes:
+- This is a partial contribution to the non-bypassable path objective by hardening broker registration; it does not replace the required `risk.engine.RiskEngine.check_and_size` path.
+
+Known follow-ups:
+- Add explicit tests asserting all order placement still routes through `RiskEngine.check_and_size`.
+- Add static/import-graph checks that no alternative order path can be introduced via future execution modules.

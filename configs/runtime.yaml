@@ -1,0 +1,2 @@
+# MVP-0: live adapters remain locked unless an explicit unlock is approved.
+live_adapters_unlocked: false

@@ -13,9 +13,10 @@ from datetime import UTC, datetime
 import click
 
 from execution.brokers.base import Broker
-from execution.brokers.binance import BinanceBroker
-from execution.brokers.coinbase import CoinbaseBroker
+from execution.brokers.binance import BinanceLive
+from execution.brokers.coinbase import CoinbaseLive
 from execution.brokers.paper import PaperBroker
+from execution.brokers.registry import LiveAdapterRegistrationForbidden, LiveBrokerRegistry
 from monitoring.logger import get_logger
 from risk.engine import RiskEngine
 from risk.errors import RiskCheckRejected
@@ -27,8 +28,8 @@ log = get_logger(__name__)
 
 _BROKERS: dict[str, type[Broker]] = {
     "paper": PaperBroker,
-    "binance": BinanceBroker,
-    "coinbase": CoinbaseBroker,
+    "binance": BinanceLive,
+    "coinbase": CoinbaseLive,
 }
 
 
@@ -76,8 +77,20 @@ async def _run(broker: Broker, strategy: Strategy, risk: RiskEngine) -> None:
 @click.option("--broker", "broker_name", type=click.Choice(list(_BROKERS)), default="paper")
 @click.option("--strategy", "strategy_dotted", required=True)
 def main(broker_name: str, strategy_dotted: str) -> None:
-    broker_cls = _BROKERS[broker_name]
-    broker = broker_cls()
+    registry = LiveBrokerRegistry()
+    registry.register(PaperBroker())
+    if broker_name == "paper":
+        broker = registry.brokers["paper"]
+    else:
+        broker_cls = _BROKERS[broker_name]
+        try:
+            broker = broker_cls()
+            registry.register(broker)
+        except LiveAdapterRegistrationForbidden as exc:
+            raise click.ClickException(
+                f"broker '{exc.broker}' is locked: {exc.reason}"
+            ) from exc
+
     strategy_cls = _import_strategy(strategy_dotted)
     strategy = strategy_cls()
     risk = RiskEngine(RiskLimits.model_validate({}))
