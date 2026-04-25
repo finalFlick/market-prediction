@@ -99,6 +99,28 @@ This file indexes the epic and feature task structure derived from requirements.
 | FEATURE-0038 | Docker and Unraid Deployment Topology | Deployment, Security, and CI | Proposed | tasks/deployment-security-ci/docker_unraid_topology_0038.md |
 | FEATURE-0039 | CI/CD and Quality Gates | Deployment, Security, and CI | Proposed | tasks/deployment-security-ci/cicd_quality_gates_0039.md |
 | FEATURE-0040 | Secrets and Security Controls | Deployment, Security, and CI | Proposed | tasks/deployment-security-ci/secrets_security_controls_0040.md |
+| FEATURE-0041 | No-Key Public Ingestion and Source CLI | Market Data and Intelligence Ingestion | **Implemented** (addendum 2026-04-25) | See addendum in requirements/design; code: `data/ingest/binance_public.py`, `coinbase_public.py`, `yfinance_source.py`, `data/ingest/run.py`, `data/types.py`, `tests/data/` |
+| FEATURE-0042 | Optional Redis, In-Memory Event Bus, Health Semantics | Run Engine and Memory; Backend API and Streaming; Deployment | **Implemented** (addendum 2026-04-25) | See addendum; code: `runs/events/in_memory.py`, `redis_bus.py`, `factory.py`, `backend/api/routers/system.py`, `tests/runs/`, `tests/e2e/test_health_redis_optional.py` |
+| FEATURE-0043 | Operator env clarity (Reminders, .env.example, RUNNING) | Platform Foundation and Governance | **Implemented** (addendum 2026-04-25) | `docs/REMINDERS.md`, `.env.example`, `RUNNING.md` |
+
+## Addendum: No-key MVP slice (2026-04-25)
+
+**Scope (aligned with `simple-no-key-mvp` implementation plan):**
+
+- [x] **Public ingesters** — Binance and Coinbase REST without keys; yfinance
+  for Yahoo; `Exchange.YAHOO`; `--source` on ingest CLI; optional
+  `public-data` extra in `pyproject.toml`.
+- [x] **Redis optional** — `redis_disabled` + `redis_ok` on health when
+  `REDIS_URL` empty; in-memory + Redis bus behind `get_event_bus()`.
+- [x] **Docs** — Backend vs frontend env table; Hermes unused for MVP-0; Redis
+  in Docker vs omitted locally; DuckDB vs SQLite note.
+
+**_Requirements: Addendum A, B, C, D (requirements.md)._**
+
+**Verification (definition of done for this addendum):** `ruff check .`, `mypy
+--strict --explicit-package-bases .`, `pytest -q`, `pytest -q -m e2e`, `python -m
+backtests.smoke`, `python -m monitoring.audit verify --tables critical` (ingest
+live runs may be geo/network dependent; unit tests mock HTTP).
 
 ## Suggested Execution Order
 
@@ -177,6 +199,7 @@ This file indexes the epic and feature task structure derived from requirements.
 | Req 37-40 hosting, backup, free tooling, CI | Deployment, Security, and CI | FEATURE-0038, FEATURE-0039, FEATURE-0040 |
 | Req 43 out-of-scope boundaries | Platform Foundation and Governance; Risk and Execution Safety | FEATURE-0001, FEATURE-0022, FEATURE-0024 |
 | Req 46-51 engineering quality, libraries, web research, Cursor, style guide | Platform Foundation and Governance; Frontend Operator Experience; Deployment, Security, and CI | FEATURE-0002, FEATURE-0003, FEATURE-0034, FEATURE-0039 |
+| Addendum A–D (2026-04-25) no-key ingest, optional Redis, env docs | Market Data; Run Engine; Backend; Platform Foundation | FEATURE-0041, FEATURE-0042, FEATURE-0043 |
 
 ## Open Questions
 

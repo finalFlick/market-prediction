@@ -47,8 +47,20 @@ export default async function HealthPage() {
             <CardHeader>
               <CardTitle>Redis</CardTitle>
               <CardValue>
-                <Badge variant={health?.redis_ok ? "success" : "warning"}>
-                  {health?.redis_ok ? "ok" : "missing"}
+                <Badge
+                  variant={
+                    health?.redis_disabled
+                      ? "success"
+                      : health?.redis_ok
+                        ? "success"
+                        : "warning"
+                  }
+                >
+                  {health?.redis_disabled
+                    ? "off (ok)"
+                    : health?.redis_ok
+                      ? "ok"
+                      : "unreachable"}
                 </Badge>
               </CardValue>
             </CardHeader>

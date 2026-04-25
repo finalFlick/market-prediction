@@ -78,8 +78,17 @@ python -m backtests.run \
 
 ## Data ingestion
 
+Public REST (no exchange API keys; default):
+
 ```bash
-python -m data.ingest.run --exchange binance --symbol BTCUSDT --timeframe 1h --days 365
+python -m data.ingest.run --source binance --symbol BTCUSDT --timeframe 1h --days 7
+python -m data.ingest.run --source coinbase --symbol BTC-USD --timeframe 1h --days 7
+python -m data.ingest.run --source yahoo --symbol AAPL --timeframe 1d --days 30   # needs: pip install 'trading-lab[public-data]'
+```
+
+If `api.binance.com` is geo-blocked, set `BINANCE_PUBLIC_REST_BASE` (e.g. `https://api.binance.us`).
+
+```bash
 python -m research.features.build --output data/processed/features.parquet
 python -m research.models.train --config configs/lgbm_baseline.yaml
 ```

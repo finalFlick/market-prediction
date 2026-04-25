@@ -25,6 +25,7 @@ def test_health(client: TestClient) -> None:
     assert body["status"] == "ok"
     assert "version" in body
     assert "env" in body
+    assert "redis_disabled" in body
     assert "audit_chain_ok" in body
 
 

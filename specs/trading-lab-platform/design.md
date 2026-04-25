@@ -3,7 +3,7 @@
 ## Document Information
 
 - **Feature Name**: trading-lab-platform
-- **Version**: 1.0
+- **Version**: 1.1 (addendum 2026-04-25: no-key ingest + optional Redis)
 - **Date**: 2026-04-25
 - **Author**: Brandon
 - **Reviewers**: Brandon (operator)
@@ -4579,6 +4579,45 @@ component above. Mapping:
 | NF Observability | structured logs, gauges, run lifecycle events, LLM-call records |
 | NF Determinism | manifest schema, seeds, determinism CI |
 | NF Resilience | circuit breakers + degraded mode |
+
+---
+
+## Addendum: No-key ingestion, optional Redis, event-bus fallback (2026-04-25)
+
+This addendum records implementation-aligned design for work that landed after
+the main v1.0 design freeze: **public REST ingesters**, **Yahoo/yfinance
+path**, **optional Redis** with **in-memory event bus**, and **health
+semantics** for operators who omit `REDIS_URL` outside Docker.
+
+### Components (additive)
+
+| Piece | Path / artifact | Notes |
+|-------|------------------|--------|
+| Binance public klines | `data/ingest/binance_public.py` | `httpx` + `GET /api/v3/klines`; base from `BINANCE_PUBLIC_REST_BASE` or `https://api.binance.com` |
+| Coinbase public candles | `data/ingest/coinbase_public.py` | `GET /products/{id}/candles`; product id normalized (e.g. `BTCUSDT` → `BTC-USDT`) |
+| Yahoo / yfinance | `data/ingest/yfinance_source.py` | Optional dep `yfinance`; `Exchange.YAHOO`; 4H bars via resample from 1h |
+| Ingest CLI | `data/ingest/run.py` | `--source` maps to public vs stub auth ingesters; `--exchange` must match or be omitted (inferred) |
+| In-memory bus | `runs/events/in_memory.py` | `InMemoryEventBus` — deque per stream |
+| Redis Streams bus | `runs/events/redis_bus.py` | `XADD` / `XRANGE` minimal surface |
+| Factory | `runs/events/factory.py` | `get_event_bus()` — Redis if URL set and ping OK, else in-memory |
+| Health API | `backend/api/routers/system.py` | `HealthOut.redis_disabled: bool` — when no URL, `redis_ok` stays true |
+| UI | `frontend/app/health/page.tsx`, `frontend/lib/api.ts` | Display “off (ok)” when disabled |
+
+### Data model
+
+- `data/types.Exchange` adds `YAHOO = "yahoo"` for `market_data.exchange` storage.
+
+### Non-goals of this addendum
+
+- No replacement of DuckDB with SQLite (embedded DuckDB remains canonical).
+- No removal of `redis` from `docker-compose.yml` for full stack.
+- No SSE or `/api/sse/runs/{id}` (still deferred past MVP-0 per `docs/MVP0_READINESS.md`).
+
+### Testing
+
+- Unit: `tests/data/test_*_public_ingester.py` (mocked HTTP / yfinance).
+- Run engine: `tests/runs/test_in_memory_bus.py`.
+- E2E: `tests/e2e/test_health_redis_optional.py`.
 
 ---
 

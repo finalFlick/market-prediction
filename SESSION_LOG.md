@@ -16,6 +16,23 @@ Format:
 
 ---
 
+## 2026-04-25 — no-key MVP slice (ingest, optional Redis, spec addendum)
+
+- **Agent**: Developer
+- **Goal**: Public REST ingesters without exchange keys, optional Redis with in-memory event bus, operator env docs, spec addendum; ship 0.3.1.
+- **Done**:
+  - `data/ingest/binance_public.py`, `coinbase_public.py`, `yfinance_source.py`; `data/ingest/run.py` `--source`; `Exchange.YAHOO`; `yfinance` in `dev` + `public-data` extra.
+  - `backend/api/routers/system.py` `redis_disabled`; `runs/events/*`; frontend health badges; e2e `test_health_redis_optional`.
+  - `tests/data/`, `tests/runs/test_in_memory_bus.py`; `tests/security/test_no_secrets.py` git-tracked `.env` only.
+  - `docs/REMINDERS.md`, `.env.example`, `RUNNING.md`; `specs/trading-lab-platform` requirements/design/tasks addendum + FEATURE-0041–0043.
+  - `CHANGELOG` 0.3.1, `pyproject` 0.3.1.
+- **Verified**:
+  - `py -3.12 -m pytest -q` → 265 passed
+  - `py -3.12 -m pytest -q -m e2e` → 10 passed
+  - `ruff check .` → pass; `mypy --strict --explicit-package-bases .` → 168 files
+  - `py -3.12 -m backtests.smoke` → smoke OK; `py -3.12 -m monitoring.audit verify --tables critical` → all_ok
+- **Blocked / next**: n/a
+
 ## 2026-04-25 — mvp-0 build slice (full stack)
 
 - **Agent**: Developer

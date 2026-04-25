@@ -24,6 +24,7 @@ class HealthOut(BaseModel):
     uptime_s: float
     db_ok: bool
     redis_ok: bool
+    redis_disabled: bool
     audit_chain_ok: bool
 
 
@@ -60,28 +61,35 @@ def _check_audit() -> bool:
         return False
 
 
-def _check_redis() -> bool:
-    url = os.getenv("REDIS_URL")
+def _redis_status() -> tuple[bool, bool]:
+    """Return ``(redis_ok, redis_disabled)``.
+
+    When ``REDIS_URL`` is unset, Redis is intentionally off: ``redis_ok`` is
+    ``True`` (healthy) and ``redis_disabled`` is ``True``.
+    """
+    url = (os.getenv("REDIS_URL") or "").strip()
     if not url:
-        return False
+        return True, True
     try:
         import redis  # noqa: PLC0415
 
         client = redis.Redis.from_url(url, socket_timeout=1.0)
-        return bool(client.ping())
+        return bool(client.ping()), False
     except Exception:
-        return False
+        return False, False
 
 
 @router.get("/health", response_model=HealthOut)
 def health() -> HealthOut:
+    redis_ok, redis_disabled = _redis_status()
     return HealthOut(
         status="ok",
         version=_version(),
         env=os.getenv("ENV", "dev"),
         uptime_s=time.time() - _BOOT_TS,
         db_ok=_check_db(),
-        redis_ok=_check_redis(),
+        redis_ok=redis_ok,
+        redis_disabled=redis_disabled,
         audit_chain_ok=_check_audit(),
     )
 

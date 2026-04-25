@@ -3,7 +3,7 @@
 ## Document Information
 
 - **Feature Name**: trading-lab-platform
-- **Version**: 0.1
+- **Version**: 0.2 (addendum 2026-04-25: no-key ingest + optional Redis)
 - **Date**: 2026-04-25
 - **Author**: Brandon
 - **Stakeholders**: Brandon (sole operator)
@@ -1416,6 +1416,80 @@ risk-sensitive levers stay advisory-only forever.
 | Component Status | Per-component badge `draft | reviewed | production`; only `production` components are allowed on operator-facing dashboard pages (Requirement 50.10). |
 | Quality tests over quantity | Testing posture: tests target key components and tools and assert observable behavior; coverage-only tests are forbidden (Requirements 46.5–46.8, 46.11). |
 | Contribution loop | The canonical procedure (human and agent) for landing a change in the repo, defined by `CONTRIBUTING.md` plus the `.cursor/` harness (Requirement 51). |
+
+---
+
+## Addendum: No-key public ingestion, optional Redis, operator env (2026-04-25)
+
+This addendum extends MVP-0 so operators can bootstrap **without exchange API
+keys** for historical bars, run **without Redis** outside Docker, and
+understand **which env vars apply to backend vs frontend**. It does not remove
+keyed exchange paths or Docker Redis for full-stack deployments.
+
+### Requirement A — Public market data (no API keys)
+
+**A.1 (ubiquitous)**  
+THE SYSTEM SHALL offer HTTP-based historical OHLCV ingest that requires no
+`BINANCE_*` / `COINBASE_*` credentials for read-only public endpoints.
+
+**A.2 (event-driven)**  
+WHEN the operator runs `python -m data.ingest.run` with `--source` set to a
+public endpoint THE SYSTEM SHALL write normalized `OHLCVBar` rows to the DuckDB
+`market_data` table.
+
+**A.3 (conditional)**  
+IF `api.binance.com` is legally or geographically unavailable (e.g. HTTP 451)
+THEN THE SYSTEM SHALL allow `BINANCE_PUBLIC_REST_BASE` to be overridden to an
+operator-chosen base URL (e.g. a regional spot API host).
+
+**A.4 (ubiquitous)**  
+THE SYSTEM SHALL support equities/ETF-style history via the optional
+`yfinance` dependency (`trading-lab[public-data]`) and a `YAHOO` value in
+`Exchange`, without a Yahoo API key.
+
+**A.5 (ubiquitous)**  
+THE SYSTEM SHALL keep existing `BinanceIngester` / `CoinbaseIngester` stubs
+reachable via `--source binance-auth` / `coinbase-auth` for future keyed CCXT
+work.
+
+### Requirement B — CLI source selection
+
+**B.1 (ubiquitous)**  
+THE SYSTEM SHALL document and implement `--source` in `data/ingest/run.py` for
+`binance`, `coinbase`, `yahoo`, `binance-auth`, and `coinbase-auth` with
+default `binance` (public).
+
+### Requirement C — Redis optional for coordination
+
+**C.1 (conditional)**  
+IF `REDIS_URL` is unset or blank THEN THE SYSTEM SHALL treat Redis as
+intentionally disabled: health SHALL report `redis_disabled: true` and
+`redis_ok: true` (not a red failure for local CLI-only use).
+
+**C.2 (ubiquitous)**  
+THE SYSTEM SHALL provide an in-memory `EventBus` implementation and
+`get_event_bus()` that uses Redis when reachable and otherwise falls back to
+in-memory, preserving DuckDB outbox idempotency for durable replay.
+
+**C.3 (ubiquitous)**  
+WHILE Docker Compose runs the `redis` service THE SYSTEM SHALL still default
+`REDIS_URL=redis://redis:6379/0` for cross-container fan-out; local omit is
+out-of-Docker only.
+
+### Requirement D — Operator documentation
+
+**D.1 (ubiquitous)**  
+THE SYSTEM SHALL document backend vs frontend env keys in
+`docs/REMINDERS.md` and `RUNNING.md`, and clarify that `HERMES_URL` is not used
+by MVP-0 (see `AGENTS.md` service table).
+
+**D.2 (ubiquitous)**  
+THE SYSTEM SHALL state in `.env.example` that `BINANCE_*` / `COINBASE_*` are
+only for trading or keyed clients, not for public ingesters.
+
+**Traceability:** Touches market-data ingestion (in-scope), run/event transport
+(Invariant 7), and deployment ergonomics. Does not change risk path, LLM
+isolation, or order placement rules.
 
 ---
 

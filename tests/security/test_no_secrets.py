@@ -7,11 +7,31 @@ during local pytest runs so PRs surface failures before pushing.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
 
 _ROOT = Path(__file__).resolve().parents[2]
+
+
+def _is_git_tracked(path: Path) -> bool:
+    """Return whether ``path`` is tracked by git (fails open if git is unavailable)."""
+    try:
+        rel = path.relative_to(_ROOT)
+    except ValueError:
+        return False
+    try:
+        r = subprocess.run(
+            ["git", "ls-files", "--error-unmatch", "--", rel.as_posix()],
+            cwd=_ROOT,
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return False
+    return r.returncode == 0
+
 
 # Skip large binaries / vendored trees / generated artifacts.
 _SKIP_DIRS = {
@@ -49,7 +69,9 @@ def _iter_files() -> list[Path]:
         if p.suffix in {".png", ".jpg", ".jpeg", ".pdf", ".duckdb", ".parquet"}:
             continue
         if p.name in {".env", ".env.local"}:
-            pytest.fail(f"committed secret-bearing file: {rel}")
+            if _is_git_tracked(p):
+                pytest.fail(f"committed secret-bearing file: {rel}")
+            continue
         out.append(p)
     return out
 

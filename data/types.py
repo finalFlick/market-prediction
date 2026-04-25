@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, field_validator
 class Exchange(StrEnum):
     BINANCE = "binance"
     COINBASE = "coinbase"
+    YAHOO = "yahoo"
 
 
 class Timeframe(StrEnum):

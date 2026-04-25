@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.1 — 2026-04-25
+
+### Added
+
+- No-key public ingesters: `BinancePublicIngester`, `CoinbasePublicIngester`, `YFinanceIngester` (`Exchange.YAHOO`); `data/ingest.run` `--source` flag; optional `public-data` extra (`yfinance`).
+- `runs/events`: `InMemoryEventBus`, `RedisEventBus`, `get_event_bus()`; `GET /api/system/health` includes `redis_disabled` when Redis is intentionally off.
+- `docs/REMINDERS.md`, `RUNNING.md` ingest examples; spec addendum FEATURE-0041–0043 in `specs/trading-lab-platform/`.
+
+### Changed
+
+- `test_no_secrets` only fails on **git-tracked** `.env` / `.env.local` (local untracked `.env` allowed).
+
 ## 0.3.0 — 2026-04-25
 
 ### Added

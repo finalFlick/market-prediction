@@ -80,6 +80,7 @@ export type Health = {
   uptime_s: number;
   db_ok: boolean;
   redis_ok: boolean;
+  redis_disabled: boolean;
 };
 
 export const api = {
