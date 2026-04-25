@@ -37,10 +37,19 @@ Format:
     out-of-doc paths like `.cursor/` expected)
   - Built HTML contains `<div class="mermaid">` in
     `specs/trading-lab-platform/design/`
+  - `git push` → branch `experiment/specs-gh-pages` on `origin`
+  - `gh api ... deployment-branch-policies` → allowed
+    `experiment/specs-gh-pages` on environment `github-pages` (unblocks
+    `actions/deploy-pages@v4` with that environment)
+  - GitHub Actions run `pages` (run id `24939587230`) → success (build + deploy)
+  - `gh api .../pages` → `https://finalflick.github.io/market-prediction/`
+  - Live home page fetches and shows themed “Trading Lab — spec library”
 - **Blocked / next**:
-  - Push `experiment/specs-gh-pages` to `origin` (needs network + auth).
-  - Repo **Settings → Pages → Source: GitHub Actions** (one-time).
-  - Rebase worktree on `origin/main` when you want the latest spec content.
+  - Rebase the worktree on `origin/main` when you want the latest spec content
+    (`git fetch origin && git rebase origin/main` in
+    `../market-prediction-pages`).
+  - If you merge this into `main`, add `docsite/` to ruff/mypy excludes
+    in `pyproject.toml` (per plan).
 
 ## 2026-04-25 — mvp-0 live broker registration lock slice
 
