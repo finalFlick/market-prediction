@@ -93,6 +93,8 @@ extend-exclude = [
     "frontend",
     "node_modules",
     "pocs",
+    "docsite",
+    "site",
 ]
 
 [tool.ruff.lint]
@@ -130,6 +132,8 @@ exclude = [
     "^pocs/",
     "^pocs$",
     "^backtests/results/",
+    "^docsite/",
+    "^site/",
 ]
 
 [[tool.mypy.overrides]]

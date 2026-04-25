@@ -52,6 +52,65 @@ Format:
   - `py -3.12 -m monitoring.audit verify --tables critical` → all_ok: true
 - **Blocked / next**: n/a
 
+## 2026-04-25 — merge docsite worktree into main
+
+- **Agent**: Developer
+- **Goal**: Re-integrate the `experiment/specs-gh-pages` worktree
+  (`market-prediction-pages`) into `main` and remove the split.
+- **Done**:
+  - Merged `experiment/specs-gh-pages` (`mkdocs.yml`, `docsite/`,
+    `.github/workflows/pages.yml`).
+  - Added `docsite/` to `ruff` and `mypy` excludes in `pyproject.toml`.
+  - Removed sibling worktree and the local + remote
+    `experiment/specs-gh-pages` branch.
+- **Verified**: `ruff check .`, `mypy --strict --explicit-package-bases .`,
+  `pytest -q`, `pytest -q -m e2e`.
+- **Blocked / next**: Pages workflow now publishes from `main`.
+
+## 2026-04-25 — docsite README for GitHub Pages
+
+- **Agent**: Developer
+- **Goal**: Add a maintainer-facing `docsite/README.md` for the Pages/MkDocs
+  pipeline (distinct from repo root `README.md`) and link it from `index.md`.
+- **Done**: `docsite/README.md`; `docsite/index.md` maintainer link.
+- **Verified**: `mkdocs build` in worktree (success).
+- **Blocked / next**: none.
+
+## 2026-04-25 — trading-lab spec site (MkDocs + GitHub Pages, worktree)
+
+- **Agent**: Developer
+- **Goal**: Add a themed MkDocs + GitHub Pages deploy for
+  `specs/trading-lab-platform/` and project docs, entirely on
+  `experiment/specs-gh-pages` in a sibling git worktree so `main` stays
+  untouched by other agent work.
+- **Done**:
+  - Sibling worktree: `../market-prediction-pages` on
+    `experiment/specs-gh-pages`.
+  - `mkdocs.yml` + `docsite/` (index, kitsune-cyberpunk `extra.css`, sync
+    hook, mermaid `fence_div_format` + `javascripts/mermaid-init.js`, pinned
+    `docsite/requirements.txt` — not in `pyproject.toml`).
+  - `.github/workflows/pages.yml` (path-filtered push, `concurrency: pages`,
+    `actions/deploy-pages@v4` + `upload-pages-artifact@v3`).
+- **Verified**:
+  - `py -3.12 -m pip install -r docsite/requirements.txt` in worktree
+  - `py -3.12 -m mkdocs build` in worktree (success; link warnings to
+    out-of-doc paths like `.cursor/` expected)
+  - Built HTML contains `<div class="mermaid">` in
+    `specs/trading-lab-platform/design/`
+  - `git push` → branch `experiment/specs-gh-pages` on `origin`
+  - `gh api ... deployment-branch-policies` → allowed
+    `experiment/specs-gh-pages` on environment `github-pages` (unblocks
+    `actions/deploy-pages@v4` with that environment)
+  - GitHub Actions run `pages` (run id `24939587230`) → success (build + deploy)
+  - `gh api .../pages` → `https://finalflick.github.io/market-prediction/`
+  - Live home page fetches and shows themed “Trading Lab — spec library”
+- **Blocked / next**:
+  - Rebase the worktree on `origin/main` when you want the latest spec content
+    (`git fetch origin && git rebase origin/main` in
+    `../market-prediction-pages`).
+  - If you merge this into `main`, add `docsite/` to ruff/mypy excludes
+    in `pyproject.toml` (per plan).
+
 ## 2026-04-25 — mvp-0 live broker registration lock slice
 
 - **Agent**: Developer

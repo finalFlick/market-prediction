@@ -78,3 +78,7 @@ Thumbs.db
 .cursor/state/session-context-memory.json
 .cursor/state/router-log.jsonl
 
+# MkDocs static output (built in CI and locally)
+site/
+.venv-docs/
+

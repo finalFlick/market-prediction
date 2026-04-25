@@ -1,0 +1,58 @@
+# Build and deploy MkDocs to GitHub Pages (Actions artifact). Isolated from main app CI.
+name: pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "specs/**"
+      - "docs/**"
+      - "*.md"
+      - "mkdocs.yml"
+      - "docsite/**"
+      - ".github/workflows/pages.yml"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: docsite/requirements.txt
+      - name: install mkdocs
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docsite/requirements.txt
+      - name: mkdocs build
+        run: mkdocs build
+      - name: upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  # `actions/deploy-pages@v4` requires `environment: github-pages`. The
+  # `main` branch is allowed by default; if deploy is rejected, check
+  # Repo → Settings → Environments → github-pages → Deployment branches.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        name: deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

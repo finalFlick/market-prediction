@@ -1,0 +1,14 @@
+# Ephemeral content copied by docsite/hooks/sync_sources.py at build time; do not commit.
+/specs/
+/docs/
+# Root-level mirrors
+/AGENTS.md
+/CHANGELOG.md
+/DECISIONS.md
+/PROJECT_CONTEXT.md
+/RUNNING.md
+/SIGNALS.md
+/TODO.md
+/WORKFLOW.md
+__pycache__/
+*.pyc
