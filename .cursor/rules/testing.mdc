@@ -1,0 +1,42 @@
+---
+description: Test organization, markers, and coverage requirements.
+globs: ["tests/**/*.py", "ai_evals/**/*.py", "backtests/smoke.py"]
+alwaysApply: false
+---
+
+# Testing
+
+## Test categories (one folder each)
+
+| Folder              | Marker          | Purpose                                  |
+|---------------------|-----------------|------------------------------------------|
+| `tests/`            | (none / unit)   | Unit tests on individual modules         |
+| `tests/strategy/`   | (none)          | Strategy-level behavior on synthetic data |
+| `tests/e2e/`        | `e2e`           | API + backtest end-to-end                |
+| `tests/security/`   | `security`      | Invariants (LLM isolation, no secrets)   |
+| `ai_evals/deepeval/`| (none)          | LLM contract tests (offline by default)  |
+
+Run a category alone with `pytest -q -m e2e` or `pytest -q tests/strategy`.
+
+## Required
+
+- Every public function in `data/`, `risk/`, `strategies/`, `backtests/`
+  has at least one unit test covering accept and reject paths.
+- A new strategy ships with a test in `tests/strategy/test_<name>.py`
+  asserting target_positions on a synthetic OHLCV fixture.
+- A new API endpoint ships with an e2e test in `tests/e2e/test_api_app.py`.
+- A new prompt ships with both a deepeval test and a promptfoo case.
+
+## Forbidden
+
+- `pytest.skip(...)` without a linked GitHub issue and a clear unblock condition.
+- Tests that hit the network. Use fixtures or `httpx.MockTransport`.
+- Tests that depend on file ordering or process-global state.
+- Mocking `risk.engine.RiskEngine` in a way that bypasses checks. Mock the
+  *broker*, not the risk engine.
+
+## Backtest determinism test
+
+A canonical fixture in `tests/test_backtest_determinism.py` re-runs the
+same config and asserts byte-identical `metrics.json`. Adding stochasticity
+without a seed breaks this test.

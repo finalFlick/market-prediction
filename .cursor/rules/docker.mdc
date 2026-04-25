@@ -1,0 +1,47 @@
+---
+description: Container and compose rules for trading-lab services.
+globs: ["**/Dockerfile", "**/Dockerfile.*", "docker-compose*.yml", ".dockerignore"]
+alwaysApply: false
+---
+
+# Docker
+
+## Required
+
+- All services run as a **non-root user** (`trader`, `api`, `nextjs`).
+- Production images do not contain dev dependencies (separate dev/prod
+  layers or `--no-dev` install).
+- Each Dockerfile installs project deps, then copies code, then sets the
+  user — in that order — so layer caching works.
+- Healthchecks are defined in `docker-compose.yml` for `redis`, `backend`,
+  and `frontend`. The trading-engine container has a process-level liveness
+  check via the orchestrator.
+- The `trading-net` network is `external: true`. The host already runs
+  `ollama` and `hermes` on it (see [`docs/INFRASTRUCTURE.md`](mdc:docs/INFRASTRUCTURE.md)).
+
+## Hostnames inside the network
+
+Containers address each other by **service name**, never `localhost`:
+
+| From → To           | URL                          |
+|---------------------|------------------------------|
+| frontend → backend  | `http://backend:8000`        |
+| backend → redis     | `redis://redis:6379/0`       |
+| any → ollama        | `http://ollama:11434`        |
+| any → DuckDB volume | `/data/market.duckdb`        |
+
+## Forbidden
+
+- Running as root in production stages.
+- Baking secrets into images. `.env` is mounted at runtime.
+- Hard-coded `localhost` URLs in container code.
+- Calling `docker compose up` from a hook (the user does this).
+
+## Build verification
+
+Every Dockerfile change must be followed by:
+```bash
+docker compose build <service>
+docker compose up -d <service> && docker compose logs --tail 50 <service>
+```
+CI builds all three images on every PR.

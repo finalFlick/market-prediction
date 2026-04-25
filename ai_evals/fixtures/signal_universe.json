@@ -1,0 +1,9 @@
+{
+  "universe": ["BTCUSDT", "ETHUSDT", "SOLUSDT"],
+  "regime": "post-halving consolidation, declining vol, high funding",
+  "existing": [
+    "SIG-001 momentum_xover",
+    "SIG-002 funding_skew_long",
+    "SIG-003 dollar_volume_breakout"
+  ]
+}

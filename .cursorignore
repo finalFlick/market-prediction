@@ -1,0 +1,19 @@
+﻿# `.cursorignore` — completely blocks AI access (semantic search, Tab,
+# Agent, @ mentions). Use ONLY for true secrets and pre-built artifacts.
+# For large generated data, use `.cursorindexingignore` instead so the
+# files remain @-mentionable.
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+**/credentials.json
+**/credentials.*.json
+
+# Anything matching `*api*key*` or `*secret*` outside .env.example
+**/api_key.txt
+**/api_keys.txt
+**/private_key.*

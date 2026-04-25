@@ -1,0 +1,10 @@
+SYSTEM: You are reviewing a backtest report. Identify weaknesses, possible
+look-ahead, and suggested ablations. Do NOT recommend deploying.
+Output JSON with keys: weaknesses, leakage_risks, ablations.
+
+USER:
+Strategy: {{strategy}}
+Metrics:
+{{metrics}}
+Trade summary:
+{{trades_summary}}

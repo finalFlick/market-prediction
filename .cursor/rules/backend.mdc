@@ -1,0 +1,44 @@
+---
+description: FastAPI backend rules. Read-only, repository pattern, DI.
+globs: ["backend/**/*.py"]
+alwaysApply: false
+---
+
+# Backend (FastAPI)
+
+The backend is the **only writer-free** view over DuckDB. The trading
+engine writes; the backend exposes typed reads.
+
+## Required
+
+- Routers live in `backend/api/routers/<resource>.py`. One resource per file.
+- Every endpoint returns a Pydantic response model (`<Resource>Out`).
+  Never return raw dicts or ORM rows.
+- Repositories are injected via FastAPI `Depends` from `backend/api/deps.py`.
+  Routers do not open DB connections directly.
+- `GET /api/system/health` returns `{status, version, env, uptime_s, db_ok, redis_ok}`.
+
+## Forbidden
+
+- Mutating endpoints (POST/PUT/PATCH/DELETE) that touch trades, strategies,
+  signals, or risk state. Mutations belong to the trading engine.
+- Calling exchange APIs from a router. The frontend never reaches a venue
+  through the backend.
+- Importing from `execution/`, `risk/engine.py`, or `research/llm/`.
+- Embedding API keys in code or env-default values.
+
+## CORS
+
+Allowed origins come from `BACKEND_ALLOWED_ORIGINS` (comma-separated).
+Default in dev: `http://localhost:3000`.
+
+## Errors
+
+Raise `fastapi.HTTPException` with a typed `detail`. Don't swallow
+exceptions silently. Repository errors map to 5xx; validation errors to
+422 (FastAPI default).
+
+## Tests
+
+`tests/e2e/test_api_app.py` exercises every router via `TestClient`.
+A new endpoint without an e2e test fails review.

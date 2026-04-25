@@ -1,0 +1,32 @@
+# `.cursorindexingignore` — excluded from the semantic index but still
+# accessible to the agent via @-mention or explicit Read.
+# Use for large generated artifacts that bloat the index without value.
+# Cursor's default already excludes *.parquet and *.csv; we add the
+# project-specific large directories below.
+
+# Backtest results (one folder per run, can be hundreds of files)
+backtests/results/**
+
+# Trained model artifacts
+research/models/registry/**
+*.pt
+*.onnx
+*.joblib
+*.pkl
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+
+# Frontend build artifacts
+frontend/.next/**
+frontend/out/**
+frontend/build/**
+
+# AI eval fixtures recorded from real LLM calls (large JSON dumps)
+ai_evals/fixtures/recorded/**
+
+# Hook state (auto-generated)
+.cursor/state/thoughts.jsonl
+.cursor/state/risk-touches.jsonl
+.cursor/state/session-summary.json

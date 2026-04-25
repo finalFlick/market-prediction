@@ -1,0 +1,49 @@
+---
+description: Risk is non-bypassable. Every order passes through RiskEngine.
+alwaysApply: true
+---
+
+# Risk management
+
+Every order — backtest, paper, or live — passes through
+`risk.engine.RiskEngine.check_and_size`. There is no bypass flag. Adding
+one is a release-blocking review failure.
+
+## Default limits (loaded from `configs/risk.yaml`)
+
+| Limit                     | Default | Checked in                           |
+|---------------------------|---------|--------------------------------------|
+| Max risk per trade        | 1%      | `risk.sizing.vol_targeted_quantity`  |
+| Max daily loss            | 3%      | `risk.engine.RiskEngine`             |
+| Max drawdown (peak→trough)| 25%     | `risk.engine.RiskEngine`             |
+| Max gross exposure        | 1.0×    | `risk.engine.RiskEngine`             |
+| Max leverage              | 1.0×    | `risk.engine.RiskEngine`             |
+| Max per-symbol weight     | 25%     | `risk.engine.RiskEngine`             |
+
+Crossing any limit raises `RiskCheckRejected(rule=<name>)`. The rejection
+is logged via `monitoring.logger`.
+
+## Required
+
+- Strategy code never sets position sizes. Strategies emit *targets*; the
+  risk engine produces *quantities*.
+- Live orders carry a `client_order_id` (idempotency).
+- The kill-switch (`monitoring.drift.detect_drift`) cancels open orders and
+  marks the strategy `retired` when crossed; resuming requires a human.
+
+## Forbidden — CI rejects PRs containing these
+
+- Flags or env vars: `skip_risk`, `bypass_risk`, `RISK_BYPASS`,
+  `DISABLE_RISK`, `--no-risk`.
+- Direct calls from `strategies/` to `Broker.place_order`.
+- LLM-generated trade decisions reaching `execution/` (LLMs are
+  research-only; see [`llm-usage.mdc`](mdc:.cursor/rules/llm-usage.mdc)).
+- Hardcoded position sizes anywhere.
+
+## Code-review trigger
+
+Any PR touching `risk/`, `execution/`, or `configs/risk.yaml` requires:
+human review, a passing `tests/strategy/` + `tests/e2e/` run cited in the
+PR description, and a `DECISIONS.md` entry if a default limit changes.
+
+See [`docs/RISK_POLICY.md`](mdc:docs/RISK_POLICY.md) for rationale.

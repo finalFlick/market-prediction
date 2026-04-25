@@ -1,0 +1,145 @@
+---
+description: Format and quality rules when editing files inside specs/
+globs: specs/**/*.md
+alwaysApply: false
+---
+
+# Spec file format
+
+These rules apply whenever you read or edit any file under `specs/`.
+They enforce the Kiro-style structure that the orchestrator in
+`spec-sessions.mdc` produces.
+
+## Filenames are fixed
+
+Inside `specs/<feature-name>/`, only these filenames are allowed:
+
+- `requirements.md` — feature spec (Phase 1)
+- `bugfix.md` — bug spec (replaces `requirements.md` for bugfix mode)
+- `design.md` — technical design (Phase 2)
+- `tasks.md` — implementation plan (Phase 3)
+- `notes.md` — optional running notes during implementation
+- `decisions.md` — optional ADR-style records of decisions made
+  while building the feature; rolls up into project-level
+  `DECISIONS.md` at completion.
+
+Do not invent new filenames. Do not put spec content at the project
+root or under any other directory.
+
+## requirements.md — EARS only
+
+Every acceptance criterion in `requirements.md` MUST use one of the
+five EARS patterns:
+
+| Pattern | Form |
+|------------------|----------------------------------------------------------|
+| Ubiquitous | `THE SYSTEM SHALL <action>.` |
+| Event-driven | `WHEN <trigger> THE SYSTEM SHALL <action>.` |
+| State-driven | `WHILE <state> THE SYSTEM SHALL <action>.` |
+| Conditional | `IF <condition> THEN THE SYSTEM SHALL <action>.` |
+| Contextual | `WHERE <context> THE SYSTEM SHALL <action>.` |
+
+Reject criteria like *"the system should be fast"* or *"the system
+must be user-friendly"* — they are not EARS and not testable.
+
+Each requirement is a numbered top-level section
+(`### Requirement 1: <title>`) and contains:
+
+1. A `**User Story:** As a <role>, I want <functionality>, so that
+   <benefit>.` line.
+2. A numbered `#### Acceptance Criteria` list.
+3. A `#### Additional Details` block with priority, complexity,
+   dependencies, assumptions.
+
+## design.md — sections required
+
+`design.md` must contain at minimum:
+
+- `## Overview` (with design goals + key decisions)
+- `## Architecture` (with at least one mermaid diagram for any
+  feature that touches more than two modules)
+- `## Components and Interfaces` (one subsection per component;
+  each lists Purpose / Responsibilities / Interfaces / Implementation
+  notes)
+- `## Data Models` (typed schema or pydantic model sketch)
+- `## API Design` (if the feature exposes any interface — REST,
+  CLI, websocket, queue, internal Python API)
+- `## Error Handling` (categorized errors; module-specific
+  exceptions per `coding-standards.mdc`)
+- `## Testing Strategy` (unit / integration / e2e split)
+- `## Security Considerations` (per `security.mdc`)
+- `## Performance Considerations` (latency / throughput / cost)
+
+Every component description should cite the requirement numbers it
+fulfills, e.g. *"satisfies Requirement 1.2, 3.1"*.
+
+## tasks.md — two-level checklist with traceability
+
+`tasks.md` is a markdown checklist. The structure is **strictly
+two-level**:
+
+```markdown
+- [ ] 1. <Top-level epic / phase>
+- [ ] 1.1 <Specific implementation task>
+  - <implementation detail>
+  - <files / functions to create or modify>
+  - <testing expectation>
+  - _Requirements: 1.2, 3.1_
+- [ ] 1.2 <Next specific task>
+  - …
+  - _Requirements: 2.1_
+```
+
+Hard rules:
+
+- **No third-level nesting.** Use `1.1`, `1.2`, …, `2.1`, never `1.1.1`.
+- Every leaf task ends with `_Requirements: <comma-separated ids>_`
+  pointing back to numbered acceptance criteria in `requirements.md`
+  (or sections in `bugfix.md`).
+- Each leaf task must be doable in 1–4 hours and produce testable code.
+- A test task may be a peer of an implementation task, or merged into
+  the same task as a sub-bullet — never deferred to the end.
+- Forbidden tasks: vague ones (*"make it better"*), non-coding
+  ones (*"deploy to production"*, *"get user feedback"*),
+  monolithic ones (*"implement the whole feature"*).
+
+Use checkbox states:
+
+- `- [ ]` not started
+- `- [~]` in progress (optional convention)
+- `- [x]` complete
+
+Task IDs (`1.1`, `1.2`, …) are stable once written. Do not renumber
+tasks after the spec is approved; if scope grows, append (`1.5`, `1.6`).
+
+## bugfix.md — required sections
+
+A bug spec replaces `requirements.md` for bugfix-mode sessions. It
+must contain:
+
+- `## Summary` — one sentence
+- `## Current Behavior` — what happens now (cite logs, traces,
+  screenshots if relevant)
+- `## Expected Behavior` — what should happen, in EARS form
+- `## Reproduction Steps` — minimal repro
+- `## Root Cause Hypothesis` — best current theory
+- `## Behavior That Must NOT Change` — explicit anti-regressions
+- `## Affected Files / Modules` — scope estimate
+
+`design.md` and `tasks.md` for bugfixes follow the same rules as
+above, except `tasks.md` MUST include at least one regression-test
+task that fails before the fix and passes after.
+
+## Cross-phase consistency
+
+When you edit any spec file, check the others in the same folder:
+
+- A new requirement → either covered by an existing component in
+  `design.md` or design.md must be updated.
+- A new component in `design.md` → at least one task in `tasks.md`
+  must implement it.
+- A new task in `tasks.md` → its `_Requirements:` ids must exist
+  in `requirements.md` or `bugfix.md`.
+
+If a change makes the three documents inconsistent, fix the
+inconsistency before moving on. The spec is a contract between phases.

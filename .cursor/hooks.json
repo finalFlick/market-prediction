@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      { "command": "python .cursor/hooks/session_init.py" },
+      { "command": "node .cursor/hooks/spec-session-init.js" }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "python .cursor/hooks/block_dangerous_shell.py",
+        "failClosed": true
+      },
+      {
+        "command": "python .cursor/hooks/no_inline_python.py",
+        "timeout": 5
+      },
+      {
+        "command": "python .cursor/hooks/pre_commit_review.py",
+        "matcher": "git commit"
+      }
+    ],
+    "beforeMCPExecution": [
+      {
+        "command": "python .cursor/hooks/guard_mcp_writes.py",
+        "failClosed": true
+      }
+    ],
+    "beforeReadFile": [
+      { "command": "python .cursor/hooks/guard_risk_files.py" }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "python .cursor/hooks/format_python.py",
+        "matcher": "Write"
+      },
+      { "command": "python .cursor/hooks/guard_risk_files.py" }
+    ],
+    "afterAgentResponse": [
+      { "command": "python .cursor/hooks/append_session_log.py" }
+    ],
+    "afterAgentThought": [
+      { "command": "python .cursor/hooks/record_thought.py" }
+    ],
+    "stop": [
+      {
+        "command": "python .cursor/hooks/record_decisions.py",
+        "loop_limit": 1
+      }
+    ]
+  }
+}

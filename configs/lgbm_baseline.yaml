@@ -1,0 +1,23 @@
+data:
+  features_path: data/processed/features.parquet
+
+label:
+  type: forward_log_return
+  horizon: 4
+
+cv:
+  n_splits: 5
+  embargo: 4
+
+model:
+  backbone: lgbm
+  params:
+    learning_rate: 0.05
+    num_leaves: 63
+    min_data_in_leaf: 100
+    feature_fraction: 0.9
+    bagging_fraction: 0.9
+    bagging_freq: 5
+    num_iterations: 500
+    seed: 42
+    deterministic: true

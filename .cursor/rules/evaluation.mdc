@@ -1,0 +1,48 @@
+---
+description: Strategy and model evaluation rules. No look-ahead, walk-forward, gates.
+globs: ["backtests/**/*.py", "research/models/**/*.py", "research/cv.py", "research/features/validation.py"]
+alwaysApply: false
+---
+
+# Evaluation
+
+## Required
+
+- **No look-ahead.** Every feature/label pipeline calls
+  `research.features.validation.assert_no_lookahead` in its tests.
+- **Walk-forward / purged k-fold with embargo.** No simple shuffle splits
+  on time-series data. See `research/cv.py`.
+- **Costs are non-optional.** Backtests load fees, slippage, and latency
+  from `configs/costs.yaml`. Override → manifest entry + `DECISIONS.md`.
+- Every backtest writes a manifest with: git commit, config hash, seeds,
+  data window hash, library versions.
+
+## Strategy acceptance gates
+
+Promotion `backtest → paper`:
+
+- Sharpe > 1.0
+- Max drawdown > -0.25 (i.e., DD < 25%)
+- CAGR > 0 and beats buy-and-hold OOS
+- n_trades >= 50 over the test window
+- hit_rate >= 0.45
+
+Promotion `paper → live`: also requires ≥ 14 paper days within ±25% of
+in-sample summary, plus a `RiskAgent` sign-off in `DECISIONS.md`.
+
+See [`docs/EVALUATION.md`](mdc:docs/EVALUATION.md).
+
+## Model evaluation
+
+- Information Coefficient (IC) reported per fold.
+- Feature importance and SHAP for tree models.
+- A model artifact lives in `research/models/registry/<model_id>/` with a
+  manifest. The registry is append-only.
+
+## Forbidden
+
+- Re-tuning on the same OOS window after a failed evaluation. That's leakage.
+- "Best of N seeds" reporting. Report the median; if cherry-picking is
+  required, that's a sign the strategy isn't real.
+- Promoting a strategy whose backtest used non-default costs without a
+  `DECISIONS.md` entry explaining why.

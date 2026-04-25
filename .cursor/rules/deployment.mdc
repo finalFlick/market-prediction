@@ -1,0 +1,59 @@
+---
+description: Container topology and deployment rules
+globs: Dockerfile,**/Dockerfile,docker-compose.yml,.github/workflows/**
+alwaysApply: false
+---
+
+# Deployment
+
+The system runs as a set of containers on a private docker network.
+
+## Containers (this repo)
+
+| Service          | Image source             | Purpose                                                  |
+|------------------|--------------------------|----------------------------------------------------------|
+| `frontend`       | `frontend/Dockerfile`    | Next.js dashboard, served by Node                        |
+| `backend`        | `backend/Dockerfile`     | FastAPI: `/api/{trades,strategies,signals,backtests,system}` |
+| `trading-engine` | `Dockerfile` (root)      | Strategy + risk + execution loop                         |
+| `duckdb`         | sidecar volume + service | Persists `/data/market.duckdb` and parquet snapshots     |
+| `redis`          | `redis:7-alpine`         | Pub/sub between engine, backend, and monitoring          |
+
+## Containers (external, already running)
+
+| Service  | Notes                                          |
+|----------|------------------------------------------------|
+| `ollama` | Local LLM runtime, used by `research.llm`      |
+| `hermes` | Internal helper service                        |
+
+## Network
+
+All services join the `trading-net` docker network. `docker-compose.yml`
+declares it with `external: true` for `ollama` / `hermes` so they can be
+managed independently.
+
+## Hostnames
+
+Services address each other by container name:
+
+- backend → `redis`, `duckdb`, `ollama`, `hermes`
+- frontend → `backend`
+- trading-engine → `redis`, `duckdb`, `backend`
+
+Never use `localhost` inside containers; always use the service name.
+
+## Environment
+
+- `ENV=dev|staging|prod` is required and printed at boot.
+- Health endpoints: `backend` exposes `GET /api/system/health` returning
+  `{status, version, uptime_s, db_ok, redis_ok}`.
+
+## Build and run
+
+```bash
+docker compose build
+docker compose up -d
+docker compose logs -f trading-engine
+```
+
+CI (`.github/workflows/ci.yml`) builds every image on PR; merges to `main`
+push images to the registry.

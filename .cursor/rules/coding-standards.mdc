@@ -1,0 +1,44 @@
+---
+description: Python style, types, determinism, and error handling rules.
+globs: ["**/*.py"]
+alwaysApply: false
+---
+
+# Python coding standards
+
+## Required
+
+- **Python 3.11+** syntax: `list[int]`, `str | None`, `match`.
+- **Type hints on every public function and method.** `mypy --strict` runs in CI.
+- **Module-specific exceptions.** `risk.errors.RiskCheckRejected`,
+  `data.errors.IngestError`. Never `raise Exception(...)`.
+- **Logging via `monitoring.logger.get_logger(__name__)`** (structlog).
+  The logger redacts known secret fields.
+
+## Determinism
+
+- Use `numpy.random.default_rng(seed)`, never `np.random.*`.
+- Seeds, git commit, and config hash go into every backtest manifest.
+- Same config + same data → byte-identical `metrics.json`.
+
+## Money and time
+
+- Money at broker boundaries is `Decimal`. Floats are research-only.
+- Timestamps are timezone-aware `pd.Timestamp(tz="UTC")`.
+  Naive datetimes are rejected at ingestion.
+- Symbols are upper-case, normalized at ingestion.
+
+## Forbidden
+
+- Global mutable state. Module-level state is a code smell — refactor.
+- Commented-out code, TODOs without an owner + linked issue.
+- `print()` in library code (use the logger).
+- "should work" / "left as an exercise" — both are PR blockers.
+- Adding any flag named `skip_risk`, `bypass_risk`, `disable_risk`,
+  `RISK_BYPASS` (CI scans for these).
+
+## Tests
+
+Every public behavior gets a unit test. Backtests get a smoke test in
+`backtests/smoke.py`. See [`coding-standards.mdc`](mdc:.cursor/rules/coding-standards.mdc)
+sibling rule [`testing.mdc`](mdc:.cursor/rules/testing.mdc) for organization.

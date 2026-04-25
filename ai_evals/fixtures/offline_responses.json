@@ -1,0 +1,23 @@
+{
+  "signal_hypothesis": {
+    "name": "perp_funding_mean_reversion",
+    "intuition": "Sustained positive funding indicates over-crowded longs; on a 4h timeframe a top-decile funding reading mean-reverts within 12-24h.",
+    "timeframe": "4h",
+    "expected_horizon": "12-24h",
+    "falsification": "If funding>p90 events do not produce negative 24h excess returns over a rolling 6-month window, retire the signal."
+  },
+  "strategy_analysis": {
+    "weaknesses": [
+      "high turnover (4.7) erodes net Sharpe",
+      "sample size (312 trades) is borderline"
+    ],
+    "leakage_risks": [
+      "EMA computed using close-of-bar may overlap with same-bar fill if latency=0"
+    ],
+    "ablations": [
+      "increase fast EMA from 5 to 12 to reduce noise",
+      "add an absolute spread filter to skip thin markets"
+    ]
+  },
+  "model_reasoning": "Top features were 24h realized vol z-score and 1h log-return momentum. Both are regime-sensitive; if vol drops below the training-range floor the model's confidence is unreliable. RSI-14 at the 60th percentile contributed positively but is noisy at this timeframe."
+}

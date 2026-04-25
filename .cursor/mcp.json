@@ -1,0 +1,58 @@
+{
+  "mcpServers": {
+    "duckdb": {
+      "command": "uvx",
+      "args": ["mcp-server-duckdb", "--db-path", "${workspaceFolder}/data/market.duckdb"],
+      "env": {
+        "DUCKDB_READ_ONLY": "true"
+      }
+    },
+
+    "ccxt": {
+      "command": "npx",
+      "args": ["-y", "@mcpfun/mcp-server-ccxt@1.2.1"],
+      "env": {
+        "DEFAULT_EXCHANGE": "binance",
+        "DEFAULT_MARKET_TYPE": "spot"
+      }
+    },
+
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}"
+      }
+    },
+
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+    },
+
+    "shell": {
+      "command": "npx",
+      "args": ["-y", "mcp-shell@0.1.3"]
+    },
+
+    "docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-docs-server", "./docs"]
+    },
+
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+
+    "web-fetch": {
+      "command": "npx",
+      "args": ["-y", "mcp-fetch-server@1.1.2"]
+    }
+  }
+}

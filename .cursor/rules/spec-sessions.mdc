@@ -1,0 +1,264 @@
+---
+description: Auto-detect and run Kiro-style spec sessions for complex features
+alwaysApply: true
+---
+
+# Spec sessions
+
+This project follows a **Kiro-style spec-driven development (SDD)** workflow
+for any non-trivial feature, refactor, or bug. A *spec session* is a
+structured, three-phase exchange — **Requirements → Design → Tasks** —
+that produces three durable artifacts under `specs/<feature-name>/` before
+implementation begins.
+
+You — the AI agent — MUST recognize when a spec session is appropriate,
+enter it without being asked, and follow the protocol below.
+
+---
+
+## When to enter a spec session (auto-detection)
+
+Enter spec session mode when **any** of these are true:
+
+- The user asks to **build, design, implement, add, create, plan, or
+  architect** a feature, module, page, endpoint, pipeline, or system.
+- The work will touch **more than one file or one module** in
+  `data/`, `research/`, `strategies/`, `risk/`, `execution/`,
+  `monitoring/`, `backend/`, `frontend/`, `backtests/`, or
+  `ai_evals/`.
+- The user mentions **"feature", "spec", "design", "requirements",
+  "tasks.md", "RFC", "ADR", "architecture", "refactor",
+  "migration", or "MVP"**.
+- The user describes a **multi-step user journey** ("when X, the user
+  should Y, then Z…").
+- The user reports a **bug whose fix is non-obvious** or requires changes
+  in more than one file → enter spec session in **bugfix mode**.
+
+Do **NOT** enter a spec session for:
+
+- Single-file edits (typo, comment, rename, doc tweak, lint fix).
+- Trivial bug fixes (one obvious wrong line in one file).
+- Read-only investigation, exploration, or Q&A.
+- New trading-signal hypotheses — those follow the
+  `SIGNALS.md` flow in `research-workflow.mdc`. A spec session is for
+  *structural* features (a new module, API, dashboard page, ingestion
+  source, risk check, broker adapter, etc.), not new signal ideas.
+- **Light plans for small multi-file work** — for plain-English task
+  decompositions that don't warrant a durable artifact, delegate to
+  the `planner` subagent (`.cursor/agents/planner.md`) instead. Spec
+  sessions exist for work big enough to deserve persisted
+  `requirements.md` + `design.md` + `tasks.md` files.
+
+When in doubt, **ask the user once**:
+
+> *"This sounds like a multi-step feature. Want me to run a spec session
+> (requirements → design → tasks) before coding?"*
+
+If they decline, proceed normally. If they accept or are silent, enter
+spec mode.
+
+---
+
+## The three-phase protocol
+
+When you enter a spec session, follow these phases **in order**. Do **not**
+skip ahead. Do **not** start writing implementation code until Phase 3 is
+approved.
+
+### Phase 0 — Naming and setup
+
+1. Pick a **kebab-case feature name** (e.g. `binance-orderbook-ingest`,
+   `risk-kill-switch-api`, `frontend-equity-curve-page`).
+2. If an `specs/<feature-name>/` directory already exists, **read its
+   files first** and resume from the latest unfinished phase.
+3. Otherwise, scaffold the directory by running:
+
+   ```bash
+   node .cursor/scripts/spec-new.js <feature-name>
+   ```
+
+   This copies the templates from `.cursor/spec-templates/` into
+   `specs/<feature-name>/` (`requirements.md`, `design.md`, `tasks.md`,
+   plus `bugfix.md` for bug specs).
+4. Switch the IDE to **plan mode** (`SwitchMode` to `plan`) for
+   Phases 1 and 2 — these phases are read-only design work.
+5. Announce to the user: *"Entering spec session for `<feature-name>`.
+   Phase 1: Requirements."*
+
+### Phase 1 — Requirements
+
+Goal: produce a complete `specs/<feature-name>/requirements.md` that
+captures what must be built, in **EARS notation**, with full user-story
+context.
+
+1. Read `.cursor/spec-templates/requirements-template.md` end-to-end.
+2. Fill in the template based on the user's prompt and any context
+   you can gather from the codebase. Ask the user clarifying questions
+   if a requirement is ambiguous — but ask **all questions in one
+   batch**, not one at a time.
+3. Use **EARS** syntax for every acceptance criterion:
+   - `WHEN <trigger> THE SYSTEM SHALL <response>` (event-driven)
+   - `IF <condition> THEN THE SYSTEM SHALL <behavior>` (conditional)
+   - `WHILE <state> THE SYSTEM SHALL <continuous behavior>` (state)
+   - `WHERE <context> THE SYSTEM SHALL <contextual behavior>`
+   - `THE SYSTEM SHALL <action>` (ubiquitous)
+4. Number every requirement (`Requirement 1`, `Requirement 2`, …) and
+   number every acceptance criterion within it (`1.1`, `1.2`, …). These
+   numbers will be referenced from `tasks.md`.
+5. Cover **non-functional** requirements: performance, security,
+   reliability, observability, latency budgets, cost limits.
+6. Reference the project's existing rules — `architecture.mdc`,
+   `coding-standards.mdc`, `security.mdc`, `research-workflow.mdc` — and
+   record any constraints they impose as explicit requirements.
+7. Show the user the finished `requirements.md` and ask:
+   *"Approve requirements and proceed to design? (yes / edit)"*
+8. Iterate until the user approves. Do **NOT** start design until they
+   say yes.
+
+### Phase 2 — Design
+
+Goal: produce `specs/<feature-name>/design.md` that turns the approved
+requirements into a concrete technical plan.
+
+1. Read `.cursor/spec-templates/design-template.md` end-to-end.
+2. Fill in: overview, architecture (with mermaid diagrams when useful),
+   components and interfaces, data models, API contracts, error
+   handling, testing strategy, security considerations, performance
+   budgets, deployment notes.
+3. **Respect the project's hard rules** from `architecture.mdc`:
+   one-way pipeline, non-bypassable risk engine, no look-ahead, configs
+   over code, determinism. Call out where the design touches these.
+4. List every external dependency, env var, and config key the feature
+   will introduce.
+5. Cross-reference each component back to a requirement number
+   (e.g. *"satisfies Requirement 1.2, 3.1"*).
+6. Show the user the finished `design.md` and ask:
+   *"Approve design and proceed to tasks? (yes / edit)"*
+7. Iterate until approved.
+
+### Phase 3 — Tasks
+
+Goal: produce `specs/<feature-name>/tasks.md` — an ordered, two-level
+checkbox list of **discrete, executable coding tasks** that an AI agent
+or developer can pick up one by one.
+
+1. Read `.cursor/spec-templates/tasks-template.md` end-to-end.
+2. Decompose the design into **at most two levels** of nesting
+   (`1.`, `1.1`, …). Each leaf task must:
+   - Produce working, testable code.
+   - Be completable in 1–4 hours.
+   - List the files / functions to create or modify.
+   - End with a `_Requirements: <ids>_` line citing the requirement
+     numbers it fulfills.
+3. Order tasks so each builds on completed work. Use the
+   *foundation-first* sequencing from
+   `.cursor/spec-templates/tasks-template.md` unless a different
+   strategy is justified.
+4. Include **test tasks alongside implementation tasks**, never as a
+   final afterthought.
+5. After tasks.md is written, **switch back to agent mode** (via
+   `SwitchMode`) and ask:
+   *"Approve tasks and start implementation? You can also ask me to
+   run them one at a time, or all at once."*
+
+### Phase 4 — Implementation (optional, drives the loop)
+
+When the user approves tasks, execute them **one at a time** unless
+they explicitly say "run all":
+
+1. Read the task description and its requirement references.
+2. Mark the task as in-progress (update the checkbox to `- [~]` or
+   add a status comment).
+3. Implement only that task. Stay within scope.
+4. Run the relevant verification commands from `workflow.mdc`
+   (`pytest -q`, `ruff check .`, `mypy --strict .`).
+5. On success, mark the task `- [x]`.
+6. On failure, leave it unchecked and report what blocked you.
+
+Stop and ask the user before moving to the next task **only** if the
+implementation revealed a gap in `requirements.md` or `design.md` that
+needs amending.
+
+---
+
+## Bugfix mode
+
+If the user reports a non-trivial bug, enter spec session in
+**bugfix mode**:
+
+1. Run `node .cursor/scripts/spec-new.js <bug-name> --bugfix`.
+2. Use `bugfix.md` (from `.cursor/spec-templates/bugfix-template.md`)
+   instead of `requirements.md`. It captures: current behavior,
+   expected behavior, reproduction steps, root-cause hypothesis,
+   regression risks, behavior that must remain unchanged.
+3. After `bugfix.md` is approved, write a short `design.md` describing
+   the chosen fix and its blast radius.
+4. Then write `tasks.md` as in Phase 3, including a regression test
+   task.
+
+---
+
+## Hard rules
+
+- **Never** start writing implementation code in a multi-file feature
+  before `tasks.md` has been written and approved.
+- **Never** skip a phase because it "feels obvious" — Kiro-style SDD
+  derives its value from making the obvious explicit and traceable.
+- **Never** invent EARS-violating acceptance criteria. Every criterion
+  must use one of the four EARS keywords.
+- **Always** record requirement numbers in tasks (`_Requirements: 2.1,
+  3.4_`). Traceability is non-negotiable.
+- **Always** save spec files inside `specs/<feature-name>/` — never at
+  the project root.
+- **Always** update the spec files when implementation reveals a gap;
+  the spec is the source of truth, not the code.
+- **Never** mark a task complete until its tests pass and its
+  acceptance criteria are demonstrably met.
+
+---
+
+## Quick reference
+
+| Phase | Artifact | Mode | Approval before next phase? |
+|-------|---------------------------------|--------|------------------------------|
+| 0 | `specs/<feature>/` directory | agent | n/a |
+| 1 | `requirements.md` (EARS) | plan | **yes** |
+| 2 | `design.md` | plan | **yes** |
+| 3 | `tasks.md` (2-level checklist) | agent | **yes** |
+| 4 | code + tests, task by task | agent | per-task |
+
+When the user just says *"build X"* and X is non-trivial, your first
+response should look like:
+
+> Detected spec session candidate: `<feature-name>`. Running Phase 0
+> setup, then Phase 1 (Requirements). Switching to plan mode.
+
+---
+
+## Integration with existing rules and agents
+
+This protocol layers on top of the project's other rules and agents:
+
+- **`workflow.mdc`** — the dev loop (`pytest` / `ruff` / `mypy`)
+  applies inside Phase 4 task execution. Each leaf task you execute
+  must end with the verification commands green.
+- **`ai-workflow.mdc`** — the agent governance rule. Spec sessions
+  satisfy its "plan before multi-file changes" requirement; you do
+  not also need a separate plain-text plan when running a spec session.
+- **`planner` agent** (`.cursor/agents/planner.md`) — use for *short*
+  multi-file plans that don't justify a full spec. Spec sessions and
+  the `planner` subagent serve different scales of work.
+- **`research-workflow.mdc`** + `SIGNALS.md` — owns new
+  trading-signal hypotheses. Don't write a spec for "add EMA-cross
+  signal" — that goes in `SIGNALS.md`. Do write a spec for
+  "add a new feature pipeline that supports rolling cross-asset
+  features".
+- **`architecture.mdc` / `coding-standards.mdc` / `security.mdc`** —
+  enumerate constraints that every spec must respect; cite them by
+  filename in `design.md` § Key Design Decisions when the design
+  brushes up against them.
+- **Domain agents under `.cursor/agents/`** (`research`, `signal`,
+  `strategy`, `backtest`, `risk`, `evaluation`, `monitoring`,
+  `reviewer`) — when executing tasks in Phase 4, consider delegating
+  the implementation of a single task to the matching domain
+  subagent rather than doing it inline.

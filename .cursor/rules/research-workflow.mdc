@@ -1,0 +1,51 @@
+---
+description: AI-assisted research and signal-development workflow
+alwaysApply: true
+---
+
+# Research workflow
+
+The research loop is **hypothesis → feature → model → backtest → decision**.
+Every iteration leaves a written artifact so future agents can reproduce it.
+
+## Loop
+
+1. **Hypothesis** — Add an entry to `SIGNALS.md` with: name, economic intuition,
+   timeframe, expected horizon, expected edge sign, and falsification criteria.
+2. **Feature** — Implement in `research/features/` as a pure function on a
+   point-in-time DataFrame. Add a feature card (docstring) with: inputs,
+   output column name, lookback, and any look-ahead caveats.
+3. **Label** — Define the prediction target in `research/labels.py` (e.g.
+   forward log return, triple-barrier). Labels are computed *after* features
+   and must use future data only relative to the feature timestamp.
+4. **Model** — Train via `research/models/train.py` using a config in
+   `configs/`. Save artifacts to `research/models/registry/<model_id>/` with
+   a `manifest.json` containing: config hash, data range, features used,
+   metrics, git commit, seeds.
+5. **Backtest** — Run `backtests/run.py` with realistic fees/slippage/latency.
+   Store results under `backtests/results/<run_id>/`.
+6. **Decision** — Update `SIGNALS.md` status to one of:
+   `hypothesis | research | backtest | paper | live | retired`
+   and record the decision in `DECISIONS.md`.
+
+## Hard requirements
+
+- **No look-ahead.** Features at time `t` may only consume rows where
+  `index <= t`. The feature pipeline asserts this with a shift check.
+- **Out-of-sample is sacred.** Walk-forward or purged k-fold; never tune
+  hyperparameters on the holdout.
+- **Embargo.** Apply a time embargo equal to the label horizon between train
+  and validation folds to prevent leakage.
+- **Costs are not optional.** A signal that loses money after fees + slippage
+  is dead. State the assumed cost model in the run manifest.
+- **Statistical sanity.** Report Sharpe, max drawdown, hit rate, turnover, and
+  a deflated Sharpe or PSR estimate when claiming an edge.
+
+## When the AI agent proposes a new signal
+
+1. Search `SIGNALS.md` for prior work on the same idea before implementing.
+2. Add the hypothesis row first; commit with `signal:` prefix.
+3. Implement feature + label + baseline model in one PR.
+4. Backtest with the project default cost model before claiming results.
+5. Never promote `paper → live` from inside the research module — that requires
+   a `RiskAgent` review and a `DECISIONS.md` entry.

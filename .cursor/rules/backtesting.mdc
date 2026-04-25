@@ -1,0 +1,60 @@
+---
+description: Backtesting realism and reproducibility requirements
+globs: backtests/**/*.py,strategies/**/*.py,research/**/*.py
+alwaysApply: false
+---
+
+# Backtesting requirements
+
+A backtest is **only valid** if it is realistic, reproducible, and routed
+through the production risk engine. Optimistic backtests are the single most
+expensive bug class on this project — treat them accordingly.
+
+## Mandatory inputs
+
+| Input        | Where defined                          | Default                     |
+|--------------|----------------------------------------|-----------------------------|
+| Fees         | `configs/costs.yaml`                   | 10 bps taker, 2 bps maker   |
+| Slippage     | `configs/costs.yaml`                   | 5 bps + impact model        |
+| Latency      | `configs/costs.yaml`                   | 1 bar fill delay (min)      |
+| Funding      | `configs/costs.yaml` (perps only)      | exchange-published rate     |
+| Capital      | run config                             | required                    |
+| Risk policy  | `configs/risk.yaml`                    | required                    |
+
+A run that overrides any of these MUST log a warning and write the override to
+the run manifest.
+
+## Forbidden
+
+- Filling at the same bar's close using information from that close.
+- Sizing positions using future volatility.
+- Using parameters that were tuned on the same window being reported.
+- Survivorship-biased universes (delisted symbols silently dropped).
+- "Just this once" — every exception requires a `DECISIONS.md` entry.
+
+## Required outputs (per run)
+
+Every backtest run writes `backtests/results/<run_id>/` containing:
+
+- `manifest.json` — config hash, git commit, data snapshot id, seeds, durations.
+- `equity.parquet` — equity curve, drawdown, exposure per bar.
+- `trades.parquet` — per-trade log: entry/exit time, price, size, fees, slippage, pnl.
+- `metrics.json` — Sharpe, Sortino, max DD, CAGR, hit rate, turnover, PSR.
+- `report.html` (optional) — vectorbt portfolio report.
+
+## Determinism checklist
+
+- [ ] All seeds set (`numpy`, `random`, `torch`, `lightgbm`, `xgboost`).
+- [ ] No reliance on dict ordering for behavior.
+- [ ] Data sourced from a versioned snapshot (DuckDB or parquet hash).
+- [ ] Re-running the same config produces byte-identical `metrics.json`.
+
+## Promoting to paper / live
+
+A strategy may only be promoted when:
+
+1. Backtest meets target metrics defined in `docs/STRATEGY.md`.
+2. Walk-forward results are within tolerance of the in-sample summary.
+3. `RiskAgent` has reviewed exposure, drawdown, and tail-risk numbers.
+4. Promotion is logged in `DECISIONS.md` with the run_id of the qualifying
+   backtest.

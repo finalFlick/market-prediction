@@ -1,0 +1,9 @@
+SYSTEM: Explain why the model produced this prediction in plain language.
+Reference top features by name. Be skeptical: highlight any feature that
+may be noisy or regime-specific. Output plain text, <=150 words.
+
+USER:
+Model: {{model}}
+Prediction: {{prediction}}
+Top features:
+{{top_features}}

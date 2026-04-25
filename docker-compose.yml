@@ -1,0 +1,102 @@
+# Local docker-compose. External services (`ollama`, `hermes`) are expected
+# to be running on the `trading-net` network already; we attach to it.
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: trading-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks: [trading-net]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  duckdb:
+    # DuckDB is an embedded engine; this container exists only to own the
+    # /data volume so backend, engine, and ad-hoc CLIs share one .duckdb file.
+    image: alpine:3.20
+    container_name: trading-duckdb
+    command: >
+      sh -c "mkdir -p /data && chown -R 1000:1000 /data && tail -f /dev/null"
+    volumes:
+      - duckdb-data:/data
+    networks: [trading-net]
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: trading-backend
+    depends_on:
+      redis:
+        condition: service_healthy
+      duckdb:
+        condition: service_started
+    environment:
+      ENV: ${ENV:-dev}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DUCKDB_PATH: /data/market.duckdb
+      REDIS_URL: redis://redis:6379/0
+      OLLAMA_HOST: http://ollama:11434
+    volumes:
+      - duckdb-data:/data
+    ports:
+      - "8000:8000"
+    networks: [trading-net]
+    restart: unless-stopped
+
+  trading-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trading-engine
+    depends_on:
+      backend:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    environment:
+      ENV: ${ENV:-dev}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DUCKDB_PATH: /data/market.duckdb
+      REDIS_URL: redis://redis:6379/0
+      OLLAMA_HOST: http://ollama:11434
+      BINANCE_API_KEY: ${BINANCE_API_KEY:-}
+      BINANCE_API_SECRET: ${BINANCE_API_SECRET:-}
+      BINANCE_TESTNET: ${BINANCE_TESTNET:-true}
+      COINBASE_API_KEY: ${COINBASE_API_KEY:-}
+      COINBASE_API_SECRET: ${COINBASE_API_SECRET:-}
+      COINBASE_SANDBOX: ${COINBASE_SANDBOX:-true}
+    volumes:
+      - duckdb-data:/data
+    networks: [trading-net]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: trading-frontend
+    depends_on:
+      backend:
+        condition: service_started
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8000
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    networks: [trading-net]
+    restart: unless-stopped
+
+networks:
+  trading-net:
+    name: trading-net
+    external: true
+
+volumes:
+  duckdb-data:
+    name: trading-duckdb-data

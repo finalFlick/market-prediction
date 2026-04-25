@@ -1,0 +1,46 @@
+---
+description: Mandatory development loop for every change in trading-lab
+alwaysApply: true
+---
+
+# Development workflow
+
+Every change — human or agent — follows this loop. A task is **not complete**
+until step 6 passes.
+
+```
+1. analyze the task
+2. identify files to modify
+3. implement the minimal change
+4. run tests
+5. run lint + typecheck
+6. validate the system still works end-to-end
+```
+
+## Concretely
+
+| Step | Command(s)                                                                |
+|------|---------------------------------------------------------------------------|
+| 1    | Restate the goal in one sentence; list constraints; define acceptance.    |
+| 2    | `git status`, `rg <symbol>`; list the files you will edit.                |
+| 3    | Smallest possible diff. No drive-by refactors in feature PRs.             |
+| 4    | `pytest -q` (always) and `pytest -q -m "not slow and not integration"` ok in inner loop. |
+| 5    | `ruff check .` and `mypy --strict .`                                      |
+| 6    | `pytest tests/e2e -q` and at least one backtest smoke run.                |
+
+If a task is too large for a single PR, split it. Track sub-PRs in `TODO.md`.
+
+## Definition of done
+
+- [ ] Acceptance criteria met (with evidence: commands run + their results).
+- [ ] `pytest`, `ruff`, `mypy` all green.
+- [ ] At least one e2e or backtest smoke test exercises the new code path.
+- [ ] `SESSION_LOG.md` entry added for the work session.
+- [ ] If the change shifts an architectural decision, `DECISIONS.md` updated.
+
+## Forbidden phrases in PRs
+
+- "should work" / "left as an exercise" — replace with verification or mark
+  the task `partial`.
+- "skipped tests due to flake" without a linked issue.
+- "minor cleanup" alongside a feature change — split into two PRs.

@@ -1,0 +1,4 @@
+taker_fee_bps: 10.0
+maker_fee_bps: 2.0
+slippage_bps: 5.0
+latency_bars: 1

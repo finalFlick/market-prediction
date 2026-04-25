@@ -1,0 +1,16 @@
+{
+  "strategy": "momentum_xover",
+  "metrics": {
+    "sharpe": 1.42,
+    "sortino": 1.91,
+    "max_drawdown": -0.18,
+    "cagr": 0.32,
+    "hit_rate": 0.54,
+    "turnover": 4.7
+  },
+  "trades_summary": {
+    "n_trades": 312,
+    "avg_holding_bars": 14,
+    "win_loss": "168 / 144"
+  }
+}

@@ -1,0 +1,58 @@
+---
+description: Security and safety rules for trading-lab. Non-negotiable.
+alwaysApply: true
+---
+
+# Security
+
+## Secrets
+
+- **Never commit secrets.** API keys, signing keys, passwords, JWTs, and
+  database URIs containing credentials are loaded only from environment
+  variables (`os.getenv`) or a `.env` file ignored by git.
+- `.env.example` documents the required keys; `.env` is in `.gitignore`.
+- CI scans the diff for high-entropy strings; commits flagged by the secret
+  scanner are blocked.
+- Logs MUST NOT contain raw API keys. The logging configuration in
+  `monitoring/logger.py` redacts known fields (`api_key`, `api_secret`,
+  `signature`, `passphrase`).
+
+## AI agents and live trading
+
+- LLMs (local Ollama models) are used **only** for research, signal
+  exploration, and natural-language analysis of results. See
+  `.cursor/rules/llm-usage.mdc`.
+- LLMs MUST NOT call `Broker.place_order` directly or indirectly. The
+  execution module imports nothing from `research.llm`. CI enforces this with
+  an import-graph test.
+- Every order — backtest, paper, or live — passes through
+  `risk.engine.RiskEngine.check_and_size`. There is no bypass flag. Adding
+  one is a release-blocking review failure.
+
+## Live capital
+
+- A strategy reaches `live` status only via the workflow described in
+  `AGENTS.md`: backtest pass → paper-trading window → `RiskAgent` review →
+  entry in `DECISIONS.md`. CI cannot promote on its own.
+- Per-strategy live capital is capped in `configs/risk.yaml`. The cap is
+  loaded at process start and re-validated on every order.
+
+## Network
+
+- Exchange clients connect only to documented endpoints. Hostnames are
+  pinned in code, not built from user input.
+- Outbound requests have a default timeout (`httpx.Client(timeout=10.0)`)
+  and exponential-backoff retries via `tenacity`.
+
+## Containers
+
+- Containers run as a non-root user.
+- Production images do not contain dev dependencies.
+- Secrets are injected via Docker secrets or env files mounted at runtime,
+  never baked into the image.
+
+## Code review
+
+- Any PR that touches `risk/`, `execution/`, or `configs/risk.yaml` requires
+  human review and at least one passing `tests/strategy/` and `tests/e2e/`
+  run cited in the PR description.

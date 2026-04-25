@@ -1,0 +1,9 @@
+name: momentum_xover
+universe: [BTCUSDT]
+timeframe: 1h
+params:
+  fast: 12
+  slow: 26
+  threshold: 0.001
+  long_only: false
+  target_weight: 0.5

@@ -1,0 +1,66 @@
+description: trading-lab prompt evals (offline + Ollama)
+
+prompts:
+  - file://prompts/signal_hypothesis.txt
+  - file://prompts/strategy_analysis.txt
+  - file://prompts/model_reasoning.txt
+
+providers:
+  - id: file://providers/offline_provider.js
+    label: offline-fixture
+  - id: ollama:chat:llama3.1:8b-instruct
+    label: ollama-local
+    config:
+      apiHost: http://ollama:11434
+
+defaultTest:
+  options:
+    provider: file://providers/offline_provider.js
+
+tests:
+  - description: signal hypothesis returns JSON with required keys
+    vars:
+      universe: BTCUSDT, ETHUSDT, SOLUSDT
+      regime: post-halving consolidation, declining vol
+      existing: SIG-001, SIG-002, SIG-003
+      task: signal_hypothesis
+    assert:
+      - type: contains-json
+      - type: javascript
+        value: |
+          (() => {
+            try {
+              const obj = JSON.parse(output);
+              const keys = ["name","intuition","timeframe","expected_horizon","falsification"];
+              return keys.every((k) => k in obj);
+            } catch { return false; }
+          })()
+      - type: not-contains
+        value: "deploy"
+
+  - description: strategy analysis flags risks but never recommends deploying
+    vars:
+      strategy: momentum_xover
+      metrics: "sharpe=1.42 sortino=1.91 maxDD=-0.18 cagr=0.32 hit_rate=0.54 turnover=4.7"
+      trades_summary: "n=312 avg_hold=14 win_loss=168/144"
+      task: strategy_analysis
+    assert:
+      - type: contains-json
+      - type: not-contains-any
+        value: ["deploy live", "go live", "ship to production"]
+      - type: contains-any
+        value: ["weakness", "leakage", "ablation"]
+
+  - description: model reasoning is plain text, references features, mentions caveats
+    vars:
+      model: lgbm_v3
+      prediction: "+0.42σ over 1h"
+      top_features: "rv_24h_z=1.8; ret_1h=0.6; rsi_14=0.55"
+      task: model_reasoning
+    assert:
+      - type: contains-any
+        value: ["realized vol", "RSI", "momentum"]
+      - type: not-contains-any
+        value: ["definitely", "guaranteed"]
+
+outputPath: ../../promptfoo-report.json

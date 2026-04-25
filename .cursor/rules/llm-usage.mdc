@@ -1,0 +1,51 @@
+---
+description: Allowed and forbidden uses of LLMs in trading-lab
+alwaysApply: true
+---
+
+# LLM usage
+
+LLMs are research assistants. They are **never** in the trading path.
+
+## Allowed
+
+- Hypothesis generation: brainstorm signal ideas to add to `SIGNALS.md`.
+- Natural-language analysis of backtest reports.
+- Code-completion / refactoring assistance for human-reviewed PRs.
+- Summarization of news / docs / earnings transcripts as **inputs to a
+  feature**, not as a trading decision.
+
+All allowed uses live in `research/llm/`.
+
+## Forbidden
+
+- LLMs must NOT call `execution.brokers.*.place_order`.
+- LLMs must NOT mutate `risk/limits.py` defaults or `configs/risk.yaml`.
+- LLMs must NOT promote a strategy to `paper` or `live` (only `RiskAgent`
+  with a `DECISIONS.md` entry can).
+- LLM-generated text that names a specific symbol/side/size is **not** a
+  trade signal until it is converted to a numeric feature and run through
+  the standard pipeline.
+
+## Provider and model
+
+- Provider: local Ollama only (`http://ollama:11434`).
+- No third-party LLM API keys live in this repo.
+- Model name is configured via `OLLAMA_MODEL` env var; default is
+  `llama3.1:8b-instruct`.
+
+## Determinism and audit
+
+- Every LLM call goes through `research.llm.client.chat`, which:
+  - logs prompt hash, model, temperature, and token counts via
+    `monitoring.logger`;
+  - sets `seed`, `temperature`, `top_p` from a config dict that is recorded
+    next to any artifact the call produced.
+- LLM outputs that influence a feature are written to
+  `data/processed/llm_features/<run_id>/` with the prompt and response
+  saved alongside.
+
+## Enforcement
+
+`tests/security/test_llm_isolation.py` asserts that
+`execution.*` does not (transitively) import `research.llm`.

@@ -1,0 +1,58 @@
+---
+description: How agents delegate, plan, and review. Multi-agent orchestration.
+alwaysApply: true
+---
+
+# AI workflow
+
+This rule governs **agent behavior**, complementing
+[`workflow.mdc`](mdc:.cursor/rules/workflow.mdc) which governs the
+human-or-agent dev loop.
+
+## Plan before multi-file changes
+
+If a task touches more than one file, switch to plan mode (or write a
+plan inline in the response) before editing. Surface trade-offs; do not
+silently pick one. See `c:\Users\Brandon\.cursor\rules\planner-first.mdc`.
+
+## When to spawn a subagent
+
+| Spawn a subagent when…                              | Use                       |
+|-----------------------------------------------------|---------------------------|
+| Exploring an unfamiliar area broadly                | `explore` (built-in)      |
+| Running a discrete implementation task in isolation | `developer` (built-in)    |
+| Planning before implementation                      | `planner` (built-in) or `.cursor/agents/planner.md` |
+| Domain-specific work in this project                | One of `.cursor/agents/<name>.md`: `research`, `signal`, `strategy`, `backtest`, `risk`, `evaluation`, `monitoring`, `reviewer` |
+
+The custom agents in `.cursor/agents/` carry the trading-lab guardrails
+(no LLM in execution, all orders through risk, etc.). Prefer them over
+generic `developer`/`generalPurpose` for project-domain work.
+
+## Risk and reviewer agents are gatekeepers, not editors
+
+- `risk` agent (`readonly: true`) reads strategy / config files and
+  approves or rejects. It cannot edit `risk/engine.py`.
+- `reviewer` agent (`readonly: true`) writes proposals to
+  `.cursor/state/proposed/` for humans to ratify. It does not touch
+  `.cursor/rules/` directly.
+
+This is the project's self-improvement contract: agents propose, humans
+ratify via `DECISIONS.md`.
+
+## Definition of done for agent work
+
+The same as [`workflow.mdc`](mdc:.cursor/rules/workflow.mdc):
+
+- Acceptance criteria met with cited evidence.
+- `pytest`, `ruff`, `mypy` green.
+- A `SESSION_LOG.md` entry written by the `append_session_log` hook.
+- If an architectural decision shifted, a `DECISIONS.md` entry written
+  manually (the hook only proposes).
+
+## Forbidden in agent output
+
+- "should work", "left as an exercise", "verified offline" without a
+  command + result citation.
+- Marking a task complete before tests pass.
+- Editing rules under `.cursor/rules/` based on hook signal alone.
+  Rule changes require a `DECISIONS.md` entry by a human.

@@ -1,0 +1,52 @@
+---
+description: Pipeline order and module boundaries for trading-lab.
+alwaysApply: true
+---
+
+# Architecture
+
+## The pipeline (one-way)
+
+```
+market_data → feature_engineering → signal_models → strategy_engine
+            → risk_engine → execution → monitoring
+```
+
+Each stage is one Python package. Cross-stage shortcuts are forbidden.
+
+## Module ownership (no upstream imports)
+
+| Stage              | Package         | May import from                        |
+|--------------------|-----------------|----------------------------------------|
+| market_data        | `data/`         | (stdlib + pandas + duckdb)             |
+| feature_engineering| `research/features/` | `data/`                          |
+| signal_models      | `research/models/` | `research/features/`, `data/`      |
+| strategy_engine    | `strategies/`   | `research/`, `data/`                   |
+| risk_engine        | `risk/`         | `strategies/`, `data/`                 |
+| execution          | `execution/`    | `strategies/`, `risk/`, `data/`        |
+| monitoring         | `monitoring/`   | any (pure observer)                    |
+
+`execution/` MUST NOT import `research.llm` (LLM isolation; CI-enforced in
+`tests/security/test_llm_isolation.py`).
+
+## The only path to a placed order
+
+```
+Strategy.target_positions(state)
+  → RiskEngine.check_and_size(orders, portfolio)
+    → Broker.place_order(order)
+```
+
+There is no other path. Adding one is a release blocker.
+
+## Interfaces are typed contracts
+
+- Stages communicate via Pydantic models / dataclasses, not raw dicts.
+- Money is `Decimal` at any broker boundary; floats inside research only.
+- Timestamps are timezone-aware `pd.Timestamp(tz="UTC")`.
+- Configs are YAML in `configs/`, loaded via Pydantic models.
+
+## When in doubt
+
+Read [`docs/ARCHITECTURE.md`](mdc:docs/ARCHITECTURE.md) for the rationale and
+[`docs/DESIGN.md`](mdc:docs/DESIGN.md) for the per-module contracts.

@@ -1,0 +1,40 @@
+---
+description: Next.js frontend rules. Read-only dashboard, typed API, dark theme.
+globs: ["frontend/**/*.{ts,tsx}"]
+alwaysApply: false
+---
+
+# Frontend (Next.js + TypeScript)
+
+The dashboard is **read-only**. It never places orders, never holds API
+keys, and never talks to an exchange.
+
+## Required
+
+- App Router (Next.js 14). Server components by default; mark client
+  islands with `"use client"` only when needed (charts, tables, forms).
+- All API calls go through `frontend/lib/api.ts`. No raw `fetch` in components.
+- `tsconfig.strict: true`. CI runs `npm run typecheck`.
+- File naming: `kebab-case.tsx` for files, `PascalCase` for components.
+- Numeric cells render through `formatNumber` / `formatPct` / `formatDate`
+  in `frontend/lib/utils.ts`. Numbers are right-aligned and monospace.
+
+## Visual rules
+
+- Dark theme by default (`html.dark`). Brand color: `hsl(160 84% 50%)`.
+- Charts use **TradingView Lightweight Charts only** (no Chart.js, no D3).
+- Tables use **TanStack Table**. Sortable defaults must be explicit so
+  reloads are stable.
+- Status colors: live = primary; paper = warning; retired = danger.
+
+## Forbidden
+
+- Order-placement UI. Trade controls live in the trading engine.
+- Embedding API keys, tokens, or secrets in client code.
+- Surfacing LLM responses as actionable trading signals.
+- Importing from any `backend/` Python module (frontend is its own app).
+
+## Tests
+
+A new page must boot in the standalone Next image used by CI. See
+[`docker.mdc`](mdc:.cursor/rules/docker.mdc).
