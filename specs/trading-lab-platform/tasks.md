@@ -1,224 +1,204 @@
-# Tasks: trading-lab-platform
+﻿# Trading Lab Platform Tasks
 
-<!--
-This template breaks the approved design into discrete, executable
-coding tasks. Two-level hierarchy only. Every leaf task ends with a
-_Requirements:_ traceability line. Replace placeholders and delete
-italic comments before sharing.
--->
+## Purpose
 
-## Document Information
+This file indexes the epic and feature task structure derived from requirements.md and design.md for the trading-lab-platform spec. Detailed work is split into product/spec tickets under tasks/, where each epic explains the broader capability and each feature ticket explains why and what must be built without over-prescribing implementation details.
 
-- **Feature Name**: trading-lab-platform
-- **Version**: 0.1
-- **Date**: 2026-04-25
-- **Author**: Brandon
-- **Related Documents**:
-  - Requirements: `./requirements.md`
-  - Design: `./design.md`
+## Source Documents
 
-## Implementation Overview
+- requirements.md
+- design.md
+- specs/README.md
+- .cursor/rules/spec-sessions.mdc
+- .cursor/rules/architecture.mdc
+- .cursor/rules/security.mdc
+- .cursor/rules/workflow.mdc
+- .cursor/rules/ai-workflow.mdc
+- AGENTS.md
+- PROJECT_CONTEXT.md
+- TODO.md
+- DECISIONS.md
+- SESSION_LOG.md
 
-*One short paragraph: the order of attack and why. State which
-sequencing strategy you used (foundation-first / feature-slice /
-risk-first / hybrid) and why it fits this feature.*
+## Assumptions
 
-### Strategy
+- The requested .kiro/specs/trading-lab-platform/ tree is represented in this repo by specs/trading-lab-platform/; no committed .kiro/ directory exists.
+- This task system uses tasks/ epic and feature ticket files because the user explicitly requested a ticket system rather than the older single-checklist template.
+- MVP-0 is treated as the first production milestone; v1, v1.x, v1.1, and v2.x work remains traceable but sequenced after MVP-0.
+- Feature tickets describe why and what. Implementation agents must still read requirements.md and design.md before coding.
 
-- **Sequencing:** {{foundation-first | feature-slice | risk-first | hybrid}}
-- **Testing:** unit + integration written alongside implementation
-  (per `coding-standards.mdc`); e2e and backtest smoke at the end.
-- **Verification per task:** `pytest -q`, `ruff check .`, `mypy --strict .`
-  (per `workflow.mdc`).
+## Execution Principles
 
-### Definition of done for the whole feature
+- Tickets explain why and what, not detailed how.
+- Features should be implementation-ready but not implementation-prescriptive.
+- Work should follow repo standards, Cursor spec-session rules, and the trading-lab architecture/security rules.
+- Each feature should be independently reviewable.
+- Each feature should include validation expectations.
+- Each feature should preserve traceability back to requirements and design.
+- Implementation agents must preserve the immutable pipeline order and non-bypassable risk path.
+- LLM features remain research/operator-assistance capabilities and never enter the execution path.
 
-- [ ] Every leaf task below is checked off (`- [x]`).
-- [ ] All acceptance criteria from `requirements.md` pass.
-- [ ] `pytest`, `ruff`, `mypy` are green.
-- [ ] At least one e2e or backtest smoke run exercises the feature.
-- [ ] `SESSION_LOG.md` entry recorded.
-- [ ] If any architectural decision shifted, `DECISIONS.md` updated.
+## Epic Roadmap
 
----
+| Order | Epic | Purpose | Status | Path |
+|---:|---|---|---|---|
+| 1 | Platform Foundation and Governance | Keep the platform buildable, auditable, and aligned with MVP-0 invariants before product surfaces expand. | Proposed | tasks/platform-foundation-governance/epic.md |
+| 2 | Market Data and Intelligence Ingestion | Give runs trustworthy market, portfolio, and external intelligence inputs with freshness and provenance controls. | Proposed | tasks/market-data-intelligence/epic.md |
+| 3 | Run Engine and Memory | Make each experiment a reproducible, isolated run with durable artifacts, event history, and bounded autonomy. | Proposed | tasks/run-engine-memory/epic.md |
+| 4 | Research Datasets, Features, and Models | Convert raw data into point-in-time datasets, registered features, labels, and calibrated model artifacts. | Proposed | tasks/research-datasets-models/epic.md |
+| 5 | Strategy Framework and Learning Loop | Let the platform test, rank, promote, demote, and learn from strategies without exceeding evidence or risk boundaries. | Proposed | tasks/strategy-learning/epic.md |
+| 6 | Backtesting and Simulation | Produce honest, deterministic simulations that justify or falsify strategy changes before paper or live exposure. | Proposed | tasks/backtesting-simulation/epic.md |
+| 7 | Risk and Execution Safety | Protect capital by keeping all target positions behind risk checks, broker registry, paper simulation, reconciliation, and live gates. | Proposed | tasks/risk-execution-safety/epic.md |
+| 8 | LLM and AI Assistance | Use LLMs for research, summaries, calibration, and operator assistance while keeping them out of the trading path. | Proposed | tasks/llm-ai-assistance/epic.md |
+| 9 | Backend API and Streaming | Expose run, strategy, configuration, audit, and command capabilities through typed APIs and realtime event streams. | Proposed | tasks/backend-api-streaming/epic.md |
+| 10 | Frontend Operator Experience | Give a single operator a beginner-safe dashboard for runs, strategy evidence, configuration, learning, alerts, and diagnostics. | Proposed | tasks/frontend-operator-experience/epic.md |
+| 11 | Observability, Audit, and Operations | Make the platform diagnosable, explainable, and recoverable through logs, alerts, audit trails, retention, and runbooks. | Proposed | tasks/observability-audit-operations/epic.md |
+| 12 | Deployment, Security, and CI | Package and validate the platform for self-hosted Unraid operation with secure secrets, containers, CI gates, and recovery paths. | Proposed | tasks/deployment-security-ci/epic.md |
 
-## Implementation Plan
+## Feature Index
 
-> **Status legend:** `- [ ]` not started · `- [~]` in progress
-> · `- [x]` complete
+| ID | Feature | Epic | Status | Path |
+|---|---|---|---|---|
+| FEATURE-0001 | MVP-0 Release Invariants and Readiness Gate | Platform Foundation and Governance | Proposed | tasks/platform-foundation-governance/mvp0_release_invariants_0001.md |
+| FEATURE-0002 | Architecture Decision and System State Records | Platform Foundation and Governance | Proposed | tasks/platform-foundation-governance/architecture_decision_system_state_0002.md |
+| FEATURE-0003 | Contribution Workflow and Cursor Harness Governance | Platform Foundation and Governance | Proposed | tasks/platform-foundation-governance/contribution_cursor_harness_0003.md |
+| FEATURE-0004 | Market Source Catalog and Symbol Policy | Market Data and Intelligence Ingestion | Proposed | tasks/market-data-intelligence/market_source_catalog_0004.md |
+| FEATURE-0005 | Historical and Realtime Ingestion Freshness | Market Data and Intelligence Ingestion | Proposed | tasks/market-data-intelligence/historical_realtime_freshness_0005.md |
+| FEATURE-0006 | Manual Insight Intake and Source Confirmation | Market Data and Intelligence Ingestion | Proposed | tasks/market-data-intelligence/manual_insight_confirmation_0006.md |
+| FEATURE-0007 | Schwab CSV Portfolio Context | Market Data and Intelligence Ingestion | Proposed | tasks/market-data-intelligence/schwab_csv_portfolio_context_0007.md |
+| FEATURE-0008 | Run Lifecycle and Isolation | Run Engine and Memory | Proposed | tasks/run-engine-memory/run_lifecycle_isolation_0008.md |
+| FEATURE-0009 | Run Memory and Artifact Replay | Run Engine and Memory | Proposed | tasks/run-engine-memory/run_memory_artifact_replay_0009.md |
+| FEATURE-0010 | MVP-0 and v1 Run Type Catalog | Run Engine and Memory | Proposed | tasks/run-engine-memory/run_type_catalog_0010.md |
+| FEATURE-0011 | Approval Queue and Autonomy Boundaries | Run Engine and Memory | Proposed | tasks/run-engine-memory/approval_autonomy_boundaries_0011.md |
+| FEATURE-0012 | Dataset Snapshots and Replay Contracts | Research Datasets, Features, and Models | Proposed | tasks/research-datasets-models/dataset_snapshots_replay_0012.md |
+| FEATURE-0013 | Point-in-Time Feature Registry | Research Datasets, Features, and Models | Proposed | tasks/research-datasets-models/point_in_time_feature_registry_0013.md |
+| FEATURE-0014 | Model Training, Evaluation, and Registry | Research Datasets, Features, and Models | Proposed | tasks/research-datasets-models/model_training_registry_0014.md |
+| FEATURE-0015 | Strategy Library and Evidence Ladder | Strategy Framework and Learning Loop | Proposed | tasks/strategy-learning/strategy_library_evidence_ladder_0015.md |
+| FEATURE-0016 | Adaptive Universe and Bandit Allocation | Strategy Framework and Learning Loop | Proposed | tasks/strategy-learning/adaptive_universe_bandit_0016.md |
+| FEATURE-0017 | OOS-Only Learning Lever Scoring | Strategy Framework and Learning Loop | Proposed | tasks/strategy-learning/oos_learning_lever_scoring_0017.md |
+| FEATURE-0018 | Deterministic Backtest Artifacts | Backtesting and Simulation | Proposed | tasks/backtesting-simulation/deterministic_backtest_artifacts_0018.md |
+| FEATURE-0019 | Realistic Cost, Slippage, and Liquidity Modeling | Backtesting and Simulation | Proposed | tasks/backtesting-simulation/realistic_cost_slippage_0019.md |
+| FEATURE-0020 | Backtest Comparison and Gap Analysis | Backtesting and Simulation | Proposed | tasks/backtesting-simulation/backtest_comparison_gap_analysis_0020.md |
+| FEATURE-0021 | Non-Bypassable Risk Path | Risk and Execution Safety | Proposed | tasks/risk-execution-safety/non_bypassable_risk_path_0021.md |
+| FEATURE-0022 | Paper Broker and Broker Registry | Risk and Execution Safety | Proposed | tasks/risk-execution-safety/paper_broker_registry_0022.md |
+| FEATURE-0023 | Fill Reconciliation and Account State | Risk and Execution Safety | Proposed | tasks/risk-execution-safety/fill_reconciliation_account_state_0023.md |
+| FEATURE-0024 | Live Enablement Gate and Manual Override Ceremony | Risk and Execution Safety | Proposed | tasks/risk-execution-safety/live_enablement_gate_0024.md |
+| FEATURE-0025 | Ollama Provider and LLM Trace Logging | LLM and AI Assistance | Proposed | tasks/llm-ai-assistance/ollama_provider_trace_logging_0025.md |
+| FEATURE-0026 | Task-Type Calibration as a Research Signal | LLM and AI Assistance | Proposed | tasks/llm-ai-assistance/task_type_calibration_0026.md |
+| FEATURE-0027 | Dashboard Chat Command Bus | LLM and AI Assistance | Proposed | tasks/llm-ai-assistance/dashboard_chat_command_bus_0027.md |
+| FEATURE-0028 | Run, Strategy, and Config API Surfaces | Backend API and Streaming | Proposed | tasks/backend-api-streaming/run_strategy_config_api_0028.md |
+| FEATURE-0029 | Asynchronous Mutating Command Pattern | Backend API and Streaming | Proposed | tasks/backend-api-streaming/async_mutating_command_pattern_0029.md |
+| FEATURE-0030 | Realtime Run Event Streaming | Backend API and Streaming | Proposed | tasks/backend-api-streaming/realtime_run_event_streaming_0030.md |
+| FEATURE-0031 | Dashboard Information Architecture and Run UX | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/dashboard_information_architecture_0031.md |
+| FEATURE-0032 | Configuration and Risk Controls UX | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/configuration_risk_controls_ux_0032.md |
+| FEATURE-0033 | Learning, Backtest, and Strategy Comparison UX | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/learning_backtest_comparison_ux_0033.md |
+| FEATURE-0034 | Style Guide and Component Library | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/style_guide_component_library_0034.md |
+| FEATURE-0035 | Structured Logs, Metrics, and SLOs | Observability, Audit, and Operations | Proposed | tasks/observability-audit-operations/structured_logs_metrics_slos_0035.md |
+| FEATURE-0036 | Notifications and Seven Operational Alerts | Observability, Audit, and Operations | Proposed | tasks/observability-audit-operations/notifications_seven_alerts_0036.md |
+| FEATURE-0037 | Hash-Chained Audit and Decision Explainability | Observability, Audit, and Operations | Proposed | tasks/observability-audit-operations/hash_chained_audit_explainability_0037.md |
+| FEATURE-0038 | Docker and Unraid Deployment Topology | Deployment, Security, and CI | Proposed | tasks/deployment-security-ci/docker_unraid_topology_0038.md |
+| FEATURE-0039 | CI/CD and Quality Gates | Deployment, Security, and CI | Proposed | tasks/deployment-security-ci/cicd_quality_gates_0039.md |
+| FEATURE-0040 | Secrets and Security Controls | Deployment, Security, and CI | Proposed | tasks/deployment-security-ci/secrets_security_controls_0040.md |
 
-### Phase 1 — Foundation
+## Suggested Execution Order
 
-- [ ] 1. Set up scaffolding for trading-lab-platform
-- [ ] 1.1 Create module directory and `__init__.py`
-  - Add `{{module_path}}/` with empty `__init__.py`.
-  - Add `{{module_path}}/errors.py` with module-specific exception
-    classes (per `coding-standards.mdc`).
-  - Add a stub `{{module_path}}/README.md` describing the module's
-    role.
-  - _Requirements: 1.1_
+### Wave 1 - MVP-0 Safety Foundation
 
-- [ ] 1.2 Define typed data contracts
-  - Implement pydantic models from `design.md` § Data Models.
-  - Add unit tests in `tests/{{module}}/test_models.py` covering
-    happy and rejection paths.
-  - _Requirements: 1.2, 2.1_
+- [ ] FEATURE-0001 - MVP-0 Release Invariants and Readiness Gate
+- [ ] FEATURE-0002 - Architecture Decision and System State Records
+- [ ] FEATURE-0003 - Contribution Workflow and Cursor Harness Governance
+- [ ] FEATURE-0021 - Non-Bypassable Risk Path
+- [ ] FEATURE-0022 - Paper Broker and Broker Registry
+- [ ] FEATURE-0037 - Hash-Chained Audit and Decision Explainability
+- [ ] FEATURE-0039 - CI/CD and Quality Gates
+- [ ] FEATURE-0040 - Secrets and Security Controls
 
-- [ ] 1.3 Wire configuration loading
-  - Add a new section to `configs/{{config_file}}.yaml` with the
-    keys from `design.md` § Deployment.
-  - Implement a pydantic `Config` loader in
-    `{{module_path}}/config.py`.
-  - Unit tests for missing / malformed config.
-  - _Requirements: 3.1_
+### Wave 2 - Core Run and Data Loop
 
-### Phase 2 — Core implementation
+- [ ] FEATURE-0004 - Market Source Catalog and Symbol Policy
+- [ ] FEATURE-0005 - Historical and Realtime Ingestion Freshness
+- [ ] FEATURE-0008 - Run Lifecycle and Isolation
+- [ ] FEATURE-0009 - Run Memory and Artifact Replay
+- [ ] FEATURE-0010 - MVP-0 and v1 Run Type Catalog
+- [ ] FEATURE-0012 - Dataset Snapshots and Replay Contracts
+- [ ] FEATURE-0013 - Point-in-Time Feature Registry
+- [ ] FEATURE-0018 - Deterministic Backtest Artifacts
+- [ ] FEATURE-0019 - Realistic Cost, Slippage, and Liquidity Modeling
 
-- [ ] 2. Implement {{CORE_COMPONENT}}
-- [ ] 2.1 Implement {{Component A}}
-  - Create `{{module_path}}/{{component_a}}.py` per `design.md`
-    § Components — Component 1.
-  - Function signatures come from the design doc; return types are
-    typed.
-  - Unit tests covering each acceptance criterion.
-  - _Requirements: 1.1, 1.2_
+### Wave 3 - Research, Strategy, and Learning
 
-- [ ] 2.2 Implement {{Component B}}
-  - Create `{{module_path}}/{{component_b}}.py`.
-  - Wire `{{Component A}}` as a dependency (no global state).
-  - Unit tests including failure modes from `design.md`
-    § Error Handling.
-  - _Requirements: 2.1, 2.2_
+- [ ] FEATURE-0014 - Model Training, Evaluation, and Registry
+- [ ] FEATURE-0015 - Strategy Library and Evidence Ladder
+- [ ] FEATURE-0016 - Adaptive Universe and Bandit Allocation
+- [ ] FEATURE-0017 - OOS-Only Learning Lever Scoring
+- [ ] FEATURE-0020 - Backtest Comparison and Gap Analysis
+- [ ] FEATURE-0025 - Ollama Provider and LLM Trace Logging
+- [ ] FEATURE-0026 - Task-Type Calibration as a Research Signal
 
-- [ ] 2.3 Add structured logging and metrics
-  - Use `monitoring.logger.get_logger(__name__)`; emit the events
-    listed in `requirements.md` § Observability.
-  - Add gauges / counters per `design.md` § Performance.
-  - Tests assert that the documented log events are emitted.
-  - _Requirements: 4.1, 4.2_
+### Wave 4 - Operator Product Surface
 
-### Phase 3 — Integration
+- [ ] FEATURE-0028 - Run, Strategy, and Config API Surfaces
+- [ ] FEATURE-0029 - Asynchronous Mutating Command Pattern
+- [ ] FEATURE-0030 - Realtime Run Event Streaming
+- [ ] FEATURE-0031 - Dashboard Information Architecture and Run UX
+- [ ] FEATURE-0032 - Configuration and Risk Controls UX
+- [ ] FEATURE-0033 - Learning, Backtest, and Strategy Comparison UX
+- [ ] FEATURE-0034 - Style Guide and Component Library
+- [ ] FEATURE-0027 - Dashboard Chat Command Bus
 
-- [ ] 3. Connect trading-lab-platform to the pipeline
-- [ ] 3.1 Wire upstream input
-  - Read input from `{{upstream_module}}` via its public API.
-  - Validate input shape (pandera / pydantic) at the boundary.
-  - Integration test using a fixture from `tests/fixtures/`.
-  - _Requirements: 1.1, 5.1_
+### Wave 5 - Production Readiness and v1 Expansion
 
-- [ ] 3.2 Wire downstream output
-  - Emit typed artifact to `{{downstream_module}}` per
-    `design.md` § Data Flow.
-  - Idempotency / dedupe key as specified.
-  - Integration test covering a full upstream → feature →
-    downstream cycle.
-  - _Requirements: 5.2_
+- [ ] FEATURE-0006 - Manual Insight Intake and Source Confirmation
+- [ ] FEATURE-0007 - Schwab CSV Portfolio Context
+- [ ] FEATURE-0011 - Approval Queue and Autonomy Boundaries
+- [ ] FEATURE-0023 - Fill Reconciliation and Account State
+- [ ] FEATURE-0024 - Live Enablement Gate and Manual Override Ceremony
+- [ ] FEATURE-0035 - Structured Logs, Metrics, and SLOs
+- [ ] FEATURE-0036 - Notifications and Seven Operational Alerts
+- [ ] FEATURE-0038 - Docker and Unraid Deployment Topology
 
-- [ ] 3.3 Risk path verification (only if feature can produce orders)
-  - Ensure every order path calls
-    `risk.engine.RiskEngine.check_and_size(...)` (per
-    `architecture.mdc` and `security.mdc`).
-  - Add a test that asserts a synthetic risk-violating order is
-    rejected.
-  - _Requirements: 6.1_
+## Traceability Matrix
 
-### Phase 4 — API / interface layer
+| Requirement / Design Area | Epic | Feature Tickets |
+|---|---|---|
+| Req 1-2, MVP-0 acceptance, capital phases | Platform Foundation and Governance; Backtesting and Simulation | FEATURE-0001, FEATURE-0018, FEATURE-0020 |
+| Req 3, 19, 30 market scope, ingestion, freshness | Market Data and Intelligence Ingestion | FEATURE-0004, FEATURE-0005 |
+| Req 5 Schwab read-only path | Market Data and Intelligence Ingestion | FEATURE-0007 |
+| Req 6-12 run engine, memory, run types, artifacts | Run Engine and Memory | FEATURE-0008, FEATURE-0009, FEATURE-0010, FEATURE-0011 |
+| Req 13-15, 27 strategy evidence and universe | Strategy Framework and Learning Loop | FEATURE-0015, FEATURE-0016 |
+| Req 16, 22, 23 LLM stack and isolation | LLM and AI Assistance; Research Datasets, Features, and Models | FEATURE-0014, FEATURE-0025, FEATURE-0026, FEATURE-0027 |
+| Req 17, 44-45 learning and auto-apply | Strategy Framework and Learning Loop; Run Engine and Memory | FEATURE-0011, FEATURE-0017 |
+| Req 18, 9 manual insight and source confirmation | Market Data and Intelligence Ingestion | FEATURE-0006 |
+| Req 20, 24-25 risk path, limits, trust model | Risk and Execution Safety | FEATURE-0021, FEATURE-0022, FEATURE-0023, FEATURE-0024 |
+| Req 26, 28-29 reproducibility, datasets, features | Research Datasets, Features, and Models; Backtesting and Simulation | FEATURE-0012, FEATURE-0013, FEATURE-0018 |
+| Req 31-32 notifications and alerts | Observability, Audit, and Operations; Risk and Execution Safety | FEATURE-0024, FEATURE-0036 |
+| Req 33-35 UI, config, realtime | Backend API and Streaming; Frontend Operator Experience | FEATURE-0028, FEATURE-0029, FEATURE-0030, FEATURE-0031, FEATURE-0032 |
+| Req 36, 41-42 explainability, logs, state | Observability, Audit, and Operations; Backend API and Streaming | FEATURE-0035, FEATURE-0037 |
+| Req 37-40 hosting, backup, free tooling, CI | Deployment, Security, and CI | FEATURE-0038, FEATURE-0039, FEATURE-0040 |
+| Req 43 out-of-scope boundaries | Platform Foundation and Governance; Risk and Execution Safety | FEATURE-0001, FEATURE-0022, FEATURE-0024 |
+| Req 46-51 engineering quality, libraries, web research, Cursor, style guide | Platform Foundation and Governance; Frontend Operator Experience; Deployment, Security, and CI | FEATURE-0002, FEATURE-0003, FEATURE-0034, FEATURE-0039 |
 
-*Drop this phase if the feature exposes no external interface.*
+## Open Questions
 
-- [ ] 4. Expose trading-lab-platform via {{REST | CLI | websocket}}
-- [ ] 4.1 Implement endpoint / command
-  - Per `design.md` § API Design.
-  - Input validation; documented error responses.
-  - Integration test via FastAPI `TestClient` or `pytest`-driven CLI.
-  - _Requirements: 7.1_
+- Should the repo later mirror specs/ into .kiro/ for external Kiro tooling, or is specs/ the permanent canonical location?
+- Which command should be canonical for the final backtest smoke gate: pytest tests/e2e -q plus python -m backtests.smoke, or only the workflow rule variant?
+- Should v1.x Schwab OAuth and v1.1 live-broker enablement remain in this broad platform spec or split into smaller follow-up specs before implementation?
 
-- [ ] 4.2 Add OpenAPI / `--help` documentation
-  - Auto-generated docstrings; example request/response.
-  - _Requirements: 7.2_
+## Quality Checklist
 
-### Phase 5 — Verification
+- [x] All requirements are represented by at least one epic or feature.
+- [x] All major design components are represented.
+- [x] Each feature has acceptance criteria.
+- [x] Each feature has validation expectations.
+- [x] Each feature explains why and what.
+- [x] No feature over-prescribes implementation details.
+- [x] Tasks align with Cursor spec-session and workflow rules.
+- [x] Tasks align with architecture, security, risk, and LLM rules.
+- [x] File paths and links are valid within specs/trading-lab-platform/.
 
-- [ ] 5. End-to-end and reproducibility checks
-- [ ] 5.1 Backtest / pipeline smoke run
-  - Add `tests/e2e/test_{{feature}}.py` that runs a minimal
-    end-to-end scenario.
-  - For backtest changes: add a deterministic backtest test that
-    asserts identical `metrics.json` for a fixed config.
-  - _Requirements: 8.1_
+## Self-Review Notes
 
-- [ ] 5.2 Determinism and seed audit
-  - All randomness goes through explicit seeds (per
-    `architecture.mdc`).
-  - Test asserts byte-identical output across two runs.
-  - _Requirements: 8.2_
-
-- [ ] 5.3 Full lint + typecheck + test
-  - Run `ruff check .`, `mypy --strict .`, `pytest -q`.
-  - Resolve any new findings.
-  - _Requirements: all_
-
-### Phase 6 — Documentation and handoff
-
-- [ ] 6. Document and record the feature
-- [ ] 6.1 Update operator-facing docs
-  - Update `README.md` or `docs/` with how to run / configure the
-    feature.
-  - Update `AGENTS.md` only if a new agent role is introduced
-    (rare).
-  - _Requirements: 9.1_
-
-- [ ] 6.2 Record decisions
-  - Append a `DECISIONS.md` entry summarizing tradeoffs for any
-    decision flagged in `design.md` § Key Design Decisions.
-  - Append a `SESSION_LOG.md` entry with date, author, summary,
-    spec id.
-  - _Requirements: 9.2_
-
----
-
-## Task Quality Self-Check
-
-Run this before approving Phase 3:
-
-### Completeness
-
-- [ ] Every component in `design.md` has at least one task.
-- [ ] Every requirement in `requirements.md` is cited by at least
-      one task's `_Requirements:` line.
-- [ ] Every leaf task includes a test or testing sub-bullet.
-
-### Scope
-
-- [ ] No task is too big to finish in 1–4 hours.
-- [ ] No task is so small it's noise (rename one variable).
-- [ ] No task is non-coding ("get user feedback", "deploy").
-
-### Sequencing
-
-- [ ] Tasks are ordered so each builds on completed predecessors.
-- [ ] Foundation (models, errors, config) precedes business logic.
-- [ ] Business logic precedes integration; integration precedes
-      verification.
-
-### Traceability
-
-- [ ] Every leaf task ends with `_Requirements: <ids>_` and the
-      ids exist in `requirements.md`.
-- [ ] Task IDs (`1.1`, `1.2`, …) are unique and stable.
-
-### Hierarchy
-
-- [ ] No nesting deeper than two levels.
-- [ ] Top-level tasks (`1.`, `2.`, …) are phases / epics.
-- [ ] Sub-tasks (`1.1`, `1.2`, …) are concrete coding work.
-
----
-
-> **Execution rules** (per `spec-sessions.mdc` Phase 4):
->
-> - Do tasks one at a time unless the user says "run all".
-> - Mark `- [~]` when starting a task; `- [x]` only after its tests
->   pass and its acceptance criteria are met.
-> - If a task reveals a gap in `requirements.md` or `design.md`,
->   stop and update those documents before continuing.
+- requirements.md was analyzed for all 51 requirements and non-functional constraints.
+- design.md was analyzed for MVP-0 sequencing, 23 components, domain/data models, API, testing, deployment, observability, and risk/security sections.
+- The previous placeholder tasks.md was replaced because it contained template variables and did not represent the approved design.
+- No .kiro/steering files were available in this repo; .cursor rules and specs/README.md are the active steering system.
