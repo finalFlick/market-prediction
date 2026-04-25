@@ -84,6 +84,7 @@ extend-exclude = [
     "backtests/results",
     "frontend",
     "node_modules",
+    "pocs",
 ]
 
 [tool.ruff.lint]
@@ -95,12 +96,20 @@ ignore = ["PLR0913"]
 "research/models/*.py" = ["N803", "N806"]
 "research/models/train.py" = ["N803", "N806"]
 "tests/**/*.py" = ["PLR2004"]
+# Cursor-harness tests intentionally import hook modules inside test
+# bodies because the conftest fixture manipulates sys.path per test.
+# UP017: tests use ``timezone.utc`` for parity with the hook code,
+# which must run on whatever Python is on PATH.
+"tests/cursor_harness/*.py" = ["PLR2004", "PLC0415", "UP017"]
 "risk/errors.py" = ["N818"]
 "research/llm/client.py" = ["PLW0603"]
 "monitoring/logger.py" = ["PLW0603"]
 "research/features/*.py" = ["PLR2004"]
 "research/cv.py" = ["PLR2004"]
 "research/llm/__init__.py" = ["RUF022"]
+# Hooks must run on whatever Python the user has on PATH (often <3.11),
+# so they keep using ``timezone.utc`` instead of ``datetime.UTC``.
+".cursor/hooks/*.py" = ["UP017"]
 
 [tool.mypy]
 python_version = "3.11"

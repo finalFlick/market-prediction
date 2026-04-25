@@ -74,4 +74,7 @@ Thumbs.db
 .cursor/state/risk-touches.jsonl
 .cursor/state/decisions-pending.md
 .cursor/state/session-summary.json
+.cursor/state/last-prompt.json
+.cursor/state/session-context-memory.json
+.cursor/state/router-log.jsonl
 

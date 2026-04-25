@@ -8,6 +8,11 @@ Definition of done for the sprint: `python -m execution.runner --broker paper`
 trades for 24h on the baseline strategy without errors and writes a coherent
 monitoring report.
 
+Spec execution roadmap: `specs/trading-lab-platform/tasks.md` now indexes the
+production task system for the broader platform build. Use its epic/feature
+tickets as the source of truth when splitting implementation work; keep this
+sprint checklist as the narrow foundation slice.
+
 ---
 
 ## Milestone 1 — Data layer

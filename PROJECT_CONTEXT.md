@@ -46,6 +46,7 @@ Cross-stage shortcuts (e.g. a strategy calling the broker directly) are
 | Who owns each pipeline stage?         | [`AGENTS.md`](AGENTS.md)                    |
 | Full system design                    | [`docs/DESIGN.md`](docs/DESIGN.md)          |
 | Cursor rules (always-on guidance)     | [`.cursor/rules/`](.cursor/rules)           |
+| How does context get auto-injected?   | [`.cursor/hooks/README.md`](.cursor/hooks/README.md) |
 
 ## Hard rules (do not violate)
 
