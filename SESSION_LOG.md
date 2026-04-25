@@ -16,6 +16,15 @@ Format:
 
 ---
 
+## 2026-04-25 — docsite README for GitHub Pages
+
+- **Agent**: Developer
+- **Goal**: Add a maintainer-facing `docsite/README.md` for the Pages/MkDocs
+  pipeline (distinct from repo root `README.md`) and link it from `index.md`.
+- **Done**: `docsite/README.md`; `docsite/index.md` maintainer link.
+- **Verified**: `mkdocs build` in worktree (success).
+- **Blocked / next**: none.
+
 ## 2026-04-25 — trading-lab spec site (MkDocs + GitHub Pages, worktree)
 
 - **Agent**: Developer

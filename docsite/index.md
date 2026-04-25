@@ -3,6 +3,8 @@
 **AI Quant Trading Lab** — quantitative research, honest backtests, and automated execution with
 non-bypassable risk. This site mirrors the in-repo `specs/`, `docs/`, and key project contracts.
 
+**Maintainers:** [README for this docs site](README.md) (build, deploy, local preview).
+
 - **trading-lab-platform spec (roadmap + tasks)**: [specs/trading-lab-platform](specs/trading-lab-platform/requirements.md)
 - **Source repo**: [market-prediction on GitHub](https://github.com/finalFlick/market-prediction)
 
