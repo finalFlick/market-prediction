@@ -67,11 +67,12 @@ def test_kill_switch_rejects_and_no_fill(tmp_path: Path) -> None:
         targets = [TargetPosition(symbol="BTCUSDT", weight=0.5)]
         portfolio = _portfolio()
         with pytest.raises(RiskCheckRejected):
-                engine.check_and_size(
-                    targets, portfolio,
-                    marks={"BTCUSDT": 50_000.0},
-                    realized_vol={"BTCUSDT": 0.02},
-                )
+            engine.check_and_size(
+                targets,
+                portfolio,
+                marks={"BTCUSDT": 50_000.0},
+                realized_vol={"BTCUSDT": 0.02},
+            )
 
         rows = conn.execute(
             """

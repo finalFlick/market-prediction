@@ -52,7 +52,7 @@ def _stream_run_events(run_id: str) -> Iterator[str]:
                         "created_at": str(created_at),
                     }
                 )
-        yield "data: {\"kind\": \"done\"}\n\n"
+        yield 'data: {"kind": "done"}\n\n'
     finally:
         conn.close()
 

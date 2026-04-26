@@ -252,7 +252,11 @@ class RunWorker:
                 )
                 repo.close()
                 _transition(
-                    conn, run_id, "running", "succeeded", "completed",
+                    conn,
+                    run_id,
+                    "running",
+                    "succeeded",
+                    "completed",
                     artifact_dir=artifact_dir,
                 )
             elif cfg.run_type == "paper":
@@ -260,7 +264,11 @@ class RunWorker:
                 _transition(conn, run_id, "running", "succeeded", "completed")
             else:
                 _transition(
-                    conn, run_id, "running", "failed", "unsupported_run_type",
+                    conn,
+                    run_id,
+                    "running",
+                    "failed",
+                    "unsupported_run_type",
                     error_reason=cfg.run_type,
                 )
                 return False

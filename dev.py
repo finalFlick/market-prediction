@@ -15,6 +15,15 @@ def _compose(args: list[str], *, check: bool = True) -> int:
     return subprocess.run(full, cwd=REPO_ROOT, check=check).returncode
 
 
+def _base(_args: argparse.Namespace) -> None:
+    """Build the shared Python trading-base image (required before service images)."""
+    subprocess.run(
+        ["docker", "build", "-f", "Dockerfile.base", "-t", "trading-base", "."],
+        cwd=REPO_ROOT,
+        check=True,
+    )
+
+
 def _up(_args: argparse.Namespace) -> None:
     """Start backend, engine, research, and frontend in dev mode."""
     _compose(["up", "-d"])
@@ -36,9 +45,7 @@ def _logs(args: argparse.Namespace) -> None:
 def _exec(args: argparse.Namespace) -> None:
     """Run a command inside a service."""
     if not args.command:
-        raise SystemExit(
-            "No command supplied. Try: python dev.py exec <service> -- <cmd>"
-        )
+        raise SystemExit("No command supplied. Try: python dev.py exec <service> -- <cmd>")
     _compose(["exec", args.service, *args.command])
 
 
@@ -88,6 +95,10 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Orchestrate the local docker dev stack.")
     sub = parser.add_subparsers(dest="command", required=True)
 
+    sub.add_parser(
+        "base",
+        help="Build Dockerfile.base as image trading-base (run after pyproject changes).",
+    ).set_defaults(func=_base)
     sub.add_parser("up", help="Start the dev stack.").set_defaults(func=_up)
     sub.add_parser("down", help="Stop the dev stack.").set_defaults(func=_down)
 
@@ -104,12 +115,8 @@ def _parser() -> argparse.ArgumentParser:
     shell.add_argument("service")
     shell.set_defaults(func=_shell)
 
-    sub.add_parser("install", help="Run pip install -e . in backend.").set_defaults(
-        func=_install
-    )
-    sub.add_parser("jupyter", help="Show Jupyter URL and stream logs.").set_defaults(
-        func=_jupyter
-    )
+    sub.add_parser("install", help="Run pip install -e . in backend.").set_defaults(func=_install)
+    sub.add_parser("jupyter", help="Show Jupyter URL and stream logs.").set_defaults(func=_jupyter)
     sub.add_parser("reset-deps", help="Clear dependency volumes and restart.").set_defaults(
         func=_reset_deps
     )

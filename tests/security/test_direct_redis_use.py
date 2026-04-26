@@ -13,7 +13,7 @@ _ROOT = Path(__file__).resolve().parents[2]
 _ALLOWED = {
     _ROOT / "runs" / "events" / "bus.py",
     _ROOT / "runs" / "events" / "redis_bus.py",  # legacy adapter — allowed to hold the impl
-    _ROOT / "runs" / "events" / "factory.py",    # factory selects transport
+    _ROOT / "runs" / "events" / "factory.py",  # factory selects transport
 }
 _SCAN_ROOTS = (
     _ROOT / "runs",
@@ -53,6 +53,5 @@ def test_no_direct_redis_use_outside_allowed_modules() -> None:
                 offenders.append(str(path.relative_to(_ROOT)))
     assert not offenders, (
         "Direct Redis access found outside allowed modules "
-        "(use runs.events.bus.publish_event instead):\n"
-        + "\n".join(offenders)
+        "(use runs.events.bus.publish_event instead):\n" + "\n".join(offenders)
     )

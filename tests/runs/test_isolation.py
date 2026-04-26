@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from pathlib import Path
 
 import pytest
@@ -15,7 +16,7 @@ from runs.isolation import assert_run_context, bind_run_context, clear_run_conte
 
 
 @pytest.fixture(autouse=True)
-def _clean_context() -> None:  # type: ignore[return]
+def _clean_context() -> Generator[None, None, None]:
     clear_run_context()
     yield
     clear_run_context()

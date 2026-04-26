@@ -12,7 +12,7 @@ from runs.types import RunConfig
 
 def _submit(db: Path, run_id: str, run_type: str = "paper", mode: str = "paper") -> None:
     o = RunOrchestrator(db_path=db)
-    o.submit(RunConfig(run_id=run_id, run_type=run_type, mode=mode))  # type: ignore[call-arg]
+    o.submit(RunConfig(run_id=run_id, run_type=run_type, mode=mode))
 
 
 def test_queued_run_transitioned_to_failed(tmp_path: Path) -> None:
@@ -21,9 +21,7 @@ def test_queued_run_transitioned_to_failed(tmp_path: Path) -> None:
     n = transition_open_runs_to_failed(db, reason="container_restart")
     assert n == 1
     conn = connect(db)
-    row = conn.execute(
-        "SELECT status, error_reason FROM runs WHERE run_id = 'run-q'"
-    ).fetchone()
+    row = conn.execute("SELECT status, error_reason FROM runs WHERE run_id = 'run-q'").fetchone()
     conn.close()
     assert row is not None
     assert row[0] == "failed"
@@ -41,9 +39,7 @@ def test_running_and_paused_also_transitioned(tmp_path: Path) -> None:
     n = transition_open_runs_to_failed(db, reason="container_restart")
     assert n == 2
     conn = connect(db)
-    rows = conn.execute(
-        "SELECT status FROM runs WHERE run_id IN ('run-a', 'run-b')"
-    ).fetchall()
+    rows = conn.execute("SELECT status FROM runs WHERE run_id IN ('run-a', 'run-b')").fetchall()
     conn.close()
     assert all(r[0] == "failed" for r in rows)
 
