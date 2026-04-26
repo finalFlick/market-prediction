@@ -319,3 +319,93 @@ Re-verify after org moves, visibility changes, or new secrets:
 | Requirement / Design Area | Epic | Feature Tickets |
 |---|---|---|
 | Addendum E (2026-04-26) public GitHub, fork CI, Dependabot, CodeQL | Deployment, Security, and CI; Platform Foundation | FEATURE-0039, FEATURE-0040, FEATURE-0003 |
+
+---
+
+## Addendum: PR #17 — `docker · build images` regression fix (2026-04-26)
+
+**Scope:** Land the `trading-base` shared-Python-layers build step that
+was sliced out of PR #3, fixing the `docker · build images` job that had
+been failing on every PR since `4d7478e`. Merged at `8174b0b`.
+
+| Item | Outcome |
+|---|---|
+| Inline `trading-base` build in CI `docker` job | Implemented (`.github/workflows/ci.yml`) |
+| Dedicated publish workflow for GHCR `:cache` | Implemented (`.github/workflows/trading-base.yml`) |
+| `build-contexts` redirect for `FROM trading-base` | Reverted in favor of `driver: docker` (BuildKit `build-contexts: docker-image://...` still resolves via registry, not local Docker) |
+| `cache-from: type=registry` registry warming | Removed from CI; BuildKit aborts on both 403 (auth) and 404 (cache miss). `trading-base.yml` keeps `cache-to: type=registry` for external consumers |
+| Buildx driver | Switched from default `docker-container` to `docker` driver so the host Docker daemon's image store is shared between the trading-base / engine / backend / frontend build steps. **Trade-off:** `docker` driver does not support `cache-from/to: type=gha`, so trading-base pays a cold pip-install (~3-5 min) on every PR run |
+| Pre-existing Dockerfile bug | `frontend/Dockerfile` copies `/app/public`; `frontend/public/` did not exist in the repo. Fixed by adding `frontend/public/.gitkeep` |
+
+**Code:** `.github/workflows/ci.yml`, `.github/workflows/trading-base.yml`,
+`.cursor/rules/docker.mdc`, `frontend/public/.gitkeep`,
+`specs/trading-lab-platform/tasks/deployment-security-ci/docker_unraid_topology_0038.md`.
+
+**Feature mapping:** FEATURE-0038, FEATURE-0039.
+
+**Follow-up:** once `trading-base.yml` runs on `main` and populates the
+GHCR `:cache` ref, evaluate whether to reintroduce `cache-from:
+type=registry` on the CI `docker` job (would require switching back to
+`docker-container` driver and re-solving the local-image-resolution
+problem). Tracked under FEATURE-0038 audit row.
+
+---
+
+## Addendum: Agent Coordination and Handoff (2026-04-26)
+
+This addendum exists because the 2026-04-26 work day involved **two
+parallel agent sessions** editing the repository concurrently. Future
+agents must read this section before assuming `main` reflects every
+in-flight change.
+
+### Pattern observed
+
+1. One session focused on **public-repo governance, CI hardening, and the
+   docker · build images regression fix** (PRs #3 and #17). All work
+   landed in `main`.
+2. A second session focused on **FEATURE-0034 (`/styleguide`, component
+   registry, vitest, design tokens, operator components, charts)**. That
+   work was paused before any commit reached the remote. Its WIP is
+   captured in two places only:
+   - **Local branch `backup/chore-gov-pre-slim`** — sole holder of
+     `9913a86` (frontend-init compose service) and `07d05ab` (full
+     styleguide inventory). **Local-only**; deleting it loses both.
+   - **Untracked files in the working tree** — same content as
+     `07d05ab` for the styleguide files (under
+     `frontend/components/{operator,charts,data,ui}/`,
+     `frontend/styleguide/`, `frontend/styles/`, plus
+     `frontend/vitest.{config,setup}.ts`).
+
+### Handoff rules for future agents
+
+- **Do not delete `backup/chore-gov-pre-slim`** without first
+  cherry-picking its commits into a remote PR or getting explicit
+  approval from the project owner. It is the only place
+  `9913a86` and `07d05ab` exist.
+- **Do not pop the `wip-all-before-slim-pr3` stash** if it still appears
+  in `git stash list`. Its content is fully on
+  `backup/chore-gov-pre-slim`; popping it just re-creates an
+  untracked-file mess.
+- **`TODO.md`** (root) is the canonical continuation point. Read its
+  **Agent Coordination / Conflict Status** section first; pick a task
+  from there or from the Wave 1 list above.
+- **No file-level conflicts** are expected when the styleguide WIP is
+  finally landed: every path it touches is a new file. The merge will be
+  additive.
+
+### What this addendum does NOT change
+
+- No change to MVP-0 invariants, requirements, or design decisions.
+- No change to risk-engine / LLM-isolation / look-ahead boundaries.
+- No change to the ticket structure or epic ordering. FEATURE-0034
+  remains the operator-experience styleguide ticket; the paused-agent WIP
+  is a partial implementation of it, not a replacement.
+
+### Open questions (not new, just consolidated for clarity)
+
+- Should `9913a86` (frontend-init compose service) ship as its own tiny
+  PR, or be retired? It is a developer-experience-only change and was
+  superseded for CI by PR #17.
+- Should we standardize a "`backup/<topic>` branches are local-only and
+  ephemeral; nothing canonical lives there" convention so future
+  parallel-agent stashes don't risk silent data loss?

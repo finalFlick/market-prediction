@@ -16,6 +16,216 @@ Format:
 
 ---
 
+## 2026-04-26 — Project state / cleanup / handoff audit
+
+- **Agent**: Human + Developer (audit / steward)
+- **Goal**: Audit repo, git/GitHub, specs, and TODOs after a busy day of
+  parallel agent work; produce a clean handoff anchored on `TODO.md`.
+
+### Reviewed
+
+- `README.md`, `PROJECT_CONTEXT.md`, `TODO.md`, `SESSION_LOG.md` (this file),
+  `DECISIONS.md`, `AGENTS.md`.
+- `.cursor/README.md`, `.cursor/state/README.md`,
+  `.cursor/state/decisions-pending.md` (gitignored, hook-only noise).
+- `specs/trading-lab-platform/` — `requirements.md`, `design.md`,
+  `tasks.md`, the 12-epic `tasks/` tree.
+- Live `gh` state: open PRs, Dependabot alerts, recent CI runs on `main`.
+
+### Git State (snapshot)
+
+- Branch: `main`, in sync with `origin/main` at
+  `8174b0b ci(docker): build trading-base before service images and publish to GHCR (#17)`.
+- Working tree: 18 untracked frontend files (paused-agent WIP for
+  FEATURE-0034 `/styleguide`).
+- Stashes: `stash@{0}: On github-public-governance: wip-all-before-slim-pr3`
+  — content is fully captured on `backup/chore-gov-pre-slim`; redundant.
+- Local branches: `main`, `backup/chore-gov-pre-slim` (2 commits ahead of
+  `main`: `9913a86` frontend-init compose service, `07d05ab` styleguide
+  WIP), and three throwaway PR refs `pr-13`, `pr-15`, `pr-16` from earlier
+  Dependabot triage.
+
+### GitHub State (snapshot)
+
+- 12 open Dependabot PRs (#4-14, #16); all `BLOCKED` on solo-owner
+  CODEOWNERS review. Reviews posted on the three load-bearing ones (#9
+  postcss, #13 next 16, #16 vitest 4). PR #15 closed as exact duplicate of
+  #16.
+- 3 Dependabot alerts open: `postcss` #7 (transitive via `next`), `vite`
+  #8, `esbuild` #9 (both via `vitest`). Resolution paths documented in PR
+  reviews.
+- Required-check rollup on `main`: green for all six required contexts
+  (`Analyze`, `lint · ruff`, `types · mypy --strict`,
+  `test · unit + strategy + cursor harness`, `test · security suite`,
+  `security · gitleaks`). `docker · build images` is now green on `main`
+  after PR #17 (was the only post-PR #3 regression).
+
+### Changes Made
+
+- `TODO.md` — refreshed 2026-04-26 status block (PR #3 + #17 marked done
+  with merge commits cited), added an explicit
+  **Agent Coordination / Conflict Status** section with handoff
+  instructions for future agents.
+- `SESSION_LOG.md` — this entry.
+- `specs/trading-lab-platform/tasks.md` — added
+  **Addendum: Agent Coordination and Handoff (2026-04-26)** plus a
+  **PR #17 (docker · build images regression)** audit row appended to the
+  existing 2026-04-26 status table.
+- Local repo housekeeping (no on-disk content changes): drop the
+  throwaway Dependabot triage refs `pr-13`, `pr-15`, `pr-16` (these are
+  just `git fetch` mirrors of PRs that still exist on the remote;
+  reversible with `git fetch origin pull/N/head:pr-N`). The
+  `wip-all-before-slim-pr3` stash and `backup/chore-gov-pre-slim` branch
+  are **kept** — they hold the paused agent's work-in-progress and
+  dropping them risks silent data loss.
+
+### Changes Considered but Skipped
+
+- **Untracked styleguide files in working tree** — paused-agent WIP. Not
+  this session's to land; explicitly held per user instruction.
+- **Delete `backup/chore-gov-pre-slim`** — local-only branch is the sole
+  holder of `9913a86` (frontend-init compose svc) and `07d05ab` (styleguide
+  WIP). Held per user instruction until the WIP decision lands.
+- **`.cursor/state/decisions-pending.md`** — gitignored
+  (`.gitignore:75`), hook-only noise; not committed, no action needed.
+- **Rules / hooks / skills under `.cursor/`** — no observed reliability
+  problem from this session; the harness behaved as documented. No high-
+  value edit.
+- **`PROJECT_CONTEXT.md`, `DECISIONS.md`, `AGENTS.md`** — clean and
+  current; no changes earned their place.
+- **Reorganizing `TODO.md` Sprint 1 milestones** — these still represent
+  the foundation slice. The `tasks.md` Wave 1 list in
+  `specs/trading-lab-platform/` is the canonical roadmap; `TODO.md` keeps
+  pointing at it. No reorganization needed.
+
+### Agent Coordination Status
+
+Documented in `TODO.md` under **Agent Coordination / Conflict Status**.
+Short version: two parallel sessions ran 2026-04-26; this session owned
+the governance + CI fixes (PR #3, #17) and never touched the styleguide;
+the paused agent owned FEATURE-0034 (styleguide) and its WIP is captured
+on `backup/chore-gov-pre-slim` and as untracked files in the working tree.
+No file-level conflicts exist between the two scopes. Handoff path is
+documented in `TODO.md`.
+
+### Spec Addendums
+
+- `specs/trading-lab-platform/tasks.md` — appended:
+  - One row in the existing 2026-04-26 audit table flagging PR #17 as the
+    `docker · build images` regression fix and citing the `docker` driver
+    trade-off.
+  - **Addendum: Agent Coordination and Handoff (2026-04-26)** describing
+    the parallel-session pattern, where to find paused WIP, and how future
+    agents should pick continuation work.
+
+No requirement-level addendum (no architecture, risk, or LLM-isolation
+behavior changed during this session).
+
+### Remaining Risks
+
+- **Paused-agent WIP retention** — if `backup/chore-gov-pre-slim` is
+  deleted before the styleguide is cherry-picked into a PR, `9913a86` and
+  `07d05ab` are lost (local-only).
+- **Dependabot lockfile-regen recurrence** — PRs #13, #14, #16 all share
+  the `npm error Missing: @esbuild/* from lock file` failure mode. Either
+  patch CI's `npm ci` step or do a one-shot manual lockfile regen per
+  Dependabot PR. Tracked in PR #16 review.
+- **`docker · build images` cold cache** — `docker` driver does not
+  support GHA cache, so each PR rebuilds `trading-base` (~3-5 min).
+  Acceptable for now; warm registry cache via `trading-base.yml` is the
+  recorded follow-up.
+
+### Next Agent Handoff
+
+Read `TODO.md` first. The next concrete pieces of work, in priority order:
+
+1. **Decide on the paused-agent WIP** (blocker for `/styleguide`). Resume
+   that agent or cherry-pick `07d05ab` into `feat(frontend): styleguide
+   inventory`.
+2. **Land the postcss `overrides`** (clears Dependabot alert #7). One-line
+   `package.json` edit + lockfile bump.
+3. **Pick one Dependabot lockfile-regen path** (PR #16 or a CI patch) so
+   the `npm ci` failures stop blocking the rest of the queue.
+4. **Tackle Wave 1 of `specs/trading-lab-platform/tasks.md`** when the
+   above three are unblocked: FEATURE-0001, 0002, 0021, 0022, 0037, 0039,
+   0040.
+
+---
+
+## 2026-04-26 — PR #17 docker · build images regression fix
+
+- **Agent**: Developer
+- **Goal**: Land the `trading-base` build step that was sliced out of
+  PR #3, so the `docker · build images` job stops failing on every PR.
+- **Done**:
+  - Cherry-picked `44143ee` onto `fix/ci-trading-base-build` and iterated
+    five times to land cleanly: `068a5da` (bogus `ignore-error=true`),
+    `c4fa331` (GHCR auth so cache miss is 404 instead of 403), `ddfcd39`
+    (drop registry `cache-from` entirely; use GHA scope only), `6af6fc0`
+    (try `build-contexts: docker-image://...` — still resolved via
+    registry), `fd8a6d8` (switch buildx to `driver: docker` so host
+    Docker shares the image store), `c4241bf` (add
+    `frontend/public/.gitkeep` for a pre-existing Dockerfile copy bug
+    surfaced once frontend got far enough to actually build).
+  - Final shape: `docker` driver, no GHA cache for the docker job,
+    `trading-base.yml` workflow publishes `:cache` to GHCR for external
+    consumers, frontend has a permanent `public/` placeholder.
+- **Verified**:
+  - `gh run view 24963450616 --json jobs` → `docker · build images`
+    completed `success` in 4m9s (trading-base 2m30s, engine/backend ~12s
+    each, frontend ~1m).
+  - All six required-check contexts green on the merge candidate.
+  - PR #17 merged via `gh pr merge 17 --admin --squash --delete-branch`
+    at `8174b0b` (2026-04-26T18:15Z).
+- **Blocked / next**:
+  - `docker` driver does not support `cache-from: type=gha`. Cold pip
+    install per PR run is acceptable for now; warm registry cache via
+    `trading-base.yml` is a follow-up once that workflow has run on
+    `main` at least once.
+
+---
+
+## 2026-04-26 — PR #3 admin merge + Dependabot triage
+
+- **Agent**: Developer
+- **Goal**: Land `chore(github): public-repo governance, CI hardening,
+  and spec addenda` and triage the Dependabot PRs Dependabot opened
+  immediately after.
+- **Done**:
+  - Sliced `chore/github-public-governance` from a 5-commit chore branch
+    (the other 3 commits — frontend-init compose service, docker base
+    workflow, full styleguide inventory — held back to keep PR #3
+    minimal). Pushed three additional commits onto the slim branch to
+    fix Next 15 dynamic-route `params` typing
+    (`fix(frontend): await Promise params on Next 15 dynamic routes`,
+    `fix(frontend): await Promise searchParams on runs compare page`,
+    plus the originally-scoped `fix(ci+deps): clear ruff/mypy regressions
+    and resolve 7 Dependabot alerts`).
+  - PR #3 merged at `a96280f` via `--admin --squash`.
+  - Dependabot opened 14 PRs against `main` immediately after; this
+    session reviewed and held: closed PR #15 as exact duplicate of #16,
+    posted substantive `--comment` reviews on PR #9 (postcss), #13
+    (next 16 — flagged as needing a coupled React 19 + eslint-config-next
+    bump and a manual lockfile regen; recommended close-and-replace),
+    and #16 (vitest 2→4 — flagged the `npm ci` lockfile-regen failure
+    pattern that affects PRs #13 / #14 / #16).
+- **Verified**:
+  - PR #3 merge: `gh pr view 3 --json state,mergedAt,mergeCommit` →
+    `MERGED` at `a96280f`, 2026-04-26T14:40:53Z.
+  - Six required checks green at merge time; `docker · build images` was
+    the only failing job and is non-required (separately fixed in PR
+    #17).
+  - Dependabot alert #7 (postcss) explicitly investigated:
+    `vulnerable_range: <8.5.10`, `first_patched: 8.5.10`. The advisory
+    keys on the `postcss@8.4.31` that `next@15.5.15` bundles internally,
+    not on the direct devDep at `^8.5.10`. PR #9 alone (8.5.10 → 8.5.12)
+    will not flip the alert; recommended pairing with a `package.json`
+    `overrides.postcss` block in the PR review.
+- **Blocked / next**:
+  - 12 open Dependabot PRs still BLOCKED on solo-owner CODEOWNERS
+    review. Use `--admin` admin-merge per PR after lockfile-regen and
+    review.
+
 ## 2026-04-26 — PR #3 Next 15 dynamic route params (CI build)
 
 - **Agent**: Developer
