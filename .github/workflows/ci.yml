@@ -153,9 +153,19 @@ jobs:
     needs: [lint, typecheck, unit, det, security, e2e, backtest_smoke, frontend, gitleaks]
     steps:
       - uses: actions/checkout@v4
+      # The default `docker-container` buildx driver runs BuildKit in its own
+      # container with an isolated image store: `load: true` on trading-base
+      # would put the image in the host Docker daemon, but the next buildx
+      # build still in the container would resolve `FROM trading-base` via
+      # docker.io and 401. The `docker` driver uses the host Docker daemon's
+      # built-in BuildKit, sharing the image store -- so `FROM trading-base`
+      # resolves locally. Trade-off: the `docker` driver does not support
+      # `cache-from/to: type=gha`, so the trading-base layer is rebuilt cold
+      # each PR run (~3-5 min). Acceptable for now; warm registry cache via
+      # `trading-base.yml` is a follow-up.
       - uses: docker/setup-buildx-action@v3
-      # Must run on this same runner before backend/engine: separate jobs do not
-      # share the local Docker image store unless pushed to a registry (see Phase 2).
+        with:
+          driver: docker
       - name: build trading-base (shared Python layers)
         uses: docker/build-push-action@v6
         with:
@@ -164,8 +174,6 @@ jobs:
           push: false
           load: true
           tags: trading-base:latest
-          cache-from: type=gha,scope=trading-base
-          cache-to: type=gha,mode=max,scope=trading-base
       - name: build trading-engine
         uses: docker/build-push-action@v6
         with:
@@ -174,7 +182,6 @@ jobs:
           push: false
           load: true
           tags: trading-lab/engine:ci
-          cache-from: type=gha,scope=trading-base
       - name: build backend
         uses: docker/build-push-action@v6
         with:
@@ -183,7 +190,6 @@ jobs:
           push: false
           load: true
           tags: trading-lab/backend:ci
-          cache-from: type=gha,scope=trading-base
       - name: build frontend
         uses: docker/build-push-action@v6
         with:
