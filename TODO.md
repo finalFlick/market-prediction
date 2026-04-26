@@ -13,6 +13,33 @@ production task system for the broader platform build. Use its epic/feature
 tickets as the source of truth when splitting implementation work; keep this
 sprint checklist as the narrow foundation slice.
 
+## 2026-04-26 status addendum
+
+Completed or partially completed in the current working tree:
+
+- [x] Fast Docker dev loop: `Dockerfile.base`, `Dockerfile.research`,
+  `docker-compose.dev.yml`, `dev.py`, and docs. Windows bind-mount masks are
+  required for usable pytest performance.
+- [x] MVP-0 run visibility slice: run list/detail/compare pages, learning
+  scoreboard page, run API filters, learning compare/scoreboard API, SSE replay
+  endpoint, and run worker tests.
+- [x] Cursor harness docs/rules update: component-first rule, frontend/docker
+  rule improvements, prompt-context-router docs correction, and routing updates.
+- [x] Styleguide source ticket strengthened:
+  `specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md`
+  is now build-ready guidance.
+
+Immediate follow-ups:
+
+- [ ] Implement `/styleguide`, component registry, local mock fixtures, and
+  component tests from FEATURE-0034.
+- [ ] Add an explicit CI/build step for `trading-base` before backend/engine
+  Docker builds, or replace the local image dependency with a compose/registry
+  cache target.
+- [ ] Run full global gates (`pytest -q`, `ruff check .`, `mypy --strict .`,
+  frontend lint/typecheck/build, e2e, backtest smoke) after resolving any
+  pre-existing global lint/type issues.
+
 ---
 
 ## Milestone 1 — Data layer

@@ -16,6 +16,7 @@ from execution.brokers.base import Broker
 from execution.reconciler import reconcile_brokers
 from monitoring.logger import get_logger
 from runs.exceptions import LiveTriggerForbidden
+from runs.isolation import assert_run_context
 from runs.recovery import transition_open_runs_to_failed
 from runs.types import RunConfig
 
@@ -30,6 +31,7 @@ def _insert_run(
     *,
     status: str = "queued",
 ) -> None:
+    assert_run_context(None)  # submit is always system-level (no active run)
     payload = json.loads(cfg.model_dump_json())
     conn.execute(
         """

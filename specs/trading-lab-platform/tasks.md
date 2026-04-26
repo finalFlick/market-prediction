@@ -103,6 +103,36 @@ This file indexes the epic and feature task structure derived from requirements.
 | FEATURE-0042 | Optional Redis, In-Memory Event Bus, Health Semantics | Run Engine and Memory; Backend API and Streaming; Deployment | **Implemented** (addendum 2026-04-25) | See addendum; code: `runs/events/in_memory.py`, `redis_bus.py`, `factory.py`, `backend/api/routers/system.py`, `tests/runs/`, `tests/e2e/test_health_redis_optional.py` |
 | FEATURE-0043 | Operator env clarity (Reminders, .env.example, RUNNING) | Platform Foundation and Governance | **Implemented** (addendum 2026-04-25) | `docs/REMINDERS.md`, `.env.example`, `RUNNING.md` |
 
+## Addendum: MVP-0 run UI/API and dev-speed Docker audit (2026-04-26)
+
+This addendum audits the current session's work against the platform task
+system. It is intentionally evidence-based and does not mark broad feature
+tickets fully complete unless the feature's validation expectations are met.
+
+| Area | Status | Evidence | Spec mapping | Remaining gap |
+|---|---|---|---|---|
+| Shared Docker base and dev loop | partial | `Dockerfile.base`, `Dockerfile`, `backend/Dockerfile`, `Dockerfile.research`, `docker-compose.dev.yml`, `dev.py`; `docker build -f Dockerfile.base -t trading-base .` cached rebuild in 2.8s | FEATURE-0038, Req 37/39/40 | Production compose now depends on a locally built `trading-base` image; CI should either build/tag it first or add a compose `base` target/registry cache. |
+| Windows Docker Desktop bind-mount performance | done for dev override | Anonymous-volume overlays in `docker-compose.dev.yml` mask `.venv`, `.git`, caches, and `frontend/node_modules`; `/app` visible size dropped from ~3GB to 5.7MB; unit suite dropped from 928s/incomplete to 53s passing | FEATURE-0038, FEATURE-0039 | Document this as a required Windows dev pattern and keep it in Docker rules. |
+| Run list/detail/compare UI | partial | `frontend/app/runs/page.tsx`, `frontend/app/runs/[runId]/page.tsx`, `frontend/app/runs/compare/page.tsx`, `frontend/lib/api.ts`; `291 passed, 1 deselected` in dev container | FEATURE-0031, FEATURE-0033, Req 33/35/44 | Pages are wired but not component-first/styleguide-backed yet; frontend lint/typecheck/build still need to be run after styleguide rules land. |
+| Learning scoreboard UI/API | partial | `backend/api/routers/learnings.py`, `frontend/app/learnings/page.tsx`, `learning/scorers/standard.py` | FEATURE-0017, FEATURE-0033, Req 44 | LLM calibration remains an OOS hit-rate proxy with weight 0.0 until v1 task-type calibration ships. |
+| Run worker and recovery path | partial | `runs/worker.py`, `runs/orchestrator.py`, `backend/api/app.py`, `execution/runner.py`, tests under `tests/runs/` and `tests/e2e/` | FEATURE-0008, FEATURE-0009, FEATURE-0018, FEATURE-0028 | Worker uses synthetic MVP-0 bars by default; real market-data integration remains Wave 2. |
+| Run isolation guard | partial | `runs/isolation.py`, checks added in audit/scorer write paths, `tests/runs/test_isolation.py` | FEATURE-0008, Day-0 Invariant 5 | More writer paths should be audited before this is marked complete. |
+| Durable event publish facade | partial | `runs/events/bus.py`, `backend/api/routers/sse.py`, `tests/security/test_direct_redis_use.py` | FEATURE-0030, FEATURE-0037 | SSE is DuckDB-durable replay only; Redis Streams blocking fan-out remains v1. |
+| Styleguide source of truth | strengthened, not implemented | `tasks/frontend-operator-experience/style_guide_component_library_0034.md`, `.cursor/rules/component-first.mdc` planned in this addendum | FEATURE-0034, Req 50 | `/styleguide`, component registry, demo fixtures, and component tests still need implementation. |
+| Cursor workflow reliability | partial | `.cursor/hooks/README.md` stale match semantics identified; context routing/rules to be updated in this session | FEATURE-0003, Req 49/51 | Hooks and skills are fail-open/advisory; harness tests must be run after routing/doc updates. |
+
+**Verification captured in session:**
+
+- `docker compose -f docker-compose.yml -f docker-compose.dev.yml build` → success after base image build.
+- `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d` → services start.
+- `Invoke-WebRequest http://localhost:8000/api/system/health` → 200 with `{"status":"ok", ...}`.
+- Backend hot reload verified: `WatchFiles detected changes in 'backend/api/routers/runs.py'. Reloading...`.
+- `pytest -q -m "not slow and not integration"` inside backend dev container → `291 passed, 1 deselected, 3 warnings in 53.24s`.
+- Research container imports → `torch=2.11.0+cu130`, `lightgbm=4.6.0`, `vectorbt=1.0.0`, `xgboost=3.2.0`.
+- `docker compose ... down` then `up -d` with volumes preserved → 24.7s.
+- `ruff check dev.py` → all checks passed.
+- `mypy --strict --explicit-package-bases dev.py` → success.
+
 ## Addendum: No-key MVP slice (2026-04-25)
 
 **Scope (aligned with `simple-no-key-mvp` implementation plan):**

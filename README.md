@@ -55,6 +55,7 @@ python -m execution.runner --broker paper --strategy strategies.examples.momentu
 
 ```bash
 docker network create trading-net 2>/dev/null || true     # one-time
+docker build -f Dockerfile.base -t trading-base .          # shared Python base
 docker compose build
 docker compose up -d
 docker compose logs -f trading-engine
@@ -69,6 +70,33 @@ docker compose logs -f trading-engine
 
 `docker-compose.yml` joins the existing `trading-net` so `ollama` and
 `hermes` can be managed independently.
+
+## Fast Docker Development
+
+For day-to-day work on Windows, macOS, or Linux, use the dev override instead
+of rebuilding images after every edit:
+
+```bash
+python dev.py up
+```
+
+The dev stack bind-mounts source code, keeps Python dependencies in the
+Docker-native `trading-py-venv` volume, keeps pip wheels in
+`trading-pip-cache`, and runs backend/frontend hot reload. On Windows Docker
+Desktop it also masks host-only directories like `.venv`, `.git`, cache
+folders, and `frontend/node_modules` so pytest does not crawl gigabytes of
+Windows filesystem entries through the WSL2 mount bridge.
+
+Useful commands:
+
+```bash
+python dev.py logs backend
+python dev.py exec backend -- pytest -q -m "not slow and not integration"
+python dev.py jupyter                       # http://localhost:8888
+python dev.py reset-deps                    # refresh Docker dependency volumes
+```
+
+See [`RUNNING.md`](RUNNING.md) for the full workflow and validation commands.
 
 ## Repository layout
 
@@ -89,6 +117,17 @@ docker compose logs -f trading-engine
 | `tests/`         | unit / strategy / e2e / security pytest suites          |
 | `.cursor/rules/` | Persistent guidance for the AI agents                   |
 | `.github/workflows/` | CI: lint, mypy, pytest, ai-evals, docker builds     |
+
+## Frontend Styleguide
+
+Frontend work is component-first. Shared UI belongs in the executable
+`/styleguide` route before product pages use it. The source of truth for the
+current cyberpunk hacker ops design system is
+[`FEATURE-0034`](specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md),
+with the shorter operator-facing summary in
+[`docs/UI_REQUIREMENTS.md`](docs/UI_REQUIREMENTS.md). The frontend must remain
+read-only: no order placement, no secrets, no exchange calls, and no LLM text
+presented as actionable trading advice.
 
 ## Stack
 

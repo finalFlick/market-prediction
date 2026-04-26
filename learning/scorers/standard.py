@@ -10,6 +10,7 @@ import duckdb
 from data.db import connect
 from learning.scorers.base import Scorer, assert_oos_only
 from learning.types import RunSummary
+from runs.isolation import assert_run_context
 
 
 @dataclass
@@ -20,6 +21,7 @@ class _Scorer:
 
     def update(self, summary: RunSummary) -> None:
         assert_oos_only(summary)
+        assert_run_context(summary.run_id)
         sharpe = float(summary.oos_metrics.get("sharpe", 0.0))
         key = "momentum_baseline"
         p = self._path
@@ -43,6 +45,7 @@ class SourceScorer:
 
     def update(self, summary: RunSummary) -> None:
         assert_oos_only(summary)
+        assert_run_context(summary.run_id)
         dd = float(summary.oos_metrics.get("max_drawdown", 0.0))
         score = -dd
         p = self._path
@@ -66,6 +69,7 @@ class FeatureScorer:
 
     def update(self, summary: RunSummary) -> None:
         assert_oos_only(summary)
+        assert_run_context(summary.run_id)
         key = "momentum_bundle"
         score = float(summary.oos_metrics.get("hit_rate", 0.0))
         p = self._path
@@ -89,16 +93,20 @@ class LlmCalibrationScorer:
 
     def update(self, summary: RunSummary) -> None:
         assert_oos_only(summary)
-        # Research-only: placeholder score until task-type calibration ships in v1.
+        assert_run_context(summary.run_id)
+        # MVP-0 proxy: use OOS hit_rate as a rough calibration signal.
+        # weight=0.0 so this lever does not influence allocation yet
+        # (task-type calibration is [v1] per design.md § AI/ML Design).
+        score = float(summary.oos_metrics.get("hit_rate", 0.0))
         p = self._path
         con = connect(p) if p is not None else connect()
         ts = datetime.now(tz=UTC)
         con.execute(
             """
             INSERT OR REPLACE INTO scoreboard (level, key, score, weight, last_run_id, updated_at)
-            VALUES ('llm_calibration', 'task_type', 0.0, 0.0, ?, ?)
+            VALUES ('llm_calibration', 'hit_rate_proxy', ?, 0.0, ?, ?)
             """,
-            [summary.run_id, ts],
+            [score, summary.run_id, ts],
         )
         con.close()
 

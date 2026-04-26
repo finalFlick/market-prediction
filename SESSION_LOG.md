@@ -16,6 +16,90 @@ Format:
 
 ---
 
+## 2026-04-26 — dev-speed docker, MVP-0 run UI audit, and Cursor workflow hardening
+
+- **Agent**: Developer
+- **Goal**: Finalize the session's MVP-0 run/API/UI and Docker development
+  changes, audit them into `specs/trading-lab-platform`, strengthen the weak
+  frontend styleguide, improve `.cursor` guidance based on observed workflow
+  failures, and commit the completed work.
+- **Done**:
+  - Added shared Docker base workflow: `Dockerfile.base`,
+    `Dockerfile.research`, dev compose override, `dev.py`, and docs for the
+    fast Docker development loop.
+  - Refactored backend and trading-engine Dockerfiles to inherit from
+    `trading-base`.
+  - Added Windows Docker Desktop bind-mount masks for `.venv`, `.git`, caches,
+    and frontend generated folders after measuring them as the cause of the
+    15+ minute pytest run.
+  - Audited current work in
+    `specs/trading-lab-platform/tasks.md` and added notes to FEATURE-0003 and
+    FEATURE-0038.
+  - Rewrote FEATURE-0034 as a build-ready cyberpunk hacker styleguide and
+    component-library spec with tokens, layout patterns, component categories,
+    demo data expectations, and validation gates.
+  - Made `dev.py` stdlib-only after validation showed bare Windows Python did
+    not have `click`, preserving the same CLI commands without host setup.
+  - Switched frontend Docker installs to the committed lockfile (`npm ci`) and
+    made the dev frontend command populate the `trading-node-modules` volume on
+    first start.
+  - Made dev dependency volume names explicit so `dev.py reset-deps` removes
+    the same volumes Compose mounts.
+  - Added dev-only `types-PyYAML==6.0.12.20260408` after checking PyPI current
+    metadata (released 2026-04-08, Python >=3.10, tested with mypy 1.20) so
+    the container mypy gate is reproducible.
+  - Added `.cursor/rules/component-first.mdc`, strengthened frontend/docker
+    rules, corrected hook-router semantics in `.cursor/hooks/README.md`, and
+    expanded `.cursor/context-router.json` routing for styleguide and Windows
+    Docker prompts.
+  - Updated `README.md`, `RUNNING.md`, `docs/UI_REQUIREMENTS.md`, and `TODO.md`
+    so future agents can resume from the current state.
+- **Verified**:
+  - `docker build -f Dockerfile.base -t trading-base .` → success; subsequent
+    cached rebuild took ~2.8 s.
+  - `docker compose -f docker-compose.yml -f docker-compose.dev.yml build` →
+    success after `trading-base` existed.
+  - `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d` →
+    backend, frontend, research, engine, redis, and duckdb started.
+  - Backend health check via PowerShell `Invoke-WebRequest` →
+    `200 {"status":"ok", ...}`.
+  - Backend hot reload verified from logs:
+    `WatchFiles detected changes in 'backend/api/routers/runs.py'. Reloading...`.
+  - Windows bind-mount investigation: `/app` visible tree dropped from ~3 GB to
+    5.7 MB; `du /app` dropped from 104 s to 1.4 s.
+  - Dev-container unit suite:
+    `pytest -q -m "not slow and not integration"` →
+    `291 passed, 1 deselected, 3 warnings in 53.24s`.
+  - Dev-container full suite: `pytest -q` →
+    `292 passed, 3 warnings in 52.89s`.
+  - Security suite: `pytest tests/security -q` → `25 passed`.
+  - Research container import smoke:
+    `torch=2.11.0+cu130`, `lightgbm=4.6.0`, `vectorbt=1.0.0`,
+    `xgboost=3.2.0`.
+  - `docker compose ... down` then `up -d` with preserved volumes → 24.7 s.
+  - `ruff check dev.py` → all checks passed.
+  - `mypy --strict --explicit-package-bases dev.py` → success.
+  - `python dev.py --help` on host Windows Python → displays command help
+    without requiring `click`.
+  - `docker compose ... exec frontend npm run typecheck` → success.
+  - `docker compose ... exec -e NODE_ENV=production frontend npm run build` →
+    success; 19 app routes generated/validated.
+  - `docker compose -f docker-compose.yml -f docker-compose.dev.yml build frontend`
+    → success; production image builds with `npm ci` and Next standalone output.
+  - `mypy --strict --explicit-package-bases data research strategies risk
+    backtests execution monitoring backend runs learning dev.py` → success
+    after installing the pinned PyYAML stubs.
+- **Blocked / next**:
+  - Production compose now expects a locally tagged `trading-base`; CI should
+    build/tag it explicitly or move to a compose target/registry-cache pattern.
+  - `/styleguide` itself is not implemented yet; FEATURE-0034 is now strong
+    enough to drive that implementation.
+  - Full global `ruff check .`, `mypy --strict .`, frontend lint/typecheck/build,
+    e2e, and backtest smoke still need to be run or remediated before a release
+    PR is considered complete.
+
+---
+
 ## 2026-04-25 — no-key MVP slice (ingest, optional Redis, spec addendum)
 
 - **Agent**: Developer

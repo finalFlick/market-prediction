@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 
 import click
 
+from data.seeds.config_loader import seed_config_kv
 from execution.brokers.base import Broker
 from execution.brokers.binance import BinanceLive
 from execution.brokers.coinbase import CoinbaseLive
@@ -22,6 +23,7 @@ from risk.engine import RiskEngine
 from risk.errors import RiskCheckRejected
 from risk.limits import RiskLimits
 from risk.types import Portfolio, TargetPosition
+from runs.orchestrator import RunOrchestrator
 from strategies.base import Strategy
 
 log = get_logger(__name__)
@@ -78,6 +80,14 @@ async def _run(broker: Broker, strategy: Strategy, risk: RiskEngine) -> None:
 @click.option("--broker", "broker_name", type=click.Choice(list(_BROKERS)), default="paper")
 @click.option("--strategy", "strategy_dotted", required=True)
 def main(broker_name: str, strategy_dotted: str) -> None:
+    seeded = seed_config_kv()
+    log.info("runner.boot.config_seeded", n=seeded)
+
+    orchestrator = RunOrchestrator()
+    n, _ = orchestrator.on_boot()
+    if n:
+        log.warning("runner.boot.recovery", transitioned=n)
+
     registry = LiveBrokerRegistry()
     registry.register(PaperBroker())
     if broker_name == "paper":

@@ -12,6 +12,76 @@ cp .env.example .env                       # then fill in keys
 docker network create trading-net          # one-time, shared with ollama/hermes
 ```
 
+## Fast development loop
+
+Use this workflow for iterative Python/TS edits without full rebuilds.
+
+```bash
+docker build -f Dockerfile.base -t trading-base .  # first time or after pyproject changes
+python dev.py up
+```
+
+This starts:
+
+- `backend` with `uvicorn --reload`
+- `trading-engine` shared code execution loop
+- `research` idle container for training/Jupyter use
+- `frontend` in HMR mode (`next dev`)
+- `redis`, `duckdb`, and required volumes
+
+Day-to-day workflow:
+
+- Edit code in the repo; save file.
+- Python services: backend auto-reloads from `backend`, `risk`, `runs`, `data`.
+- Frontend components/pages update with Next.js HMR.
+- Training and notebooks: `python dev.py jupyter`
+- Run container checks quickly:
+
+  ```bash
+  python dev.py exec backend -- pytest -q -m "not slow and not integration"
+  python dev.py logs backend
+  ```
+
+When adding a dependency to `pyproject.toml`:
+
+```bash
+python dev.py install
+```
+
+If dependency installation state looks bad, refresh the persisted stack mounts:
+
+```bash
+python dev.py reset-deps
+```
+
+Optional host IDE venv (for editor autocomplete, independent from Docker):
+
+```bash
+python -m venv .venv_host
+.venv_host\Scripts\activate                # Windows
+pip install -e ".[dev,ai-eval]"           # optional, local-only tools
+```
+
+Container venv remains Linux-native inside docker at `/opt/venv`, while host IDE can use a separate host venv.
+
+### Windows Docker Desktop note
+
+The dev override intentionally masks host-only directories under `/app` with
+anonymous volumes:
+
+- `.venv`, `.git`, `.mypy_cache`, `.ruff_cache`, `.pytest_cache`, `.deepeval`
+- `agent-transcripts`
+- `frontend/node_modules`, `frontend/.next`
+- `trading_lab.egg-info`
+
+Do not remove these masks casually. On Windows + Docker Desktop, exposing the
+whole repo made the container see ~3 GB of irrelevant host files and made the
+unit suite take 15+ minutes. With masks in place, `/app` is ~5.7 MB and the
+inner-loop unit suite runs in about a minute.
+
+Use a host venv only for Cursor autocomplete. Runtime dependencies live in the
+Docker-native `trading-py-venv` volume, not in the Windows `.venv`.
+
 Python toolchain (only needed for ad-hoc CLI runs outside docker):
 
 ```bash

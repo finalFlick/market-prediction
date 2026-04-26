@@ -82,7 +82,7 @@
       "description": "Next.js read-only dashboard.",
       "match": {
         "prompt_regex": [
-          "(?i)\\b(frontend|dashboard|next\\.?js|react|tailwind|page\\.tsx)\\b"
+          "(?i)\\b(frontend|dashboard|next\\.?js|react|tailwind|page\\.tsx|styleguide|component[- ]?first|component\\s+library|cyberpunk)\\b"
         ],
         "tool_input_regex": [
           "frontend[\\\\/]"
@@ -90,7 +90,8 @@
       },
       "snippets": [
         { "path": "docs/UI_REQUIREMENTS.md", "anchor": null, "max_chars": 1200 },
-        { "path": ".cursor/rules/frontend.mdc", "anchor": null, "max_chars": 600 }
+        { "path": ".cursor/rules/frontend.mdc", "anchor": null, "max_chars": 900 },
+        { "path": ".cursor/rules/component-first.mdc", "anchor": null, "max_chars": 900 }
       ]
     },
     {
@@ -99,7 +100,7 @@
       "description": "Container topology and docker-compose deployment.",
       "match": {
         "prompt_regex": [
-          "(?i)\\b(docker|compose|container|deployment|kubernetes|service\\s*topology)\\b"
+          "(?i)\\b(docker|compose|container|deployment|kubernetes|service\\s*topology|windows|wsl2|bind[- ]?mount|dev\\.py|hot[- ]?reload)\\b"
         ],
         "tool_input_regex": [
           "Dockerfile",
@@ -108,7 +109,8 @@
       },
       "snippets": [
         { "path": "docs/INFRASTRUCTURE.md", "anchor": null, "max_chars": 1200 },
-        { "path": ".cursor/rules/docker.mdc", "anchor": null, "max_chars": 600 }
+        { "path": ".cursor/rules/docker.mdc", "anchor": null, "max_chars": 1000 },
+        { "path": "RUNNING.md", "anchor": "## Fast development loop", "max_chars": 1200 }
       ]
     },
     {

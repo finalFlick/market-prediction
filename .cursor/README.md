@@ -30,6 +30,7 @@ Frontmatter fields: `description` (≤ 15 words), `globs` (file-scope), `alwaysA
 | `coding-standards.mdc`  | `**/*.py`                      | no          |
 | `backend.mdc`           | `backend/**/*.py`              | no          |
 | `frontend.mdc`          | `frontend/**/*.{ts,tsx}`       | no          |
+| `component-first.mdc`   | frontend + styleguide docs     | no          |
 | `docker.mdc`            | `**/Dockerfile`, `compose*.yml`| no          |
 | `testing.mdc`           | `tests/**`, `ai_evals/**`      | no          |
 | `evaluation.mdc`        | `backtests/**`, `research/models/**` | no    |
@@ -45,6 +46,10 @@ Frontmatter fields: `description` (≤ 15 words), `globs` (file-scope), `alwaysA
 Frontmatter fields: `name` (=folder name), `description`. Cursor invokes
 a skill when the user request semantically matches its description.
 [Cursor docs](https://www.trycursor.com/docs/context/skills).
+
+Skills are not a hard guarantee. If a request clearly needs one and it did not
+appear to trigger, invoke the skill manually by reading its `SKILL.md` and
+following the procedure.
 
 | Skill              | Use when…                                       |
 |--------------------|-------------------------------------------------|
@@ -82,6 +87,10 @@ The `risk`, `evaluation`, `monitoring`, and `reviewer` agents are **gates**, not
 Python 3.11+, stdlib-only, and safe-on-crash (each wraps `main()` in a
 try/except so a bug never silently blocks the agent — except where
 `failClosed: true` is intentional).
+
+Most hooks are guardrails, not proof. After changing hooks, rules, or routing,
+run `pytest tests/cursor_harness -q` and inspect the actual behavior instead of
+assuming Cursor fired the hook.
 
 | Event                  | Script                      | failClosed | Purpose                                         |
 |------------------------|-----------------------------|------------|-------------------------------------------------|

@@ -42,6 +42,7 @@ services:
       DUCKDB_PATH: /data/market.duckdb
       REDIS_URL: redis://redis:6379/0
       OLLAMA_HOST: http://ollama:11434
+      OPERATOR_API_KEY: ${OPERATOR_API_KEY:-}
     volumes:
       - duckdb-data:/data
     ports:
@@ -71,6 +72,17 @@ services:
       COINBASE_API_KEY: ${COINBASE_API_KEY:-}
       COINBASE_API_SECRET: ${COINBASE_API_SECRET:-}
       COINBASE_SANDBOX: ${COINBASE_SANDBOX:-true}
+    volumes:
+      - duckdb-data:/data
+    networks: [trading-net]
+    restart: unless-stopped
+
+  research:
+    build:
+      context: .
+      dockerfile: Dockerfile.research
+    container_name: trading-research
+    command: tail -f /dev/null
     volumes:
       - duckdb-data:/data
     networks: [trading-net]
