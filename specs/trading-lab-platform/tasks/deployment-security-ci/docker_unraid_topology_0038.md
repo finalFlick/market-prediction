@@ -106,3 +106,32 @@ The dev-speed Docker overhaul partially advances this feature:
 - Added Windows Docker Desktop bind-mount masks for host-only directories (`.venv`, `.git`, caches, `frontend/node_modules`) after measuring `/app` shrink from ~3 GB to 5.7 MB and pytest improvement from 928 s/incomplete to ~53 s passing.
 
 This remains **partial** for FEATURE-0038 because production CI/build orchestration still needs an explicit `trading-base` build/tag step or registry cache strategy.
+
+## Session Audit Note - 2026-04-26 (CI base image rollout)
+
+Phase 1 of the `trading-base` CI strategy is now wired:
+
+- `.github/workflows/ci.yml` builds `trading-base:latest` as the first step
+  of the `docker` job (same runner as backend/engine), with
+  `cache-from: type=registry,ref=ghcr.io/<owner>/trading-lab-base:cache` plus a
+  GHA `trading-base` scope fallback. Backend and engine builds inherit
+  warm layers via the same GHA scope.
+- `python dev.py base` is the local equivalent of the CI step.
+
+Phase 2 (GHCR registry cache) is also in place:
+
+- `.github/workflows/trading-base.yml` builds and pushes
+  `ghcr.io/<owner>/trading-lab-base:<sha>` and `:latest` to GHCR on `main`
+  pushes that touch `Dockerfile.base` or `pyproject.toml`, plus
+  `workflow_dispatch`. Cache writes go to a dedicated `:cache` ref via
+  `type=registry,mode=max`.
+- Retention policy: keep the last 10 sha tags via the GitHub package UI or a
+  scheduled prune workflow (out of scope for this PR).
+- Rollback: delete the GHCR `:cache` tag (or temporarily set `cache-from` to
+  GHA only); the next `trading-base.yml` run reseeds it from
+  `Dockerfile.base`.
+
+Source: implemented in this session under
+`.cursor/plans/styleguide_ci_base_cc26754b.plan.md` (TODO 2 Phase 2). PR-time
+verification still needs an `act` or branch dry-run to observe the
+registry-cache hit path before this feature flips to `done`.

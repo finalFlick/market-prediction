@@ -154,8 +154,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
+      - name: lowercase repo owner
+        id: owner
+        run: |
+          echo "name=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
       # Must run on this same runner before backend/engine: separate jobs do not
-      # share the local Docker image store unless pushed to a registry (see Phase 2).
+      # share the local Docker image store unless pushed to a registry. The
+      # GHCR `:cache` ref is populated by `.github/workflows/trading-base.yml`
+      # on `main`; PR runs gracefully fall back to the GHA cache scope.
       - name: build trading-base (shared Python layers)
         uses: docker/build-push-action@v6
         with:
@@ -164,7 +170,9 @@ jobs:
           push: false
           load: true
           tags: trading-base:latest
-          cache-from: type=gha,scope=trading-base
+          cache-from: |
+            type=registry,ref=ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:cache
+            type=gha,scope=trading-base
           cache-to: type=gha,mode=max,scope=trading-base
       - name: build trading-engine
         uses: docker/build-push-action@v6

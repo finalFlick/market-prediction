@@ -14,8 +14,11 @@ alwaysApply: false
 - Each Dockerfile installs project deps, then copies code, then sets the
   user — in that order — so layer caching works.
 - Python service images build from the shared local `trading-base` image.
-  Build it with `docker build -f Dockerfile.base -t trading-base .` before
-  service builds, or add an explicit CI/compose base-image step.
+  Build it with   `python dev.py base` before local service builds (same as
+  `docker build -f Dockerfile.base -t trading-base .`). CI builds
+  `trading-base:latest` as the first step of the `docker` job in
+  `.github/workflows/ci.yml` (same runner as backend/engine) with GHA cache
+  scope `trading-base` so `FROM trading-base` layers stay warm.
 - Healthchecks are defined in `docker-compose.yml` for `redis`, `backend`,
   and `frontend`. The trading-engine container has a process-level liveness
   check via the orchestrator.
