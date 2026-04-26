@@ -1,4 +1,4 @@
-/* Neko Quant — terminal-aesthetic helpers (does not replace tokens.css). */
+/* Neko Quant — terminal-aesthetic helpers (DEC-010 palette lives in tailwind.config.ts). */
 
 @keyframes neko-scanline {
   0% {

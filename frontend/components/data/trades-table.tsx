@@ -27,7 +27,7 @@ const columns: ColumnDef<Trade>[] = [
     header: "Venue",
     cell: ({ getValue }) => {
       const v = getValue<string>();
-      const variant = v === "live" ? "primary" : v === "paper" ? "warning" : "outline";
+      const variant = v === "live" ? "live" : v === "paper" ? "paper" : "outline";
       return <Badge variant={variant}>{v}</Badge>;
     },
   },

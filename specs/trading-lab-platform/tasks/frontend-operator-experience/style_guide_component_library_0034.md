@@ -228,15 +228,23 @@ FastAPI `GET /docs` (Swagger UI) uses [`backend/api/static/swagger-trading-lab.c
 
 ## Implementation addendum (2026-04-26): Neko identity components vs styleguide
 
-[`FEATURE-0045`](./neko_quant_identity_0045.md) adds **Neko Quant** presentational components under `frontend/components/identity/`. They are not yet listed in the styleguide registry because the paused styleguide WIP (untracked `frontend/styleguide/`, `frontend/components/ui/`, etc.) is the **higher-priority** merge blocker. When FEATURE-0034’s harness lands, register each identity component in the same format as other entries: name, `draft | reviewed | production` status, prop table, and demo states. Until then, product pages may import identity components for empty-state and chrome use only, following **DEC-012** (no playful copy on health/risk/critical errors).
+[`FEATURE-0045`](./neko_quant_identity_0045.md) adds **Neko Quant** presentational components under `frontend/components/identity/`. Register each identity component in the styleguide registry in a follow-up (same format as other entries: name, status, prop table, demo states). Product pages may import identity components for empty-state and chrome use only, following **DEC-012** (no playful copy on health/risk/critical errors).
+
+## Implementation addendum (2026-04-26): Mocha + Neko styleguide land
+
+**Landed** on branch `feat/styleguide-mocha` (local `main` includes `8792c1f` =
+`9913a86` cherry-pick: `frontend-init`). Catppuccin Mocha
+(`frontend/tailwind.config.ts` only; **no** `tokens.css`), Neko copy rules
+(DEC-011/012) on operator surfaces, `NEKO_NOT_A_TRADE_SIGNAL` on
+`AiInsightPanel`. Record the `main` merge commit here after squash-merge.
 
 ## Done Means
 
-- [ ] `/styleguide` route exists and is self-contained.
-- [ ] Component registry and deterministic mock fixtures exist.
-- [ ] Required token groups are implemented and documented.
-- [ ] Existing shared components are backfilled with demos.
-- [ ] At least one dashboard, run table, risk panel, chart, alert, log, and command/search surface is demoable.
-- [ ] Component tests or documented manual checks cover key states.
-- [ ] `.cursor/rules/component-first.mdc` guides agents and is referenced by frontend rules/docs.
-- [ ] Source traceability remains accurate after implementation.
+- [x] `/styleguide` route exists and is self-contained.
+- [x] Component registry and deterministic mock fixtures exist.
+- [x] Required token groups are implemented and documented (Mocha in Tailwind; no parallel CSS var file).
+- [x] Existing shared components are backfilled with demos.
+- [x] At least one dashboard, run table, risk panel, chart, alert, log, and command/search surface is demoable.
+- [x] Component tests or documented manual checks cover key states.
+- [x] `.cursor/rules/component-first.mdc` guides agents and is referenced by frontend rules/docs.
+- [x] Source traceability remains accurate after implementation.

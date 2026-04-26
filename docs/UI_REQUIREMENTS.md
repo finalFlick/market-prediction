@@ -15,6 +15,7 @@ This document is the short operator/developer reference.
 
 | Route             | Purpose                                                              |
 |-------------------|----------------------------------------------------------------------|
+| `/styleguide`     | **Component harness** — registry + demos ([`frontend/styleguide/registry.ts`](../frontend/styleguide/registry.ts)); `/styleguide/[componentId]` for per-component sandboxes |
 | `/`               | **System overview** — KPIs (live/paper strategies, active signals, latest backtest Sharpe / DD / CAGR) |
 | `/trades`         | **Trades history** — TanStack Table over `/api/trades`, filterable by strategy / symbol / venue |
 | `/strategies`     | **Strategy performance** — card grid + per-strategy detail with latest backtest metrics |
@@ -98,6 +99,10 @@ through [`frontend/lib/api.ts`](../frontend/lib/api.ts).
   defaults in the styleguide.
 
 ## Required styleguide entries
+
+The **source of truth** is [`frontend/styleguide/registry.ts`](../frontend/styleguide/registry.ts)
+(`ComponentMeta[]`): every shared component is listed with status, paths, and
+demo wiring before use on product pages.
 
 Each styleguide entry includes:
 
