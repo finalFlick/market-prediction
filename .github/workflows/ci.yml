@@ -109,7 +109,7 @@ jobs:
         working-directory: ai_evals/promptfoo
         run: promptfoo eval --no-cache --output ../../promptfoo-report.json || true
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: promptfoo-report
