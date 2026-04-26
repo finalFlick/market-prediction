@@ -16,6 +16,22 @@ Format:
 
 ---
 
+## 2026-04-26 — PR #3 CI unblock + Dependabot (next 15 / postcss)
+
+- **Agent**: Developer
+- **Goal**: Land fixes for failing `ruff` / `mypy` on PR #3 and bump frontend deps
+  to clear seven Dependabot alerts (`next`, `postcss`, transitive `glob`).
+- **Done**:
+  - Commit `9ca328f` on `chore/github-public-governance`: Generator fixture typing
+    and ruff-format six files; `frontend/package.json` + lockfile for next
+    `15.5.15`, eslint-config-next `15.5.15`, postcss `^8.5.10`.
+- **Verified** (with unrelated work stashed): `ruff check .`, `ruff format --check .`,
+  `mypy --strict --explicit-package-bases .` all green; `pytest
+  tests/security/test_no_secrets.py` passed. Full `npm install` failed locally
+  with ENOSPC; lockfile updated with `npm install --package-lock-only`; CI
+  frontend job is the install gate.
+- **Blocked / next**: Wait for GitHub Actions on PR #3; admin-merge if solo owner.
+
 ## 2026-04-26 — GitHub maintainer settings via `gh` API
 
 - **Agent**: Developer
