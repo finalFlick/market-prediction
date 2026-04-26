@@ -7,9 +7,10 @@ import { formatDate, formatNumber, formatPct } from "@/lib/utils";
 export default async function RunsComparePage({
   searchParams,
 }: {
-  searchParams: { ids?: string };
+  searchParams: Promise<{ ids?: string }>;
 }) {
-  const ids = (searchParams.ids ?? "").split(",").filter(Boolean);
+  const { ids: idsParam } = await searchParams;
+  const ids = (idsParam ?? "").split(",").filter(Boolean);
 
   const [health, rows] = await Promise.all([
     safe(() => api.health()),

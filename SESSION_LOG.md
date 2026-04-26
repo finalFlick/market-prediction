@@ -27,10 +27,12 @@ Format:
     `await params`.
   - `frontend/next.config.mjs`: drop deprecated `experimental.typedRoutes`
     (typed routes remain off by default on Next 15).
+  - Follow-up: `frontend/app/runs/compare/page.tsx` — `searchParams` as
+    `Promise` + `await` (Next 15 `PageProps`).
 - **Verified**: Local `npm run build` not re-run after ENOSPC on `npm install`;
   change matches Next 15 App Router contract; only PR-scoped files staged.
-- **Blocked / next**: Push and confirm GitHub Actions frontend job green;
-  then admin-merge PR #3.
+- **Blocked / next**: Confirm GitHub Actions frontend job green after compare
+  page fix; then admin-merge PR #3.
 
 ## 2026-04-26 — PR #3 CI unblock + Dependabot (next 15 / postcss)
 
