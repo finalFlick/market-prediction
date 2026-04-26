@@ -43,9 +43,22 @@ Format:
   - `py -3.12 -m pytest tests/cursor_harness -q` → 131 passed
   - `py -3.12 -m pytest -q -m "not slow and not integration"` → 293 passed
   - `ruff check .` → all checks passed; `mypy --strict .` → 182 files, no issues
-- **Blocked / next**: Push/PR: (1) `main` with `frontend-init` commit, (2)
-  `feat/styleguide-mocha` for styleguide squash-merge. Do not delete
-  `backup/chore-gov-pre-slim` until owner approves.
+- **Pushed (2026-04-26 15:50)**:
+  - `origin/main` `df4c4d7..8792c1f` (cherry-picked `frontend-init`).
+  - `origin/feat/styleguide-mocha` (new); PR URL printed by `git push`.
+- **Observations / proposed rule updates**:
+  - Self-referencing the current commit's own short SHA in its body / spec
+    addendum forced **5 `git commit --amend`** cycles. Rule:
+    branch-name-or-post-merge-SHA only.
+  - PowerShell host: `&&` and heredoc commit messages do not work; the
+    working recipe is `Set-Content .git\COMMIT_MSG.txt … ; git commit -F …`.
+  - `lightweight-charts` cannot run under `jsdom`; tests mock the module.
+  - **Ratified as DEC-014**: edits landed in `workflow.mdc` (self-SHA
+    section + PowerShell recipe) and `frontend.mdc` (lightweight-charts
+    jsdom subsection). Proposal file removed.
+- **Blocked / next**: Owner opens / squash-merges PR for
+  `feat/styleguide-mocha`. Do not delete `backup/chore-gov-pre-slim` until
+  the merge lands.
 
 ## 2026-04-26 — Collided agent recovery: styleguide-ci-bootstrap-agent
 

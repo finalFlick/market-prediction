@@ -72,6 +72,11 @@ the owner merges and approves.
 
 ### Remaining (non-blocker)
 
+- [ ] **Open / squash-merge PR for `feat/styleguide-mocha`** (pushed
+  2026-04-26 15:50). After merge, update FEATURE-0034 addendum with the
+  `main` merge SHA, then optionally retire `backup/chore-gov-pre-slim`.
+- [x] **Ratified DEC-014** — workflow.mdc (self-SHA + PowerShell commit
+  recipe) + frontend.mdc (`lightweight-charts` jsdom mocking).
 - [ ] **Triage open Dependabot PRs** — PR #9 (postcss), PR #13 (next 16 + React
   19), PR #16 (vite/vitest 4). PR #15 closed as duplicate of PR #16.
 - [ ] **Postcss alert #7** — until `overrides.postcss = "^8.5.10"` or a newer

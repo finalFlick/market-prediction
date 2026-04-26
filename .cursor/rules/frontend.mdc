@@ -72,3 +72,24 @@ A new page must boot in the standalone Next image used by CI. See
 [`docker.mdc`](mdc:.cursor/rules/docker.mdc).
 Component changes also need styleguide demo evidence and component tests when
 the behavior is non-trivial.
+
+### `lightweight-charts` under `jsdom`
+
+Chart components that wrap `lightweight-charts` cannot run unmocked in the
+Vitest `jsdom` environment (canvas APIs are missing). Two-part pattern:
+
+1. `frontend/vitest.setup.ts` shims `window.matchMedia` and
+   `window.ResizeObserver`.
+2. Each chart `__tests__/*.test.tsx` mocks the module:
+
+```ts
+vi.mock("lightweight-charts", () => ({
+  createChart: () => ({
+    addAreaSeries: () => ({ setData: vi.fn() }),
+    timeScale: () => ({ fitContent: vi.fn() }),
+    remove: vi.fn(),
+  }),
+}));
+```
+
+See `frontend/components/charts/__tests__/equity-chart.test.tsx`.

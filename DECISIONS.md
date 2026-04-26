@@ -230,6 +230,35 @@ Status values: `proposed | accepted | superseded`.
   and `frontend.mdc` carry the normative text; this decision is the
   project-level record.
 
+## DEC-014 — Self-SHA, PowerShell commits, and `lightweight-charts` tests
+
+- **Date**: 2026-04-26
+- **Status**: accepted
+- **Context**: The Styleguide Mocha rebuild session (`feat/styleguide-mocha`)
+  hit three reproducible patterns: (1) embedding the in-flight commit's own
+  short SHA in its body / spec addendum forced five `git commit --amend`
+  cycles; (2) PowerShell does not support `&&` chaining or
+  `cat <<'EOF'` heredocs, blocking the standard commit-message recipe; and
+  (3) `lightweight-charts` cannot render under `jsdom` without explicit
+  module mocks, surfacing as "Worker exited unexpectedly" / canvas errors.
+- **Decision**:
+  1. **No self-SHA.** Commit bodies, spec addenda, and `SESSION_LOG.md`
+     entries reference branches, FEATURE ids, or post-merge SHAs on `main`
+     — never the current commit's own hash.
+  2. **PowerShell commit recipe.** `Set-Content .git\COMMIT_MSG.txt … ;
+     git commit -F .git\COMMIT_MSG.txt ; Remove-Item .git\COMMIT_MSG.txt`
+     is the canonical Windows path; chain independent commands with `;`.
+  3. **Chart tests.** Components wrapping `lightweight-charts` mock the
+     module in their `__tests__/*.test.tsx` and rely on the existing
+     `vitest.setup.ts` shims for `matchMedia` / `ResizeObserver`.
+- **Consequences**: Normative text added to
+  [`.cursor/rules/workflow.mdc`](.cursor/rules/workflow.mdc) (sections
+  "Self-SHA references" and "Windows / PowerShell shell recipes") and
+  [`.cursor/rules/frontend.mdc`](.cursor/rules/frontend.mdc) (subsection
+  "`lightweight-charts` under `jsdom`"). Source proposal:
+  `.cursor/state/proposed/2026-04-26-self-sha-and-windows-commit.md` —
+  ratified and removed.
+
 ## How to add a decision
 
 1. Pick the next `DEC-NNN` number.

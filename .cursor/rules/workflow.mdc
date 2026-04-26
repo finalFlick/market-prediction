@@ -44,3 +44,34 @@ If a task is too large for a single PR, split it. Track sub-PRs in `TODO.md`.
   the task `partial`.
 - "skipped tests due to flake" without a linked issue.
 - "minor cleanup" alongside a feature change — split into two PRs.
+
+## Self-SHA references
+
+Never write the **current commit's own SHA** into its commit body, spec
+addendum, or `SESSION_LOG.md` entry. Each `git commit --amend` regenerates
+the SHA, and a body that names it forces another amend. Use:
+
+- the **branch name** (`feat/styleguide-mocha`), or
+- the **post-merge SHA on `main`** (recorded after squash-merge), or
+- a **content-addressable** anchor (PR number, FEATURE id).
+
+This applies to every artifact produced inside the same commit: spec
+addenda, README pointers, `SESSION_LOG` entries.
+
+## Windows / PowerShell shell recipes
+
+`&&` chaining and `git commit -m "$(cat <<'EOF' …)"` heredocs do not work
+in PowerShell. Use:
+
+```powershell
+Set-Content -Path .git\COMMIT_MSG.txt -Value @"
+feat(scope): subject
+
+Body.
+"@
+git add <paths>
+git commit -F .git\COMMIT_MSG.txt
+Remove-Item .git\COMMIT_MSG.txt
+```
+
+Chain independent commands with `;` (PowerShell), not `&&`.
