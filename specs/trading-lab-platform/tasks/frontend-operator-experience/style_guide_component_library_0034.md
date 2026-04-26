@@ -38,30 +38,39 @@ so that frontend pages can be built consistently without guessing and reviewed a
 - Req 46 - quality tests for key frontend components
 - Req 50 - component-first styleguide and component library
 
-## Design Direction: Cyberpunk Hacker Ops
+## Design Direction: Catppuccin Mocha (Operator Console)
 
-The UI should feel like a disciplined market-ops terminal rather than a generic SaaS dashboard.
+The UI uses **Catppuccin Mocha** verbatim — no in-house custom palette. Mocha is a widely-adopted, design-system-grade dark palette (MIT-licensed, ~19k stars on `catppuccin/catppuccin`, ports across hundreds of editors / CLIs / web tools). See [`DECISIONS.md` DEC-010](../../../../DECISIONS.md) for rationale.
 
-- **Mood:** dark, dense, high-contrast, terminal-like, but readable for a beginner.
-- **Visual metaphor:** neon telemetry over a black-glass trading console.
-- **Primary colors:** mint/green for safe/positive/primary, magenta for AI/analysis, foxfire amber for warning/paper, red for danger/rejected, lavender/cyan for secondary telemetry.
+The UI should still feel like a disciplined market-ops terminal rather than a generic SaaS dashboard.
+
+- **Mood:** dark, dense, high-contrast, terminal-like, but readable for a beginner. Pastel-dark cohesion replaces the neon-on-black look — less visual noise, equal information density.
+- **Visual metaphor:** quiet operator console with a coherent accent vocabulary, not a video-game HUD.
+- **Primary / status colors (per [Catppuccin style guide](https://github.com/catppuccin/catppuccin/blob/main/docs/style-guide.md)):** Blue for links / primary, Green for success / safe-positive, Yellow for warnings / paper mode, Red for errors / danger / rejected, Mauve for AI / analysis surfaces, Lavender for active borders / secondary telemetry, Teal for live / streaming accents, Peach for write / mutable accents.
 - **Density:** compact cards and tables; never sparse marketing layouts.
 - **Motion:** small and functional: pulses for live streams, scanline shimmer for loading, no decorative motion that hides data.
 - **Trust:** risk limits, mode (`backtest | paper | live`), source freshness, and data provenance must be visible near actions and summaries.
 
 ## Design Tokens
 
-Tokens live in `frontend/styles/tokens.css` or the Tailwind theme. Components consume tokens only; no ad hoc hex colors in product pages.
+Palette tokens are inlined in [`frontend/tailwind.config.ts`](../../../../frontend/tailwind.config.ts) using **verbatim Catppuccin Mocha hex values from [`catppuccin/palette`](https://github.com/catppuccin/palette) `palette.json` v1.8.0 (MIT)**. Components consume token names only; no ad hoc hex colors in product pages.
+
+Catppuccin role aliases are also bound so semantic Tailwind utilities (`bg-primary`, `text-success`, `border-danger`, etc.) resolve to the canonical Mocha accent.
 
 | Token group | Required tokens | Usage |
 |---|---|---|
-| Color | `night`, `panel`, `panel-2`, `mint`, `foxfire`, `magenta`, `lavender`, `cyan`, `danger`, `border`, `muted` | backgrounds, borders, status, chart accents |
-| Typography | `font-sans`, `font-mono`, `text-xs/sm/base/lg`, `tracking-terminal` | chrome uses sans; IDs, symbols, metrics use mono |
+| Surfaces | `crust` `#11111b`, `mantle` `#181825`, `base` `#1e1e2e`, `surface0` `#313244`, `surface1` `#45475a`, `surface2` `#585b70` | backgrounds, panels, cards, borders |
+| Overlays | `overlay0` `#6c7086`, `overlay1` `#7f849c`, `overlay2` `#9399b2` | hover/disabled/dimmed states |
+| Typography | `text` `#cdd6f4`, `subtext1` `#bac2de`, `subtext0` `#a6adc8` | body copy, secondary labels |
+| Accents | `rosewater`, `flamingo`, `pink`, `mauve`, `red`, `maroon`, `peach`, `yellow`, `green`, `teal`, `sky`, `sapphire`, `blue`, `lavender` | status, charts, AI surfaces |
+| Semantic aliases | `primary → blue`, `success → green`, `warning → yellow`, `danger → red`, `card → surface0`, `border → surface2`, `muted → surface1`, `muted-foreground → subtext0`, `background → base`, `foreground → text`, `primary-foreground → crust` | application code |
+| Typography utilities | `font-sans`, `font-mono`, `text-xs/sm/base/lg` | chrome uses sans; IDs, symbols, metrics use mono |
 | Spacing | `space-1/2/3/4/6/8`, `grid-gap-card`, `page-pad` | consistent card grids and responsive page gutters |
-| Elevation | `shadow-neon`, `shadow-panel`, `glow-danger`, `glow-warning` | active cards, critical alerts, selected rows |
-| Borders | `radius-sm/md/lg`, `border-subtle`, `border-live`, `border-risk` | cards, tables, form controls, risk panels |
-| Motion | `duration-fast`, `duration-normal`, `ease-terminal`, `pulse-live`, `scan-loading` | streaming badges, skeletons, command palette |
+| Borders | `radius-sm/md/lg` | cards, tables, form controls, risk panels |
+| Motion | `duration-fast`, `duration-normal` | streaming badges, skeletons, command palette |
 | State | `state-loading`, `state-empty`, `state-error`, `state-degraded`, `state-stale` | demo state fixtures and badges |
+
+The full Mocha palette (all 26 colors with HSL/OKLCH and accessibility metadata) is available at [`palette.json` (raw)](https://raw.githubusercontent.com/catppuccin/palette/main/palette.json).
 
 ## Component Categories and Required Demos
 
@@ -212,6 +221,14 @@ The styleguide should expose a registry summary: component counts by status, mis
 - Update `README.md` / `RUNNING.md` if styleguide commands or dev workflow changes.
 - Update `SESSION_LOG.md` with verification evidence when implementation lands.
 - Update `DECISIONS.md` only if this changes architecture, release gates, or approved frontend tooling.
+
+## Implementation addendum (2026-04-26): API docs chrome
+
+FastAPI `GET /docs` (Swagger UI) uses [`backend/api/static/swagger-trading-lab.css`](../../../../backend/api/static/swagger-trading-lab.css) and a custom docs route in [`backend/api/app.py`](../../../../backend/api/app.py) so operators see the same dark, high-contrast palette and mono-forward code blocks as the dashboard tokens in [`frontend/tailwind.config.ts`](../../../../frontend/tailwind.config.ts). The route preserves Swagger UI's default CDN base stylesheet (loaded via `get_swagger_ui_html(...)` with no `swagger_css_url=` override) and appends the operator-console override `<link>` immediately before `</head>` so it cascades on top instead of replacing the layout. This is documentation-only chrome; the executable component harness for this feature remains the future `GET /styleguide` Next.js route. ReDoc (`/redoc`) is not themed yet.
+
+## Implementation addendum (2026-04-26): Neko identity components vs styleguide
+
+[`FEATURE-0045`](./neko_quant_identity_0045.md) adds **Neko Quant** presentational components under `frontend/components/identity/`. They are not yet listed in the styleguide registry because the paused styleguide WIP (untracked `frontend/styleguide/`, `frontend/components/ui/`, etc.) is the **higher-priority** merge blocker. When FEATURE-0034’s harness lands, register each identity component in the same format as other entries: name, `draft | reviewed | production` status, prop table, and demo states. Until then, product pages may import identity components for empty-state and chrome use only, following **DEC-012** (no playful copy on health/risk/critical errors).
 
 ## Done Means
 

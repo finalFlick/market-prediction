@@ -114,6 +114,100 @@ Status values: `proposed | accepted | superseded`.
 - **Decision**: `learning.types.RunSummary` carries only `oos_metrics`; scorers assert non-empty.
 - **Consequences**: v1 can add richer calibration without backtesting past leaks.
 
+## DEC-010 — Adopt Catppuccin Mocha as the project palette
+
+- **Date**: 2026-04-26
+- **Status**: accepted
+- **Context**: The hand-built "Kitsune cyberpunk" palette
+  (`night/panel/foxfire/mint/lavender/magenta`) was strong on personality
+  but weak on engineering: every accent value was hand-tuned, the
+  `frontend/styles/tokens.css` referenced in FEATURE-0034 didn't exist,
+  contrast/accessibility metadata wasn't recorded, and the API docs
+  (`/docs`) had a separate hand-written CSS theme that drifted from the
+  dashboard tokens. Maintaining two custom palettes and proving
+  cross-surface consistency was lab-internal busywork.
+- **Decision**: Adopt **Catppuccin Mocha** (the dark variant of the
+  [Catppuccin](https://github.com/catppuccin/catppuccin) design system,
+  MIT-licensed, ~19k stars upstream, ports across hundreds of editors /
+  CLIs / web tools) as the **single project palette** for both the
+  Next.js dashboard and the FastAPI Swagger UI. Hex values come verbatim
+  from [`catppuccin/palette`](https://github.com/catppuccin/palette)
+  `palette.json` v1.8.0. Tailwind tokens use raw Catppuccin names
+  (`base`, `mantle`, `crust`, `surface0/1/2`, `overlay0/1/2`, `text`,
+  `subtext0/1`, plus the 14 accents `rosewater` … `lavender`); semantic
+  Tailwind utilities (`bg-primary`, `text-success`, etc.) alias to
+  Catppuccin's [style-guide role mapping](https://github.com/catppuccin/catppuccin/blob/main/docs/style-guide.md):
+  `primary → Blue`, `success → Green`, `warning → Yellow`,
+  `danger → Red`, `card → Surface0`, `border → Surface2`,
+  `muted-foreground → Subtext0`. Mauve / Teal / Peach reserved for
+  AI / live / write accents respectively. The Swagger `/docs` override
+  CSS uses the same hex values directly.
+- **Consequences**:
+  - Removes `night`, `panel`, `foxfire`, `mint`, `magenta` from
+    the Tailwind config and from product/spec language.
+  - The FEATURE-0034 mood line shifts from "neon telemetry over a
+    black-glass trading console" to "quiet operator console with a
+    coherent accent vocabulary"; pastel-dark cohesion replaces saturated
+    neon. Information density and operator-console intent are
+    unchanged.
+  - Future dependency-research evaluations (e.g. adding the
+    [`@catppuccin/tailwindcss`](https://github.com/catppuccin/tailwindcss)
+    plugin) become trivial — the in-repo palette is already aligned.
+  - Paused-styleguide-agent WIP on `backup/chore-gov-pre-slim` (commit
+    `07d05ab`) defines `frontend/styles/tokens.css` against the old
+    Kitsune palette; that branch will need a rebase to land — it does
+    not block this decision because it has not been merged.
+  - This decision is reversible: every Mocha hex is sourced from a
+    single upstream JSON, so swapping to Latte/Frappé/Macchiato or back
+    to a custom palette is a one-file change to `tailwind.config.ts`
+    plus the Swagger override CSS.
+
+## DEC-011 — Neko Quant brand identity layer (additive to DEC-010)
+
+- **Date**: 2026-04-26
+- **Status**: accepted
+- **Context**: The operator console needs a light product personality
+  (Neko Quant) without forking the palette, trading path, or LLM
+  isolation rules. Identity should be swappable, presentation-only, and
+  shippable before the full styleguide harness.
+- **Decision**: Adopt the **Neko Quant** brand layer: terminal-style
+  status (`neko@market`), voice tables, ASCII mascot states, Inter +
+  JetBrains Mono, and minimal Swagger `/docs` watermark. Core palette
+  remains **Catppuccin Mocha** per DEC-010. All identity code lives in
+  `frontend/components/identity/`, `frontend/lib/neko-voice.ts`, and
+  `frontend/styles/neko.css` — additive paths that do not replace
+  `tokens.css` or the paused styleguide WIP.
+- **Consequences**:
+  - Product marketing copy in README / UI may use Neko where it does
+    not obscure operational data.
+  - Mascot / SFX / full terminal mode remain follow-up feature tickets
+    (FEATURE-0046–0049) so MVP-0 scope stays honest.
+
+## DEC-012 — Where playful (Neko) copy is allowed
+
+- **Date**: 2026-04-26
+- **Status**: accepted
+- **Context**: LLM-suggested trade ideas must never be surfaced as
+  execution signals ([`.cursor/rules/llm-usage.mdc`](.cursor/rules/llm-usage.mdc),
+  `docs/UI_REQUIREMENTS.md`). Playful voice on risk alerts could mask
+  real failures.
+- **Decision**:
+  - **Playful** Neko copy is allowed on: login hero, system overview
+    subline, empty list states, diagnostics read-only easter-egg, and
+    non-critical loading affordances. Research framing uses
+    `NekoObservationCard` with the mandatory line &quot;Research
+    observation. Not a trade signal.&quot; when LLM- or model-derived
+    text is shown.
+  - **Neutral, dense, operational** copy is required for: system health
+    KPI tiles, live/PnL and exposure numbers, risk rejects and
+    kill-switch status, and any error that blocks the operator.
+  - The frontend remains **read-only** for trading; the identity layer
+    adds no order placement, kill-switch, or risk bypass UI.
+- **Consequences**:
+  - Authoring for UI text follows [`.cursor/rules/neko-voice.mdc`](.cursor/rules/neko-voice.mdc).
+  - Any future LLM “insight” panel must use the same non-actionable
+    disclaimer as `NekoObservationCard`.
+
 ## How to add a decision
 
 1. Pick the next `DEC-NNN` number.

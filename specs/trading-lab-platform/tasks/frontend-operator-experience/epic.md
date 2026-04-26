@@ -50,6 +50,11 @@ This epic supports the platform goal of learning to make money over time while p
 - [ ] [FEATURE-0032 - Configuration and Risk Controls UX](./configuration_risk_controls_ux_0032.md)
 - [ ] [FEATURE-0033 - Learning, Backtest, and Strategy Comparison UX](./learning_backtest_comparison_ux_0033.md)
 - [ ] [FEATURE-0034 - Style Guide and Component Library](./style_guide_component_library_0034.md)
+- [x] [FEATURE-0045 - Neko Quant brand identity (additive)](./neko_quant_identity_0045.md)
+- [ ] [FEATURE-0046 - Neko animated mascot (designer + motion)](./neko_animated_mascot_0046.md)
+- [ ] [FEATURE-0047 - Neko sound design (SFX)](./neko_sound_design_0047.md)
+- [ ] [FEATURE-0048 - Neko hacker mode terminal (xterm.js)](./neko_hacker_mode_0048.md)
+- [ ] [FEATURE-0049 - Neko achievement badges (persistence)](./neko_achievements_0049.md)
 
 ## Dependencies
 

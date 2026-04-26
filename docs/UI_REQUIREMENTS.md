@@ -6,6 +6,9 @@ default, and component-first.
 
 For the full build-ready styleguide spec, use
 [`FEATURE-0034`](../specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md).
+For the **Neko Quant** brand layer (decorative chrome + voice),
+see [`FEATURE-0045`](../specs/trading-lab-platform/tasks/frontend-operator-experience/neko_quant_identity_0045.md)
+and **DEC-011** / **DEC-012** in `DECISIONS.md`.
 This document is the short operator/developer reference.
 
 ## Pages (one route each)
@@ -20,6 +23,25 @@ This document is the short operator/developer reference.
 | `/backtests`      | **Backtest lab** — list of runs (`/api/backtests`) + per-run detail at `/backtests/[runId]` |
 | `/health`         | **System health** — API / DuckDB / Redis status, exposure, risk rejects |
 
+## Brand identity (Neko Quant)
+
+- **Persona:** Neko Quant is a *kawaii-hacker-cat* voice layered on
+  Catppuccin Mocha — terminal metaphors, soft humor, no infantilization of
+  risk.
+- **Where it shows:** `NekoShell` / `NekoStatus` app chrome; optional
+  `NekoMascot`, `NekoLoading`, and empty-state copy on list pages. Swagger
+  `/docs` has a one-line `neko@market` watermark in CSS (presentation-only).
+- **Where it does not show:** health/risk/critical error/alerts, numeric
+  KPI tiles, and any surface that could cause an operator to miss a real
+  failure. Those stay neutral and information-dense per **DEC-012**.
+- **Research vs trading:** any LLM- or model-derived “insight” must be
+  wrapped in a research frame, e.g. `NekoObservationCard` with
+  *“Research observation. Not a trade signal.”* — see
+  [`.cursor/rules/llm-usage.mdc`](../.cursor/rules/llm-usage.mdc).
+- **Easter egg:** the diagnostics Neko console (`neko.stats()`, etc.) may
+  only call read-only `GET` patterns via `frontend/lib/api.ts` (no order or
+  risk mutation). See [`.cursor/rules/neko-voice.mdc`](../.cursor/rules/neko-voice.mdc).
+
 ## Mandatory data sources
 
 The frontend reads only from the FastAPI backend. It does **not** open
@@ -28,12 +50,20 @@ through [`frontend/lib/api.ts`](../frontend/lib/api.ts).
 
 ## Visual rules
 
-- **Theme:** cyberpunk hacker ops. Dark terminal base, neon telemetry, dense
-  panels, high contrast, and practical data visibility over decoration.
-- **Color tokens:** mint/green for primary and safe-positive states; foxfire
-  amber for warning/paper; magenta for AI/analysis; red for danger/rejected;
-  lavender/cyan for secondary telemetry. Product code consumes tokens, not
-  ad hoc hex values.
+- **Theme:** [Catppuccin Mocha](https://github.com/catppuccin/catppuccin)
+  (MIT) — adopted verbatim for both `/docs` and the dashboard. Dark,
+  pastel-cohesive, design-system-grade. See `DECISIONS.md` DEC-010.
+- **Color tokens:** raw Catppuccin names live in
+  [`frontend/tailwind.config.ts`](../frontend/tailwind.config.ts)
+  (`base`, `mantle`, `crust`, `surface0/1/2`, `overlay0/1/2`,
+  `text`, `subtext0/1`, plus all 14 accents). Semantic aliases follow
+  Catppuccin's
+  [style guide](https://github.com/catppuccin/catppuccin/blob/main/docs/style-guide.md):
+  `primary → Blue` (links / primary), `success → Green`,
+  `warning → Yellow`, `danger → Red`, `card → Surface0`,
+  `border → Surface2`. Mauve is reserved for AI / analysis surfaces;
+  Teal for live / streaming; Peach for write / mutable accents.
+  Product code consumes token names, never hardcoded hex.
 - **Typography:** UI sans for chrome; **monospace** for every number, ID,
   symbol, timestamp, hash, and command. Numbers are right-aligned in tables.
 - **Spacing/density:** dashboards use compact cards, tight table rows, and
@@ -42,9 +72,10 @@ through [`frontend/lib/api.ts`](../frontend/lib/api.ts).
   borders, and neon glows only for selected/live/critical states.
 - **Motion:** motion is functional only: live pulse, loading scanline,
   command-palette transitions. No data-obscuring decorative animation.
-- **Status colors:** `success` (green), `warning` (amber), `danger` (red),
-  `primary` (brand). Live status uses `primary`; paper uses `warning`;
-  retired uses `danger`.
+- **Status colors (Catppuccin Mocha):** `success → Green #a6e3a1`,
+  `warning → Yellow #f9e2af`, `danger → Red #f38ba8`,
+  `primary → Blue #89b4fa`. Live status uses Teal `#94e2d5`; paper uses
+  Yellow; retired uses Red.
 - **Charts:** TradingView Lightweight Charts only (no Chart.js, no D3).
   Equity curves are area charts; price/OHLC are candle series.
 - **Tables:** TanStack Table with sortable columns; sortable defaults are

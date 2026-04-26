@@ -1,5 +1,9 @@
 # trading-lab
 
+**Smart trades. Soft paws.** (Neko Quant — see
+[`FEATURE-0045`](specs/trading-lab-platform/tasks/frontend-operator-experience/neko_quant_identity_0045.md)
+/ DEC-011.)
+
 An AI-assisted quantitative trading research platform for discovering signals,
 backtesting strategies, and deploying automated trading bots with strict risk
 management.

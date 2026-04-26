@@ -93,6 +93,11 @@ This file indexes the epic and feature task structure derived from requirements.
 | FEATURE-0032 | Configuration and Risk Controls UX | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/configuration_risk_controls_ux_0032.md |
 | FEATURE-0033 | Learning, Backtest, and Strategy Comparison UX | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/learning_backtest_comparison_ux_0033.md |
 | FEATURE-0034 | Style Guide and Component Library | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/style_guide_component_library_0034.md |
+| FEATURE-0045 | Neko Quant brand identity (additive) | Frontend Operator Experience | Landed 2026-04-26 | tasks/frontend-operator-experience/neko_quant_identity_0045.md |
+| FEATURE-0046 | Neko animated mascot | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/neko_animated_mascot_0046.md |
+| FEATURE-0047 | Neko sound design | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/neko_sound_design_0047.md |
+| FEATURE-0048 | Neko hacker mode terminal | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/neko_hacker_mode_0048.md |
+| FEATURE-0049 | Neko achievement badges (persistence) | Frontend Operator Experience | Proposed | tasks/frontend-operator-experience/neko_achievements_0049.md |
 | FEATURE-0035 | Structured Logs, Metrics, and SLOs | Observability, Audit, and Operations | Proposed | tasks/observability-audit-operations/structured_logs_metrics_slos_0035.md |
 | FEATURE-0036 | Notifications and Seven Operational Alerts | Observability, Audit, and Operations | Proposed | tasks/observability-audit-operations/notifications_seven_alerts_0036.md |
 | FEATURE-0037 | Hash-Chained Audit and Decision Explainability | Observability, Audit, and Operations | Proposed | tasks/observability-audit-operations/hash_chained_audit_explainability_0037.md |

@@ -1,0 +1,33 @@
+---
+description: Neko Quant UI copy and brand boundaries (DEC-012)
+globs: frontend/**/*
+---
+
+# Neko voice
+
+## Scope
+
+- **Neko Quant** is additive chrome on the Catppuccin Mocha console (**DEC-010** / **DEC-011**). It is not a new palette, not a risk bypass, and not an execution path.
+- Use [`frontend/lib/neko-voice.ts`](frontend/lib/neko-voice.ts) for shared strings (`nekoVoice.empty`, `pickCopy`, `NEKO_NOT_A_TRADE_SIGNAL`, `configurationIndexTagline`) instead of inventing ad hoc mascot lines in every page.
+
+## Playful (allowed)
+
+- Login hero, overview subline, **empty** list/diagnostic states, and the read-only diagnostics easter-egg.
+- `NekoLoading` / `NekoMascot` on non-operational wait states.
+
+## Neutral (required)
+
+- System **health** tiles, **risk** rejects, **exposure**, **kill-switch**, PnL, and **errors that block the operator** — no kittens-in-distress copy; state the fact and the next step.
+- Do not rephrase operational failures as &quot;Neko is napping&quot; if that hides severity.
+
+## LLM and research (mandatory)
+
+- Per [`llm-usage.mdc`](mdc:.cursor/rules/llm-usage.mdc), LLM text is never a trade signal. Use `NekoObservationCard` with `notATradeSignal={true}` and the fixed disclaimer: **Research observation. Not a trade signal.**
+
+## Easter egg
+
+- `NekoEasterEgg` only whitelists read-only `GET` patterns from [`frontend/lib/api.ts`](frontend/lib/api.ts). No new POST/PUT, no `execution/`, no risk mutation.
+
+## When unsure
+
+- Default to **neutral** for anything that could affect capital or system safety. See `docs/UI_REQUIREMENTS.md` and **DEC-012** in `DECISIONS.md`.

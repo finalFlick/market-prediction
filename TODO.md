@@ -17,6 +17,15 @@ sprint checklist as the narrow foundation slice.
 
 Completed (landed in `main`):
 
+- [x] **FEATURE-0045** — Neko Quant identity layer (additive):
+  `frontend/components/identity/*`, voice lib, Swagger watermark, DEC-011/012,
+  docs. Does **not** touch the paused styleguide agent’s untracked WIP paths.
+  Follow-ups: FEATURE-0046–0049 (mascot motion, SFX, hacker terminal, achievements).
+
+## 2026-04-26 status addendum (historical)
+
+Completed (landed in `main`):
+
 - [x] Fast Docker dev loop: `Dockerfile.base`, `Dockerfile.research`,
   `docker-compose.dev.yml`, `dev.py`, and docs. Windows bind-mount masks are
   required for usable pytest performance.
@@ -71,7 +80,8 @@ the 2026-04-26 work day:
 1. **This session (Developer / audit)** — landed PR #3 (governance) and
    PR #17 (docker fix), reviewed the open Dependabot PR set, and ran this
    audit. Working strictly through `main`-derived branches; never touched
-   the styleguide files.
+   the styleguide files. **FEATURE-0045** (Neko identity) was implemented
+   additively on the same principle — no edits under paused-agent WIP paths.
 2. **A paused agent** — was implementing FEATURE-0034 (`/styleguide`,
    component registry, vitest, operator components, charts, design tokens).
    Its WIP was committed to a chore branch as `07d05ab` and a parallel

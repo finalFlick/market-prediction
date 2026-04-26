@@ -16,6 +16,278 @@ Format:
 
 ---
 
+## 2026-04-26 — Neko Quant identity layer (FEATURE-0045, DEC-011/012)
+
+- **Agent**: Developer
+- **Goal**: Ship additive Neko Quant brand chrome (identity components, voice,
+  fonts, Swagger watermark, decisions/docs/tickets) without editing paused
+  styleguide WIP paths.
+- **Done**:
+  - `frontend/components/identity/*` — `NekoShell`, `NekoStatus`, `NekoMascot`,
+    `NekoLoading`, `NekoObservationCard`, `NekoEasterEgg`, `NekoAchievementBadge`,
+    `neko-icons`.
+  - `frontend/lib/neko-voice.ts`, `frontend/lib/ascii-candle.ts`, `formatPawConfidence`
+    in `frontend/lib/utils.ts`, `frontend/styles/neko.css`, `public/neko/**`.
+  - `frontend/app/layout.tsx` — Inter + JetBrains Mono (`next/font/google`),
+    `NekoShell` wrap, Tailwind font + `paw-bounce` / `scanline` / `candle-pulse`.
+  - Voice on empty / playful surfaces on tracked `app/**/page` routes; health KPIs
+    unchanged. Trades: empty state uses Neko copy without editing `trades-table`.
+  - `backend/api/static/swagger-trading-lab.css` — `neko@market` `/docs` watermark.
+  - Specs: FEATURE-0045..0049, epic + `tasks.md` index; FEATURE-0034 addendum;
+    `.cursor/rules/neko-voice.mdc`, `docs/UI_REQUIREMENTS.md` brand section,
+    `DECISIONS.md` DEC-011/012, `README` tagline, `TODO.md` note.
+- **Verified**:
+  - `py -3.12 -m pytest tests/e2e/test_api_app.py -q` → 9 passed
+  - `py -3.12 -m ruff check .` → All checks passed
+  - `py -3.12 -m mypy --strict .` → Success, 182 source files
+  - `cd frontend; npm run lint` → No ESLint warnings or errors
+  - `ReadLints` (identity + layout + neko-voice + utils) → clean
+- **Deferred / blocked**:
+  - `npm run typecheck` / `npm run build` fail on pre-existing WIP under
+    `styleguide/`, `components/operator/`, and related Badge variant typings —
+    not introduced by this session (same class of blocker as paused styleguide
+    agent). `next build` also emitted lockfile patch warnings in this
+    environment; production build of WIP tree remains a follow-up when
+    FEATURE-0034 lands.
+
+## Session: 2026-04-26 — Adopt Catppuccin Mocha as project palette (DEC-010)
+
+- **Agent**: Orchestrator (autonomous /orchestrate, single iteration)
+- **Goal**: Replace the in-house Kitsune palette with verbatim Catppuccin
+  Mocha hex values across `/docs` and the dashboard, per user direction
+  *"Just match the online palette dont use our custom colors"*.
+- **Done**:
+  - `frontend/tailwind.config.ts` — replaced Kitsune tokens with raw
+    Catppuccin Mocha names (`base`, `mantle`, `crust`, `surface0/1/2`,
+    `overlay0/1/2`, `text`, `subtext0/1`, all 14 accents); added
+    semantic role aliases (`primary → blue`, `success → green`,
+    `warning → yellow`, `danger → red`, `card → surface0`,
+    `border → surface2`, `muted → surface1`, `muted-foreground →
+    subtext0`, `background → base`, `foreground → text`,
+    `primary-foreground → crust`).
+  - [`frontend/app/globals.css`](frontend/app/globals.css) — body bg
+    `#1e1e2e`, color `#cdd6f4`, selection `#585b70`.
+  - [`backend/api/static/swagger-trading-lab.css`](backend/api/static/swagger-trading-lab.css)
+    — rewritten with verbatim Mocha hex; HTTP methods mapped GET=Blue,
+    POST=Green, PUT=Peach, PATCH=Mauve, DELETE=Red.
+  - [`docs/UI_REQUIREMENTS.md`](docs/UI_REQUIREMENTS.md) — Visual
+    rules and Status colors sections rewritten to reference Catppuccin
+    Mocha + the upstream
+    [style guide](https://github.com/catppuccin/catppuccin/blob/main/docs/style-guide.md).
+  - [FEATURE-0034](specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md)
+    — Design Direction mood line changed from "neon telemetry over a
+    black-glass trading console" to "quiet operator console with a
+    coherent accent vocabulary"; Design Tokens table lists raw Catppuccin
+    names with hex values.
+  - [`DECISIONS.md`](DECISIONS.md) — new **DEC-010** records the palette
+    adoption, license attribution, role-mapping, and reversibility.
+  - `.pipeline/swagger-catppuccin/run.json` — orchestrator run log
+    (per-task acceptance checks + verification evidence).
+  - `.cursor/scratchpad.md` — current state summary.
+  - `.gitignore` — added `.pipeline/` and `.cursor/scratchpad.md` so
+    orchestrator runtime artifacts stay out of commits.
+- **Verified**:
+  - `py -3.12 -m ruff check backend/api/app.py tests/e2e/test_api_app.py`
+    → all checks passed
+  - `py -3.12 -m mypy --strict backend/api/app.py tests/e2e/test_api_app.py`
+    → success: no issues found in 2 source files
+  - `py -3.12 -m pytest tests/e2e/test_api_app.py -q` →
+    **9 passed in 8.38 s** (includes
+    `test_swagger_docs_serves_themed_html` and
+    `test_swagger_theme_css_is_served`)
+  - `ReadLints` on all six modified files → no linter errors
+- **Sources cited** (per `.cursor/rules/library-research.mdc`):
+  - [Catppuccin palette JSON](https://raw.githubusercontent.com/catppuccin/palette/main/palette.json)
+    v1.8.0 (MIT)
+  - [Catppuccin style guide](https://github.com/catppuccin/catppuccin/blob/main/docs/style-guide.md)
+    — role mapping (Blue=primary/links, Green=success, Yellow=warning,
+    Red=errors, Mauve=Mark2/keywords, Lavender=active border,
+    Teal=color6/cyan)
+  - Compared against [Amoenus/SwaggerDark](https://github.com/Amoenus/SwaggerDark)
+    (191⭐, MIT, generic dark) and
+    [Itz-fork/Fastapi-Swagger-UI-Dark](https://github.com/Itz-fork/Fastapi-Swagger-UI-Dark)
+    (29⭐, MIT, Catppuccin-based but pinned to Swagger UI 4.x);
+    decided to inline the palette rather than vendor either.
+- **Blocked / next**:
+  - Paused-styleguide-agent WIP on `backup/chore-gov-pre-slim`
+    (`07d05ab`) defines `frontend/styles/tokens.css` against the OLD
+    Kitsune palette and will conflict on land. That branch needs a
+    rebase to consume DEC-010 tokens. Documented in DEC-010
+    consequences.
+  - `/redoc` is still default-light. Out of scope; follow-up if
+    desired.
+  - No git commit made; awaiting user instruction.
+
+---
+
+## Session: 2026-04-26 — Collided Agent Recovery: swagger-docs-styleguide-agent
+
+### Starting Context
+
+- Resumed after parallel-agent collision. Three agents were active 2026-04-26:
+  the audit/governance agent (PR #3, PR #17), a paused frontend-styleguide
+  agent (FEATURE-0034 WIP, captured on `backup/chore-gov-pre-slim`), and
+  this Swagger-docs theming agent.
+- Canonical continuation source reviewed: `TODO.md` (2026-04-26 status
+  addendum + Agent Coordination block) and the latest `SESSION_LOG.md`
+  audit entry.
+- This recovery does not touch the paused styleguide agent's WIP files
+  (all under `frontend/`); scope is strictly `backend/api/` chrome.
+
+### Git State Reviewed
+
+- Branch: `main`, in sync with `origin/main` at `df4c4d7`.
+- Working tree: 18 untracked frontend files (paused-agent FEATURE-0034 WIP).
+- Stashes: `stash@{0} wip-all-before-slim-pr3` — paused-agent content,
+  redundant with `backup/chore-gov-pre-slim`. Not touched.
+- Worktrees: none (only `main` checked out).
+- Relevant branches: `main`, `backup/chore-gov-pre-slim` (held).
+- `git log --all -- backend/api/app.py backend/api/static
+  tests/e2e/test_api_app.py` confirms the prior Swagger work was never
+  committed to any branch or stash.
+
+### Recovered Candidate Work
+
+- Location: never committed; lived only as live working-tree edits during
+  the prior session and was discarded (most likely caught in a `git
+  restore` / housekeeping operation after the audit agent finished its
+  governance + CI work).
+- Files that had been modified pre-revert: `backend/api/app.py`,
+  `backend/api/static/swagger-trading-lab.css` (new),
+  `tests/e2e/test_api_app.py`, `RUNNING.md`, `SESSION_LOG.md`,
+  `specs/trading-lab-platform/tasks.md`,
+  `specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md`.
+- Likely original goal: theme FastAPI `/docs` (Swagger UI) to match the
+  operator-console palette in `frontend/tailwind.config.ts`
+  (FEATURE-0034 design direction).
+- Documentation footprints that survived the revert and now describe
+  nonexistent code: the prior 2026-04-26 *"Swagger /docs themed to
+  operator styleguide"* SESSION_LOG entry (below), the
+  `RUNNING.md` themed-`/docs` row, and the `tasks.md`
+  *"Addendum: OpenAPI Swagger UI themed to operator console"* block.
+- Still relevant? **yes** — the user explicitly requested the theme and
+  asked the prior agent to fix the visual regression it caused.
+- Conflict risk: **low** — backend-only, no overlap with the paused
+  styleguide agent's frontend WIP, no overlap with `main`.
+
+### Decision
+
+- **Strategy: Resume Work (Option A) — conservative re-apply.**
+- Reason: stale "claim of success" docs already exist; the cheapest path
+  back to internal consistency is to make the implementation match those
+  claims, with the visual bug fix from the previous session baked in.
+- The previous attempt failed visually because it passed
+  `swagger_css_url=` to `get_swagger_ui_html`, which **replaces** the
+  default Swagger UI CDN base stylesheet. The corrected approach used
+  here renders Swagger UI with all defaults and post-processes the HTML
+  to inject the override `<link>` just before `</head>`, so the base
+  layout/typography stays intact and only colors/borders/typography
+  cascade on top.
+
+### Changes Made
+
+- Re-created
+  [`backend/api/static/swagger-trading-lab.css`](backend/api/static/swagger-trading-lab.css)
+  with `.swagger-ui` color/border/typography overrides synced to
+  `frontend/tailwind.config.ts` extend.colors. Top-of-file comment
+  records the sync requirement.
+- Updated
+  [`backend/api/app.py`](backend/api/app.py): `docs_url=None`,
+  `StaticFiles` mount on `/static`, custom `GET /docs` route that calls
+  `get_swagger_ui_html(...)` with defaults (no `swagger_css_url=`) plus
+  `swagger_ui_parameters={"syntaxHighlight.theme": "obsidian"}`, then
+  injects the override stylesheet `<link>` before `</head>`. The route
+  is `include_in_schema=False`. Also coerced `base.body` through
+  `bytes(...)` to satisfy `mypy --strict` against
+  `bytes | memoryview[int]`.
+- Re-added two e2e tests in
+  [`tests/e2e/test_api_app.py`](tests/e2e/test_api_app.py):
+  `test_swagger_docs_serves_themed_html` (asserts 200, `swagger-ui` in
+  body, **`swagger-ui-dist` CDN reference still present** — guard
+  against the prior visual regression — and our `_SWAGGER_CSS_URL`
+  appended) and `test_swagger_theme_css_is_served` (asserts 200,
+  `text/css`, `.swagger-ui` content).
+- Re-added the *"Implementation addendum (2026-04-26): API docs chrome"*
+  block to
+  [`specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md`](specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md);
+  this block had also been reverted along with the code.
+- The
+  [`specs/trading-lab-platform/tasks.md`](specs/trading-lab-platform/tasks.md)
+  *"Addendum: OpenAPI Swagger UI themed to operator console (2026-04-26)"*
+  block survived the revert and now correctly describes existing code
+  again — left untouched.
+
+### Verified
+
+- `py -3.12 -m ruff check backend/api/app.py tests/e2e/test_api_app.py`
+  → all checks passed.
+- `py -3.12 -m mypy --strict backend/api/app.py tests/e2e/test_api_app.py`
+  → success: no issues found in 2 source files.
+- `ReadLints` on the three changed files → no linter errors.
+- Code review of the route: `get_swagger_ui_html(...)` called with
+  defaults emits the standard CDN `<link>` for swagger-ui-dist@5; the
+  `.replace("</head>", '<link ... swagger-trading-lab.css"></head>', 1)`
+  injection runs once and adds the override after the base CSS in source
+  order, so both stylesheets load and ours wins on cascade.
+
+### Verification Gap (must be re-run by the user)
+
+- **`pytest` is currently blocked on this Windows session** by a hung
+  WMI service. Repro signal: `py -3.12 -X faulthandler -c "import
+  platform; platform.system()"` triggers `_wmi_query` and never returns;
+  the import chain `runs.orchestrator → backtests/__init__ →
+  backtests/engine → vectorbt → ipywidgets → IPython.terminal →
+  IPython.core.kitty → platform.win32_ver` therefore wedges every
+  pytest collection that touches `backend.api.app`.
+- Root cause is **environmental, not code**: aggressive
+  `Get-Process | Stop-Process -Force` calls during the prior session
+  appear to have left the WMI provider in a bad state. Restoring it
+  requires either a Windows session restart or, from an **elevated**
+  PowerShell, `Restart-Service Winmgmt -Force`.
+- After WMI recovers, the user (or any future agent) should run, in
+  this order, to validate this resume:
+  - `py -3.12 -m pytest tests/e2e/test_api_app.py -q` — expects 9 passed.
+  - `py -3.12 -m pytest -q` — expects ~294 passed (the run captured by
+    the prior session before it lost the work).
+  - `py -3.12 -m ruff check .`
+  - `py -3.12 -m mypy --strict --explicit-package-bases backend`
+- The prior 2026-04-26 *"Swagger /docs themed to operator styleguide"*
+  SESSION_LOG entry below cites `pytest -q → 294 passed`; that
+  verification is **stale relative to the current tree** (the code it
+  validated was reverted shortly after). The current code has been
+  reconstructed to match the same intent and passes static analysis;
+  full pytest re-run is the user's gating step.
+
+### Changes Intentionally Skipped
+
+- **No edits to `TODO.md`.** The audit agent's continuation guidance
+  (paused-agent WIP, Dependabot triage, Wave 1) is still the right
+  next-action list. This recovery is small enough that adding a TODO
+  entry would be low-value spam.
+- **No edits to `RUNNING.md`.** The themed-`/docs` row at line 116
+  already describes the now-correct state.
+- **No touch on `stash@{0}`, `backup/chore-gov-pre-slim`, or any
+  untracked frontend file.** Those belong to the paused styleguide
+  agent's WIP; per the audit agent's handoff, they are held for
+  human/owner decision.
+- **No `redoc` theming.** Out of scope for this recovery; ReDoc remains
+  default light theme until a follow-up ticket addresses it.
+- **No git commit.** Per project rules, commits require explicit user
+  request.
+
+### Remaining Handoff
+
+- Run the four verification commands above once WMI is healthy.
+- If any test fails, the most likely culprit is the `swagger-ui-dist`
+  CDN URL in Swagger UI 5.x changing across FastAPI versions; the
+  `test_swagger_docs_serves_themed_html` assertion would catch it
+  cleanly and the fix is to update the asserted substring.
+- The paused-styleguide-agent decision (resume vs cherry-pick `07d05ab`)
+  remains the higher-priority blocker for FEATURE-0034 proper; this
+  recovery only landed the API-docs chrome slice.
+
+---
+
 ## 2026-04-26 — Project state / cleanup / handoff audit
 
 - **Agent**: Human + Developer (audit / steward)
