@@ -50,9 +50,10 @@ jobs:
           tags: |
             ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:${{ github.sha }}
             ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:latest
-          cache-from: |
-            type=registry,ref=ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:cache
-            type=gha,scope=trading-base
+          # cache-from intentionally omits type=registry,ref=:cache because
+          # BuildKit aborts on cache miss instead of falling through. The GHA
+          # scope warms across runs of this workflow on main, which is enough.
+          cache-from: type=gha,scope=trading-base
           cache-to: |
             type=registry,ref=ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:cache,mode=max
             type=gha,mode=max,scope=trading-base
