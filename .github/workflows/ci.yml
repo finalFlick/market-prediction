@@ -153,13 +153,19 @@ jobs:
     needs: [lint, typecheck, unit, det, security, e2e, backtest_smoke, frontend, gitleaks]
     steps:
       - uses: actions/checkout@v4
+      # The default `docker-container` buildx driver runs BuildKit in its own
+      # container with an isolated image store: `load: true` on trading-base
+      # would put the image in the host Docker daemon, but the next buildx
+      # build still in the container would resolve `FROM trading-base` via
+      # docker.io and 401. The `docker` driver uses the host Docker daemon's
+      # built-in BuildKit, sharing the image store -- so `FROM trading-base`
+      # resolves locally. Trade-off: the `docker` driver does not support
+      # `cache-from/to: type=gha`, so the trading-base layer is rebuilt cold
+      # each PR run (~3-5 min). Acceptable for now; warm registry cache via
+      # `trading-base.yml` is a follow-up.
       - uses: docker/setup-buildx-action@v3
-      # Must run on this same runner before backend/engine: separate jobs do not
-      # share the local Docker image store unless pushed to a registry. We rely
-      # on the per-branch GHA cache scope rather than the GHCR registry cache
-      # because `cache-from: type=registry` aborts on cache miss (both 403 and
-      # 404). The GHCR `:cache` ref is still populated by `trading-base.yml`
-      # for external consumers; CI itself does not pull from it.
+        with:
+          driver: docker
       - name: build trading-base (shared Python layers)
         uses: docker/build-push-action@v6
         with:
@@ -168,12 +174,6 @@ jobs:
           push: false
           load: true
           tags: trading-base:latest
-          cache-from: type=gha,scope=trading-base
-          cache-to: type=gha,mode=max,scope=trading-base
-      # build-contexts tells BuildKit (running in the docker-container driver)
-      # that `FROM trading-base` resolves to the local Docker daemon's
-      # `trading-base:latest` image (loaded by the previous step) instead of
-      # docker.io/library/trading-base, which doesn't exist.
       - name: build trading-engine
         uses: docker/build-push-action@v6
         with:
@@ -182,9 +182,6 @@ jobs:
           push: false
           load: true
           tags: trading-lab/engine:ci
-          build-contexts: |
-            trading-base=docker-image://trading-base:latest
-          cache-from: type=gha,scope=trading-base
       - name: build backend
         uses: docker/build-push-action@v6
         with:
@@ -193,9 +190,6 @@ jobs:
           push: false
           load: true
           tags: trading-lab/backend:ci
-          build-contexts: |
-            trading-base=docker-image://trading-base:latest
-          cache-from: type=gha,scope=trading-base
       - name: build frontend
         uses: docker/build-push-action@v6
         with:
