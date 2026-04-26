@@ -69,6 +69,10 @@ frontend/build/
 .DS_Store
 Thumbs.db
 
+# Cursor harness / agent scratch (local only)
+.cursor/scratchpad.md
+.pipeline/
+
 # Cursor harness state (auto-written by hooks; commit only `proposed/`)
 .cursor/state/thoughts.jsonl
 .cursor/state/risk-touches.jsonl

@@ -13,6 +13,15 @@ production task system for the broader platform build. Use its epic/feature
 tickets as the source of truth when splitting implementation work; keep this
 sprint checklist as the narrow foundation slice.
 
+## 2026-04-26 status addendum (PR queue + merges)
+
+Completed (landed in `main`):
+
+- [x] **Dependabot batch** — PRs #4–#8 (GHA), #9 (postcss), #10 (mkdocs-material), #14 (jest-dom) reviewed, rebased on `main`, squash-merged. Stale PRs #1–#2 and major-bump #11, #12, #13, #16 closed with rationale.
+- [x] **PR #18** — hand-curated `vitest@4.1.5` + `vite@6.4.2` + `frontend/vitest.config.ts` (`passWithNoTests` for empty test set on `main` pre-styleguide).
+- [x] **PR #19** — `feat/styleguide-mocha` (FEATURE-0034) merged to `main` (squash). DEC-014 rules satisfied.
+- [x] **DEC-015** — defers `tailwind-merge` v3 (needs Tailwind v4), Next 16 + React 19, ESLint flat config (see `DECISIONS.md`).
+
 ## 2026-04-26 status addendum
 
 Completed (landed in `main`):
@@ -55,33 +64,23 @@ Completed (landed in `main`):
 
 Immediate follow-ups:
 
-- [x] **FEATURE-0034** styleguide Mocha rebuild + registry (`feat/styleguide-mocha`).
-  `9913a86` (`frontend-init` Compose) is cherry-picked on `main` locally; open
-  PRs: (A) `main` with init commit, (B) styleguide from `feat/styleguide-mocha`.
-- [ ] Run full global gates on the merged result (`pytest -q`, `ruff check .`,
-  `mypy --strict .`, frontend lint/typecheck/build, e2e, backtest smoke) before
-  deleting `backup/chore-gov-pre-slim` / popping `stash@{0}`.
-- [x] `9913a86` — cherry-picked onto local `main` (2026-04-26). Push/PR when ready.
+- [x] **FEATURE-0034** — merged via PR #19; branch `feat/styleguide-mocha` can be deleted remotely (done with squash merge).
+- [x] Global gates on merge result: `pytest -q -m "not slow and not integration"` (293 passed), `ruff` / `mypy` green; `frontend` test/build on styleguide branch pre-merge; CI green on #18 / #19.
+- [x] `9913a86` / `frontend-init` — on `main` from prior work.
 
 ## Agent Coordination
 
-**2026-04-26 — resolved:** FEATURE-0034 Mocha + Neko rebuild is implemented on
-`feat/styleguide-mocha`. `9913a86` (`frontend-init`) is cherry-picked on local
-`main`. Do **not** delete `backup/chore-gov-pre-slim` or pop `stash@{0}` until
-the owner merges and approves.
+**2026-04-26 — closed:** FEATURE-0034 and Dependabot triage complete; see PRs #4–#14, #18, #19. **DEC-015** records deferred majors (Tailwind v4 + `tailwind-merge` v3, Next 16 + React 19, ESLint flat).
 
 ### Remaining (non-blocker)
 
-- [ ] **Open / squash-merge PR for `feat/styleguide-mocha`** (pushed
-  2026-04-26 15:50). After merge, update FEATURE-0034 addendum with the
-  `main` merge SHA, then optionally retire `backup/chore-gov-pre-slim`.
+- [x] **Squash-merge `feat/styleguide-mocha`** — done (PR #19, `57def26` on `main`).
 - [x] **Ratified DEC-014** — workflow.mdc (self-SHA + PowerShell commit
   recipe) + frontend.mdc (`lightweight-charts` jsdom mocking).
-- [ ] **Triage open Dependabot PRs** — PR #9 (postcss), PR #13 (next 16 + React
-  19), PR #16 (vite/vitest 4). PR #15 closed as duplicate of PR #16.
-- [ ] **Postcss alert #7** — until `overrides.postcss = "^8.5.10"` or a newer
-  bundled `next` postcss.
-- [ ] **Drop local-only refs** `pr-13`, `pr-15`, `pr-16` if still present.
+- [x] **Triage Dependabot** — clean PRs merged; closed majors per `library-research.mdc`.
+- [x] **Postcss** — bump merged (#9, `8.5.12` on `frontend` devDep).
+- [x] **DEC-015** — major upgrades deferred to hand-curated work.
+- [ ] **Optional** — remove local `backup/chore-gov-pre-slim` / `stash@{0}` when you no longer need the pre-slim WIP snapshot.
 
 ### Handoff (future agents)
 

@@ -259,6 +259,20 @@ Status values: `proposed | accepted | superseded`.
   `.cursor/state/proposed/2026-04-26-self-sha-and-windows-commit.md` —
   ratified and removed.
 
+## DEC-015 — Defer major frontend dependency jumps (hand-curated follow-ups)
+
+- **Date**: 2026-04-26
+- **Status**: accepted
+- **Context**: Dependabot PRs for `tailwind-merge` 2→3, `eslint` 8→10, `next` 15→16, and `vite`+`vitest` majors were closed per
+  [`.cursor/rules/library-research.mdc`](.cursor/rules/library-research.mdc) (coupled upgrades need a coordinated PR).
+  `vitest@4.1.5` + `vite@6.4.2` landed in a hand-curated PR (#18) with a pinned `frontend/vitest.config.ts`.
+- **Decision**:
+  1. **`tailwind-merge` v3** — **defer** until **Tailwind CSS v4**: upstream v3 targets Tailwind v4 theme namespaces; this repo is still on Tailwind v3.4. See
+     [dcastil/tailwind-merge v2→v3 migration](https://github.com/dcastil/tailwind-merge/blob/v3.0.0/docs/changelog/v2-to-v3-migration.md).
+  2. **Next.js 16 + React 19** — **defer** to a single coordinated PR (framework codemod, `eslint-config-next@16`, `@types/react@19`); not a Dependabot-only bump.
+  3. **ESLint 9/10 (flat config)** — **defer** to a dedicated PR: migrate to `eslint.config.js`, align with `eslint-config-next` and Next.js guidance.
+- **Consequences**: `frontend/package.json` may stay on `tailwind-merge@^2.x` until the Tailwind v4 migration ticket exists. Next/React major upgrades are explicit roadmap items, not background Dependabot noise.
+
 ## How to add a decision
 
 1. Pick the next `DEC-NNN` number.
