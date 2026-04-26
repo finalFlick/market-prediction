@@ -16,6 +16,183 @@ Format:
 
 ---
 
+## 2026-04-26 — Styleguide Mocha rebuild (FEATURE-0034) + frontend-init
+
+- **Agent**: Developer
+- **Goal**: Land Catppuccin Mocha + Neko Quant styleguide harness and compose
+  `frontend-init` per the approved styleguide Mocha rebuild plan.
+- **Done**:
+  - Cherry-picked `9913a86` onto local `main` (`docker-compose.dev.yml`
+    `frontend-init` + `depends_on: service_completed_successfully`).
+  - Branch `feat/styleguide-mocha` (tip commit): full registry (`frontend/styleguide/*`),
+    demos, Vitest + jsdom shims, Mocha-classed UI components (primitives, data,
+    charts, operator), `/styleguide` + `/styleguide/[componentId]`, Badge/Card
+    variants, `EquityChart` empty state, `TradesTable` `live`/`paper` badges,
+    `AiInsightPanel` uses `NEKO_NOT_A_TRADE_SIGNAL`; removed WIP
+    `frontend/styles/tokens.css` (single palette source: Tailwind).
+  - Docs: `docs/UI_REQUIREMENTS.md` registry pointer + `/styleguide` route;
+    `specs/.../style_guide_component_library_0034.md` addendum; `TODO.md` conflict
+    section closed.
+- **Verified**:
+  - `docker compose -f docker-compose.yml -f docker-compose.dev.yml config --services` →
+    includes `frontend-init` (earlier).
+  - `cd frontend; npm test` → 11 passed; `npm run typecheck` → clean;
+    `npm run lint` → no warnings; `npm run build` → exit 0 (Next lockfile patch
+    warnings only).
+- **Verified (repo)**:
+  - `py -3.12 -m pytest tests/cursor_harness -q` → 131 passed
+  - `py -3.12 -m pytest -q -m "not slow and not integration"` → 293 passed
+  - `ruff check .` → all checks passed; `mypy --strict .` → 182 files, no issues
+- **Pushed (2026-04-26 15:50)**:
+  - `origin/main` `df4c4d7..8792c1f` (cherry-picked `frontend-init`).
+  - `origin/feat/styleguide-mocha` (new); PR URL printed by `git push`.
+- **Observations / proposed rule updates**:
+  - Self-referencing the current commit's own short SHA in its body / spec
+    addendum forced **5 `git commit --amend`** cycles. Rule:
+    branch-name-or-post-merge-SHA only.
+  - PowerShell host: `&&` and heredoc commit messages do not work; the
+    working recipe is `Set-Content .git\COMMIT_MSG.txt … ; git commit -F …`.
+  - `lightweight-charts` cannot run under `jsdom`; tests mock the module.
+  - **Ratified as DEC-014**: edits landed in `workflow.mdc` (self-SHA
+    section + PowerShell recipe) and `frontend.mdc` (lightweight-charts
+    jsdom subsection). Proposal file removed.
+- **Blocked / next**: Owner opens / squash-merges PR for
+  `feat/styleguide-mocha`. Do not delete `backup/chore-gov-pre-slim` until
+  the merge lands.
+
+## 2026-04-26 — Collided agent recovery: styleguide-ci-bootstrap-agent
+
+### Starting context
+
+- Resumed after parallel-agent collision. Canonical continuation source
+  reviewed: `TODO.md` "Agent Coordination / Conflict Status" section and the
+  most recent `SESSION_LOG.md` entries (DEC-013 ratification and Neko Quant
+  FEATURE-0045 land).
+- This agent's original goal:
+  `.cursor/plans/styleguide_ci_base_cc26754b.plan.md` —
+  TODO 1 (FEATURE-0034 full styleguide), TODO 2 (`trading-base` CI Phase 1+2),
+  TODO 3 (`frontend-init` Compose service).
+
+### Git state reviewed (read-only)
+
+- Branch: `main` (ahead of `origin/main` by 3 — Neko + DEC-013 commits).
+- Working tree: 27 untracked files under `frontend/styleguide/`,
+  `frontend/components/{operator,charts,data,ui}/**`, `frontend/styles/`,
+  `frontend/vitest.{config,setup}.ts`, plus 2 unrelated audit-agent files
+  (`.cursor/scratchpad.md`, `.pipeline/swagger-catppuccin/run.json`). No
+  modifications to tracked files.
+- Stashes: one — `stash@{0}: On github-public-governance: wip-all-before-slim-pr3`.
+  Inspected with `git stash show --name-only`: 16 entries, all
+  modifications to pre-existing files; **no new styleguide files are in this
+  stash.**
+- Worktrees: single (`main` at workspace root).
+- Relevant branches:
+  - `backup/chore-gov-pre-slim` (local-only, audit-preserved): tip
+    `07d05ab feat(frontend): full styleguide inventory ...`. Despite the
+    commit subject, `git ls-tree -r 07d05ab -- frontend/styleguide
+    frontend/components/{operator,charts,data} frontend/components/ui/{button,select,textarea,skeleton,empty-state,error-state}.tsx
+    frontend/styles frontend/vitest.config.ts frontend/vitest.setup.ts`
+    returns **empty** — only six pre-existing files were modified in that
+    commit. The new component, registry, types, fixtures, demos, and tests
+    are **not** in `07d05ab` or in the parent commits on that branch.
+- Merged upstream via PR #3 / PR #17:
+  - TODO 2 Phase 1+2 (`ci(docker): build trading-base before service images
+    and publish to GHCR`) at `8174b0b`.
+  - Frontend dev deps (`vitest`, `@testing-library/react`, `jsdom`,
+    `@vitejs/plugin-react`) already in `frontend/package.json` on `main`.
+
+### Recovered candidate work
+
+| Location | Files | Status |
+|---|---|---|
+| Working tree (untracked) | 27 styleguide files (registry, types, demos, fixtures, vitest config + setup, all new operator/charts/data/ui components, `styles/tokens.css`) | Only copy in repo |
+| `backup/chore-gov-pre-slim` @ `07d05ab` | 6 modifications to existing files (Badge variants, Card cva, EquityChart empty-state, TradesTable variant fix, app/styleguide/page.tsx rewrite, tailwind/globals updates) | Preserved on a local branch only |
+| `backup/chore-gov-pre-slim` @ `9913a86` | `docker-compose.dev.yml` (+18 lines: `frontend-init` one-shot service, `frontend.depends_on` ordering) — TODO 3 from the plan | Preserved on a local branch only; never opened as a PR |
+| `stash@{0}` | Same 16-file diff that `backup/chore-gov-pre-slim` already contains | Redundant with the backup branch |
+
+Likely original goal (confirmed): execute the
+`.cursor/plans/styleguide_ci_base_cc26754b.plan.md` plan end-to-end.
+
+### Conflict findings
+
+1. **TODO.md inaccuracy.** Today's `TODO.md` claims:
+   > "These files are not lost; they exist both in the local working tree
+   > and as commit `07d05ab` on `backup/chore-gov-pre-slim`."
+   `git ls-tree` shows the new files are **not** in `07d05ab`. Only the
+   working-tree copy preserves them. Without an explicit commit/stash, a
+   `git clean -fd` or branch wipe would lose this work.
+2. **Palette conflict with DEC-010 (Catppuccin Mocha).** My
+   `frontend/styles/tokens.css` defines the Kitsune palette
+   (`--tl-mint`, `--tl-foxfire`, `--tl-magenta`, …). `main`'s
+   `frontend/tailwind.config.ts` is now verbatim Catppuccin Mocha (DEC-010);
+   utility classes my components reference (`bg-mint`, `border-foxfire`,
+   `text-foxfire`, `shadow-neon`, `border-live`, `border-risk`,
+   `animate-pulse-live`, `ease-terminal`, `bg-magenta/15`, …) no longer
+   exist on `main`. Audit-agent's prior session log already records
+   `npm run typecheck` and `npm run build` failing on these files.
+3. **Neko identity additivity.** FEATURE-0045 added
+   `frontend/components/identity/*` — disjoint from this agent's paths,
+   so no path collision; only the palette layer needs reconciliation.
+
+### Decision
+
+**Strategy: Option B — Preserve But Do Not Resume.**
+
+Reasons:
+- The styleguide WIP is real, useful work, but landing it as-is breaks the
+  current canonical palette (DEC-010) and is already known to break
+  `typecheck` / `build`. A rebase against Catppuccin Mocha tokens is
+  required before this can land.
+- `TODO.md` already classifies resumption as `[!]` decision blocker,
+  human-only.
+- This agent's hard guardrails forbid committing without explicit
+  instruction.
+- The other two plan items already landed via PR #17 and are preserved on
+  `backup/chore-gov-pre-slim` (`9913a86` for `frontend-init`).
+
+### Changes made (this session, recovery only — no code edits)
+
+- `SESSION_LOG.md` (this entry).
+- `TODO.md`: corrected the inaccurate "files exist on `07d05ab`" claim and
+  flagged the DEC-010 palette rebase as a precondition.
+- `specs/.../style_guide_component_library_0034.md`: small implementation
+  addendum recording the recovery state and rebase requirement.
+
+### Changes intentionally skipped
+
+- No edits to any untracked styleguide file. Working-tree contents
+  preserved exactly as found.
+- No `git commit`, `git stash pop`, `git stash drop`, `git branch -D`,
+  `git reset --hard`, or `git push`.
+- No attempt to apply `stash@{0}` (already redundant with the backup
+  branch).
+- No new recovery branch — `git switch -c` would not durably persist the
+  untracked files without a commit, and committing is not authorised by
+  the prompt.
+
+### Remaining handoff
+
+Decision needed from the user (one of):
+
+1. **Cherry-pick + rebase.** Cherry-pick `9913a86` (`frontend-init`) into a
+   small PR. Separately, manually port the 27 working-tree files into a
+   `feat/styleguide-mocha-rebase` branch with all tokens / utilities
+   rewritten against the Catppuccin Mocha palette in
+   `frontend/tailwind.config.ts` and the Neko keyframes. Owner-only PR.
+2. **Retire and start fresh from FEATURE-0034 design tokens table.** Drop
+   the working-tree copy, drop `backup/chore-gov-pre-slim`, and rebuild
+   only the registry/types/fixtures + a smaller initial component slate
+   that already targets Mocha. Smaller blast radius, no rebase debt.
+3. **Defer.** Leave files in the working tree (or commit them to a
+   `wip/styleguide-kitsune-snapshot` branch) and revisit after MVP-0
+   ships. Audit-agent's existing `[!]` flag stays.
+
+Until the user picks one, do not run `git clean`, do not delete
+`backup/chore-gov-pre-slim`, and do not pop `stash@{0}` — the
+working-tree styleguide WIP is the only copy of the new files.
+
+---
+
 ## 2026-04-26 — DEC-013 + Cursor rules (spec addenda, feature id check, local fonts)
 
 - **Agent**: Developer
