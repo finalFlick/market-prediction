@@ -170,6 +170,10 @@ jobs:
           tags: trading-base:latest
           cache-from: type=gha,scope=trading-base
           cache-to: type=gha,mode=max,scope=trading-base
+      # build-contexts tells BuildKit (running in the docker-container driver)
+      # that `FROM trading-base` resolves to the local Docker daemon's
+      # `trading-base:latest` image (loaded by the previous step) instead of
+      # docker.io/library/trading-base, which doesn't exist.
       - name: build trading-engine
         uses: docker/build-push-action@v6
         with:
@@ -178,6 +182,8 @@ jobs:
           push: false
           load: true
           tags: trading-lab/engine:ci
+          build-contexts: |
+            trading-base=docker-image://trading-base:latest
           cache-from: type=gha,scope=trading-base
       - name: build backend
         uses: docker/build-push-action@v6
@@ -187,6 +193,8 @@ jobs:
           push: false
           load: true
           tags: trading-lab/backend:ci
+          build-contexts: |
+            trading-base=docker-image://trading-base:latest
           cache-from: type=gha,scope=trading-base
       - name: build frontend
         uses: docker/build-push-action@v6
