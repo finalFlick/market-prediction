@@ -110,10 +110,14 @@ def create_app() -> FastAPI:
             title=f"{app.title} — docs",
             swagger_ui_parameters={"syntaxHighlight.theme": "obsidian"},
         )
-        body = bytes(base.body).decode("utf-8").replace(
-            "</head>",
-            f'<link rel="stylesheet" type="text/css" href="{_SWAGGER_CSS_URL}"></head>',
-            1,
+        body = (
+            bytes(base.body)
+            .decode("utf-8")
+            .replace(
+                "</head>",
+                f'<link rel="stylesheet" type="text/css" href="{_SWAGGER_CSS_URL}"></head>',
+                1,
+            )
         )
         return HTMLResponse(body)
 
