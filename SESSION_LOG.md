@@ -16,6 +16,212 @@ Format:
 
 ---
 
+## 2026-04-26 — PR #3 Next 15 dynamic route params (CI build)
+
+- **Agent**: Developer
+- **Goal**: Fix failing `npm run build` on PR #3 after Next 15 upgrade (`params`
+  must be `Promise` on dynamic app routes).
+- **Done**:
+  - `frontend/app/backtests/[runId]/page.tsx` and
+    `frontend/app/runs/[runId]/page.tsx`: `params: Promise<{ runId: string }>` +
+    `await params`.
+  - `frontend/next.config.mjs`: drop deprecated `experimental.typedRoutes`
+    (typed routes remain off by default on Next 15).
+  - Follow-up: `frontend/app/runs/compare/page.tsx` — `searchParams` as
+    `Promise` + `await` (Next 15 `PageProps`).
+- **Verified**: Local `npm run build` not re-run after ENOSPC on `npm install`;
+  change matches Next 15 App Router contract; only PR-scoped files staged.
+- **Blocked / next**: Confirm GitHub Actions frontend job green after compare
+  page fix; then admin-merge PR #3.
+
+## 2026-04-26 — PR #3 CI unblock + Dependabot (next 15 / postcss)
+
+- **Agent**: Developer
+- **Goal**: Land fixes for failing `ruff` / `mypy` on PR #3 and bump frontend deps
+  to clear seven Dependabot alerts (`next`, `postcss`, transitive `glob`).
+- **Done**:
+  - Commit `9ca328f` on `chore/github-public-governance`: Generator fixture typing
+    and ruff-format six files; `frontend/package.json` + lockfile for next
+    `15.5.15`, eslint-config-next `15.5.15`, postcss `^8.5.10`.
+- **Verified** (with unrelated work stashed): `ruff check .`, `ruff format --check .`,
+  `mypy --strict --explicit-package-bases .` all green; `pytest
+  tests/security/test_no_secrets.py` passed. Full `npm install` failed locally
+  with ENOSPC; lockfile updated with `npm install --package-lock-only`; CI
+  frontend job is the install gate.
+- **Blocked / next**: Wait for GitHub Actions on PR #3; admin-merge if solo owner.
+
+## 2026-04-26 — GitHub maintainer settings via `gh` API
+
+- **Agent**: Developer
+- **Goal**: Apply repo security and `main` branch protection per
+  `gh_cli_maintainer_settings` plan (MCP cannot toggle these).
+- **Done**:
+  - `PATCH repos/finalFlick/market-prediction` — secret scanning + push
+    protection **enabled**.
+  - `PUT .../vulnerability-alerts` — **204** (Dependabot alerts on).
+  - `PUT .../automated-security-fixes` — **200** `enabled: true` (security
+    update PRs on); `security_and_analysis.dependabot_security_updates` now
+    **enabled**.
+  - `PUT .../branches/main/protection` — required checks (with `\u00b7` in JSON
+    to avoid PowerShell corrupting middots), `require_code_owner_reviews: true`,
+    1 approval, strict status checks, no force-push, conversation resolution on.
+- **Verified**:
+  - `gh api repos/finalFlick/market-prediction --jq '.security_and_analysis'`
+    → secret_scanning + push_protection enabled; dependabot_security_updates
+    enabled.
+  - `gh api -i .../vulnerability-alerts` → **204 No Content**.
+  - `gh api -i .../automated-security-fixes` → **200** body `enabled: true`.
+  - `gh api .../branches/main/protection --jq ...` → contexts include
+    `lint · ruff`, …, `Analyze`; `code_owner_review: true`.
+- **Blocked / next**:
+  - `gh auth refresh -s repo,security_events,workflow` was started for optional
+    scope; **`repo` alone sufficed** — cancel device flow if still pending.
+  - Merge workflow files to `main` so every required check name exists on
+    default branch; first green `main` run validates protection.
+
+## 2026-04-26 — Public GitHub guidance and CI hardening
+
+- **Agent**: Developer
+- **Goal**: Record public-repo threat model in steering docs; add maintainer
+  contributor guide; Dependabot, CodeQL, CODEOWNERS, composite Python CI setup;
+  append `specs/trading-lab-platform` addenda (Requirement E + design/tasks).
+- **Done**:
+  - Steering: [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md),
+    [`.cursor/README.md`](.cursor/README.md),
+    [`.cursor/rules/security.mdc`](.cursor/rules/security.mdc),
+    [`WORKFLOW.md`](WORKFLOW.md), [`README.md`](README.md),
+    [`RUNNING.md`](RUNNING.md) (maintainers pointer).
+  - [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) (fork PR + maintainer checklist).
+  - GitHub: [`.github/dependabot.yml`](.github/dependabot.yml),
+    [`.github/workflows/codeql.yml`](.github/workflows/codeql.yml),
+    [`.github/CODEOWNERS`](.github/CODEOWNERS),
+    [`.github/actions/setup-trading-lab-python/action.yml`](.github/actions/setup-trading-lab-python/action.yml),
+    updated [`.github/workflows/ci.yml`](.github/workflows/ci.yml),
+    comment on [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+  - Spec addenda: [`requirements.md`](specs/trading-lab-platform/requirements.md),
+    [`design.md`](specs/trading-lab-platform/design.md),
+    [`tasks.md`](specs/trading-lab-platform/tasks.md); audit note on
+    [FEATURE-0039](specs/trading-lab-platform/tasks/deployment-security-ci/cicd_quality_gates_0039.md).
+- **Verified**:
+  - `py -3.12 -m pytest tests/cursor_harness -q` → 131 passed
+  - `py -3.12 -m ruff check .` → all checks passed
+  - `py -3.12 -m pytest -q -m "not slow and not integration and not e2e"` →
+    collection `MemoryError` on this host (environment); not attributed to this
+    doc/CI-only change set
+  - `py -3.12 -m ruff format --check .` / `mypy --strict` → pre-existing issues in
+    other paths (unchanged by this session)
+- **Blocked / next**: Enable GitHub Rulesets, secret scanning, and Dependabot
+  alerts in repo Settings if not already on; confirm `@finalFlick` in CODEOWNERS.
+
+## 2026-04-26 — Swagger `/docs` themed to operator styleguide
+
+- **Agent**: Developer
+- **Goal**: Align FastAPI OpenAPI Swagger UI with FEATURE-0034 / Tailwind
+  operator-console palette (dark, token-matched) without new dependencies.
+- **Done**:
+  - Added [`backend/api/static/swagger-trading-lab.css`](backend/api/static/swagger-trading-lab.css)
+    with `.swagger-ui` overrides synced to `frontend/tailwind.config.ts`.
+  - Updated [`backend/api/app.py`](backend/api/app.py): `docs_url=None`,
+    `StaticFiles` on `/static`, custom `GET /docs` via `get_swagger_ui_html`
+    and `syntaxHighlight.theme: obsidian`.
+  - Extended [`tests/e2e/test_api_app.py`](tests/e2e/test_api_app.py) with
+    Swagger HTML and CSS smoke tests.
+  - Documented `/docs` in [`RUNNING.md`](RUNNING.md); addenda in
+    [`specs/trading-lab-platform/tasks.md`](specs/trading-lab-platform/tasks.md)
+    and [`FEATURE-0034`](specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md).
+- **Verified**:
+  - `py -3.12 -m pytest tests/e2e/test_api_app.py -q` → 9 passed
+  - `py -3.12 -m ruff check backend/api/app.py tests/e2e/test_api_app.py` →
+    all checks passed
+  - `py -3.12 -m mypy --strict backend/api/app.py tests/e2e/test_api_app.py` →
+    success
+  - `py -3.12 -m pytest -q` → `294 passed, 3 warnings in 234.42s`
+- **Blocked / next**: Theme `/redoc` in a follow-up if operators want parity.
+
+## 2026-04-26 — dev-speed docker, MVP-0 run UI audit, and Cursor workflow hardening
+
+- **Agent**: Developer
+- **Goal**: Finalize the session's MVP-0 run/API/UI and Docker development
+  changes, audit them into `specs/trading-lab-platform`, strengthen the weak
+  frontend styleguide, improve `.cursor` guidance based on observed workflow
+  failures, and commit the completed work.
+- **Done**:
+  - Added shared Docker base workflow: `Dockerfile.base`,
+    `Dockerfile.research`, dev compose override, `dev.py`, and docs for the
+    fast Docker development loop.
+  - Refactored backend and trading-engine Dockerfiles to inherit from
+    `trading-base`.
+  - Added Windows Docker Desktop bind-mount masks for `.venv`, `.git`, caches,
+    and frontend generated folders after measuring them as the cause of the
+    15+ minute pytest run.
+  - Audited current work in
+    `specs/trading-lab-platform/tasks.md` and added notes to FEATURE-0003 and
+    FEATURE-0038.
+  - Rewrote FEATURE-0034 as a build-ready cyberpunk hacker styleguide and
+    component-library spec with tokens, layout patterns, component categories,
+    demo data expectations, and validation gates.
+  - Made `dev.py` stdlib-only after validation showed bare Windows Python did
+    not have `click`, preserving the same CLI commands without host setup.
+  - Switched frontend Docker installs to the committed lockfile (`npm ci`) and
+    made the dev frontend command populate the `trading-node-modules` volume on
+    first start.
+  - Made dev dependency volume names explicit so `dev.py reset-deps` removes
+    the same volumes Compose mounts.
+  - Added dev-only `types-PyYAML==6.0.12.20260408` after checking PyPI current
+    metadata (released 2026-04-08, Python >=3.10, tested with mypy 1.20) so
+    the container mypy gate is reproducible.
+  - Added `.cursor/rules/component-first.mdc`, strengthened frontend/docker
+    rules, corrected hook-router semantics in `.cursor/hooks/README.md`, and
+    expanded `.cursor/context-router.json` routing for styleguide and Windows
+    Docker prompts.
+  - Updated `README.md`, `RUNNING.md`, `docs/UI_REQUIREMENTS.md`, and `TODO.md`
+    so future agents can resume from the current state.
+- **Verified**:
+  - `docker build -f Dockerfile.base -t trading-base .` → success; subsequent
+    cached rebuild took ~2.8 s.
+  - `docker compose -f docker-compose.yml -f docker-compose.dev.yml build` →
+    success after `trading-base` existed.
+  - `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d` →
+    backend, frontend, research, engine, redis, and duckdb started.
+  - Backend health check via PowerShell `Invoke-WebRequest` →
+    `200 {"status":"ok", ...}`.
+  - Backend hot reload verified from logs:
+    `WatchFiles detected changes in 'backend/api/routers/runs.py'. Reloading...`.
+  - Windows bind-mount investigation: `/app` visible tree dropped from ~3 GB to
+    5.7 MB; `du /app` dropped from 104 s to 1.4 s.
+  - Dev-container unit suite:
+    `pytest -q -m "not slow and not integration"` →
+    `291 passed, 1 deselected, 3 warnings in 53.24s`.
+  - Dev-container full suite: `pytest -q` →
+    `292 passed, 3 warnings in 52.89s`.
+  - Security suite: `pytest tests/security -q` → `25 passed`.
+  - Research container import smoke:
+    `torch=2.11.0+cu130`, `lightgbm=4.6.0`, `vectorbt=1.0.0`,
+    `xgboost=3.2.0`.
+  - `docker compose ... down` then `up -d` with preserved volumes → 24.7 s.
+  - `ruff check dev.py` → all checks passed.
+  - `mypy --strict --explicit-package-bases dev.py` → success.
+  - `python dev.py --help` on host Windows Python → displays command help
+    without requiring `click`.
+  - `docker compose ... exec frontend npm run typecheck` → success.
+  - `docker compose ... exec -e NODE_ENV=production frontend npm run build` →
+    success; 19 app routes generated/validated.
+  - `docker compose -f docker-compose.yml -f docker-compose.dev.yml build frontend`
+    → success; production image builds with `npm ci` and Next standalone output.
+  - `mypy --strict --explicit-package-bases data research strategies risk
+    backtests execution monitoring backend runs learning dev.py` → success
+    after installing the pinned PyYAML stubs.
+- **Blocked / next**:
+  - Production compose now expects a locally tagged `trading-base`; CI should
+    build/tag it explicitly or move to a compose target/registry-cache pattern.
+  - `/styleguide` itself is not implemented yet; FEATURE-0034 is now strong
+    enough to drive that implementation.
+  - Full global `ruff check .`, `mypy --strict .`, frontend lint/typecheck/build,
+    e2e, and backtest smoke still need to be run or remediated before a release
+    PR is considered complete.
+
+---
+
 ## 2026-04-25 — no-key MVP slice (ingest, optional Redis, spec addendum)
 
 - **Agent**: Developer

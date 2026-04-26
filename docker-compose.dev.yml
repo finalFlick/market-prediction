@@ -1,0 +1,89 @@
+# The /app/<dir> entries below are anonymous-volume overlays that mask
+# Windows-host noise (.venv, .git, caches, node_modules) so the bind-mount
+# only exposes real source files. Without them, pytest collection on
+# Windows + Docker Desktop (WSL2) was 15+ minutes for the unit suite.
+
+services:
+  backend:
+    command: >
+      uvicorn backend.api.app:app --host 0.0.0.0 --port 8000
+      --reload
+      --reload-dir /app/backend
+      --reload-dir /app/runs
+      --reload-dir /app/data
+      --reload-dir /app/risk
+    volumes:
+      - ./:/app
+      - trading-py-venv:/opt/venv
+      - trading-pip-cache:/root/.cache/pip
+      - /app/.venv
+      - /app/.git
+      - /app/.mypy_cache
+      - /app/.ruff_cache
+      - /app/.pytest_cache
+      - /app/.deepeval
+      - /app/agent-transcripts
+      - /app/frontend/node_modules
+      - /app/frontend/.next
+      - /app/trading_lab.egg-info
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+
+  trading-engine:
+    volumes:
+      - ./:/app
+      - trading-py-venv:/opt/venv
+      - trading-pip-cache:/root/.cache/pip
+      - /app/.venv
+      - /app/.git
+      - /app/.mypy_cache
+      - /app/.ruff_cache
+      - /app/.pytest_cache
+      - /app/.deepeval
+      - /app/agent-transcripts
+      - /app/frontend/node_modules
+      - /app/frontend/.next
+      - /app/trading_lab.egg-info
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+
+  research:
+    command: >
+      jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+      --ServerApp.token='' --ServerApp.password=''
+    volumes:
+      - ./:/app
+      - trading-py-venv:/opt/venv
+      - trading-pip-cache:/root/.cache/pip
+      - /app/.venv
+      - /app/.git
+      - /app/.mypy_cache
+      - /app/.ruff_cache
+      - /app/.pytest_cache
+      - /app/.deepeval
+      - /app/agent-transcripts
+      - /app/frontend/node_modules
+      - /app/frontend/.next
+      - /app/trading_lab.egg-info
+    ports:
+      - "8888:8888"
+
+  frontend:
+    command: >
+      sh -c "test -x node_modules/.bin/next || npm ci --include=dev --no-audit --no-fund;
+      npm run dev"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://backend:8000
+    volumes:
+      - ./frontend:/app
+      - trading-node-modules:/app/node_modules
+      - /app/.next
+
+volumes:
+  trading-py-venv:
+    name: trading-py-venv
+  trading-pip-cache:
+    name: trading-pip-cache
+  trading-node-modules:
+    name: trading-node-modules

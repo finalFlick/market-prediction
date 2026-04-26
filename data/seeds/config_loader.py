@@ -28,6 +28,18 @@ def seed_config_kv(
     *,
     db_path: str | Path | None = None,
 ) -> int:
+    """Load ``configs/*.yaml`` into ``config_kv``.
+
+    Each row stores:
+    - ``scope='file'``
+    - ``key=<filename>``
+    - ``value_json`` — the full parsed YAML document as JSON plus a ``_meta``
+      block containing ``path`` and ``fingerprint_16``.
+
+    The full payload is stored (not just the fingerprint) so both the engine
+    and the dashboard can read from ``config_kv`` as the single source of truth
+    (design.md § Config, line 338).
+    """
     root = Path(config_dir)
     if not root.is_dir():
         return 0
@@ -38,11 +50,9 @@ def seed_config_kv(
     for path in sorted(root.glob("*.yaml")):
         data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
         fp = _fingerprint(data)
-        rec = {
-            "path": path.as_posix(),
-            "fingerprint_16": fp,
-        }
-        value_json = json.dumps(rec, sort_keys=True, separators=(",", ":"))
+        record: dict[str, object] = dict(data)
+        record["_meta"] = {"path": path.as_posix(), "fingerprint_16": fp}
+        value_json = json.dumps(record, sort_keys=True, separators=(",", ":"), default=str)
         conn.execute(
             """
             INSERT OR REPLACE INTO config_kv (scope, key, value_json, updated_at)

@@ -9,6 +9,7 @@ from typing import Any
 import duckdb
 
 from monitoring.canonical_json import canonical_dumps
+from runs.isolation import assert_run_context
 
 GENESIS_PREV = "0" * 64
 
@@ -36,7 +37,12 @@ def append_row(
     payload: dict[str, Any],
     run_id: str | None = None,
 ) -> str:
-    """Insert one row; returns ``record_hash``."""
+    """Insert one row; returns ``record_hash``.
+
+    Raises ``RunIsolationViolation`` if *run_id* does not match the active
+    per-run context (Day-0 Invariant 5).
+    """
+    assert_run_context(run_id)
     if table not in CRITICAL_TABLES:
         msg = f"unknown hash-chain table: {table!r}"
         raise ValueError(msg)

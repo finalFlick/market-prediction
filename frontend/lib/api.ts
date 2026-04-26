@@ -83,6 +83,48 @@ export type Health = {
   redis_disabled: boolean;
 };
 
+export type Run = {
+  run_id: string;
+  run_type: string;
+  mode: string;
+  status: string;
+  config_hash: string | null;
+  git_commit: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  error_reason: string | null;
+};
+
+export type RunDetail = Run & {
+  config_json: string;
+  artifact_dir: string | null;
+};
+
+export type RunCompareRow = {
+  run_id: string;
+  run_type: string;
+  mode: string;
+  status: string;
+  config_hash: string | null;
+  git_commit: string | null;
+  started_at: string | null;
+  finished_at: string | null;
+  sharpe: number | null;
+  max_drawdown: number | null;
+  cagr: number | null;
+  n_trades: number | null;
+  artifact_dir: string | null;
+};
+
+export type ScoreboardRow = {
+  level: string;
+  key: string;
+  score: number;
+  weight: number;
+  last_run_id: string | null;
+  updated_at: string;
+};
+
 export const api = {
   trades: (params?: {
     strategy_id?: string;
@@ -108,6 +150,17 @@ export const api = {
     return getJson<Backtest[]>(`/api/backtests?${q.toString()}`);
   },
   backtest: (runId: string) => getJson<Backtest>(`/api/backtests/${runId}`),
+  runs: (params?: { status?: string; run_type?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.status) q.set("status", params.status);
+    if (params?.run_type) q.set("run_type", params.run_type);
+    if (params?.limit) q.set("limit", String(params.limit));
+    return getJson<{ items: Run[] }>(`/api/runs?${q.toString()}`).then((r) => r.items);
+  },
+  run: (runId: string) => getJson<RunDetail>(`/api/runs/${runId}`),
+  compareRuns: (ids: string[]) =>
+    getJson<RunCompareRow[]>(`/api/learnings/compare?ids=${ids.join(",")}`),
+  scoreboard: () => getJson<ScoreboardRow[]>("/api/learnings/scoreboard"),
   health: () => getJson<Health>("/api/system/health"),
   metrics: () => getJson<{ metrics: Record<string, number> }>("/api/system/metrics"),
 };

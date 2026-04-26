@@ -1,0 +1,34 @@
+---
+description: Frontend components must be styleguide-first and demoable
+globs: ["frontend/**/*.{ts,tsx}", "docs/UI_REQUIREMENTS.md", "specs/trading-lab-platform/tasks/frontend-operator-experience/*.md"]
+alwaysApply: false
+---
+
+# Component-First Frontend
+
+Shared UI components are not "done" until they are demoable in `/styleguide`.
+
+## Required order
+
+1. Add or update the styleguide registry entry.
+2. Add deterministic mock data under `frontend/styleguide/mocks/`.
+3. Implement the component with exported TypeScript props.
+4. Add component tests or document the manual demo evidence.
+5. Use the component on product pages only after it reaches `production` status.
+
+## Component checklist
+
+- Source path and import path visible in the styleguide.
+- Prop table generated from TypeScript types, not hand-written guesses.
+- Demo states cover default plus loading/empty/error/stale/populated where applicable.
+- Keyboard behavior and ARIA notes are documented.
+- Styling uses Tailwind/design tokens, never ad hoc hex values.
+- Data comes from props or local fixtures; no raw `fetch` in components.
+- Read-only dashboard boundary is preserved: no order-placement UI and no secrets.
+
+## Cyberpunk hacker theme
+
+Use the tokens and patterns from `docs/UI_REQUIREMENTS.md` and
+`specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md`.
+The UI should feel like a dense market-ops terminal: dark panels, neon telemetry,
+monospace numeric data, clear risk states, and functional motion only.

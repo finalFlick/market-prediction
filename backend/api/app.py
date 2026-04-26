@@ -22,8 +22,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
-from backend.api.routers import backtests, runs, signals, strategies, system, trades
+from backend.api.routers import backtests, learnings, runs, signals, sse, strategies, system, trades
+from data.seeds.config_loader import seed_config_kv
 from monitoring.logger import get_logger
+from runs.orchestrator import RunOrchestrator
 
 try:
     from prometheus_client import CONTENT_TYPE_LATEST as _PROM_CT
@@ -48,6 +50,11 @@ def _version() -> str:
 @asynccontextmanager
 async def _lifespan(app: FastAPI):  # type: ignore[no-untyped-def]
     log.info("api.boot", version=_version())
+    seeded = seed_config_kv()
+    log.info("api.boot.config_seeded", n=seeded)
+    n, _ = RunOrchestrator().on_boot()
+    if n:
+        log.warning("api.boot.recovery", transitioned=n)
     yield
     log.info("api.shutdown")
 
@@ -73,6 +80,8 @@ def create_app() -> FastAPI:
     app.include_router(signals.router, prefix="/api/signals", tags=["signals"])
     app.include_router(backtests.router, prefix="/api/backtests", tags=["backtests"])
     app.include_router(runs.router, prefix="/api/runs", tags=["runs"])
+    app.include_router(learnings.router, prefix="/api/learnings", tags=["learnings"])
+    app.include_router(sse.router, prefix="/api/sse", tags=["sse"])
     app.include_router(system.router, prefix="/api/system", tags=["system"])
 
     if generate_latest is not None and CONTENT_TYPE_LATEST is not None:

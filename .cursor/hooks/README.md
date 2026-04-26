@@ -84,10 +84,11 @@ result, per the [Cursor hook docs](https://cursor.com/docs/agent/hooks).
 }
 ```
 
-**Match semantics.** Within a single rule's `match` block, **every
-present key must match** (logical AND). Inside any list-valued key,
-**any element matches** (logical OR). Absent keys are not constraints.
-A rule with an empty `match` never fires.
+**Match semantics.** Trigger keys are OR-combined: a rule may fire when any
+of `prompt_regex`, `tool_input_regex`, `tool_output_regex`, or
+`agent_message_regex` matches. Inside any list-valued key, any element matches
+(logical OR). `tool_name_in` is an additional AND filter when present. A rule
+with an empty `match` never fires.
 
 **Snippet semantics.**
 
@@ -173,6 +174,13 @@ but it's tidier to remove them.
 | State file unreadable | recreate it; treat session as empty |
 | Hook crashes with unhandled exception | top-level `except BaseException`: log to stderr, emit safe output, exit 0 |
 | Hook exceeds `timeout: 5` | Cursor kills it; treated as fail-open |
+
+## Operational lesson
+
+Hooks, skills, and routed context are not a substitute for explicit verification.
+After changing this harness, run `pytest tests/cursor_harness -q`. If a skill or
+rule should have triggered but did not, manually read the relevant `SKILL.md` or
+`.mdc` file and update routing/rules only when the improvement is durable.
 
 ## See also
 

@@ -4621,6 +4621,44 @@ semantics** for operators who omit `REDIS_URL` outside Docker.
 
 ---
 
+## Addendum: Public GitHub repository — CI/CD trust zones (2026-04-26)
+
+### Context
+
+The repository is **public**. CI must assume **untrusted contributors** on
+fork pull requests. This aligns with Requirement **40** (hosted Actions for
+PR gates; self-hosted deferred), **40.3** (no container registry push in v1),
+and addendum **Requirement E** in `requirements.md` (2026-04-26).
+
+### Trust zones (policy)
+
+| Zone | Trigger (examples) | Workflow behavior |
+|------|-------------------|-------------------|
+| **Untrusted build** | `pull_request` from a **fork** | Run lint, unit tests, typecheck, security pytest, CodeQL init/analyze using the fork ref. **Do not** pass org/repo `secrets.*` into these jobs. Rely on GitHub’s default fork token restrictions. |
+| **Same-repo PR** | `pull_request` from a branch in the canonical repo | Same jobs as fork; still use least-privilege `GITHUB_TOKEN`; only add secret-using steps when a secret is truly required (this repo’s CI should remain secret-free for build jobs). |
+| **Trusted post-merge** | `push` to `main`, `schedule`, `workflow_dispatch` | Full gates including Docker image build (no push per Req 40.3), Pages deploy via existing `pages.yml`, and any future maintainer-only steps gated by **GitHub Environments** + required reviewers. |
+
+### Implementation anchors (repository)
+
+- `docs/CONTRIBUTING.md` — contributor + maintainer checklist (Rulesets,
+  Dependabot alerts, CodeQL, secret scanning, token defaults, fork hygiene).
+- `.github/workflows/ci.yml` — top-level `permissions`, composite Python setup
+  at `.github/actions/setup-trading-lab-python/`, no `pull_request_target`
+  unless separately security-reviewed.
+- `.github/workflows/codeql.yml` — CodeQL for `javascript` + `python`.
+- `.github/dependabot.yml` — pip, npm, github-actions update PRs.
+- `.github/CODEOWNERS` — review routing for risk, execution, workflows, and
+  platform specs.
+
+### Explicit non-goals
+
+- No recommendation to run default PR build/test steps on **self-hosted**
+  runners visible to fork workflows without the isolation rules in
+  `requirements.md` addendum E.3.
+- No change to manual Unraid deploy semantics (Requirement 40.4).
+
+---
+
 ## Design Review Checklist
 
 ### Architecture

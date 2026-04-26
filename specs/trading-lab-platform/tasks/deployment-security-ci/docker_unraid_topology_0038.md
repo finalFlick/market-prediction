@@ -95,3 +95,14 @@ The implementation should expose enough logs, metrics, audit records, UI state, 
 - [ ] Validation expectations are covered by tests, smoke checks, or documented manual verification.
 - [ ] Source traceability remains accurate after implementation.
 - [ ] Required docs, decisions, and session log entries are updated.
+
+## Session Audit Note - 2026-04-26
+
+The dev-speed Docker overhaul partially advances this feature:
+
+- Added shared `trading-base` image (`Dockerfile.base`) so backend, engine, and research reuse the expensive Python dependency layer.
+- Added `Dockerfile.research` and a `research` compose service for ad-hoc training/Jupyter.
+- Added `docker-compose.dev.yml` with source bind-mounts, named dependency volumes, backend hot reload, frontend HMR, and Jupyter.
+- Added Windows Docker Desktop bind-mount masks for host-only directories (`.venv`, `.git`, caches, `frontend/node_modules`) after measuring `/app` shrink from ~3 GB to 5.7 MB and pytest improvement from 928 s/incomplete to ~53 s passing.
+
+This remains **partial** for FEATURE-0038 because production CI/build orchestration still needs an explicit `trading-base` build/tag step or registry cache strategy.

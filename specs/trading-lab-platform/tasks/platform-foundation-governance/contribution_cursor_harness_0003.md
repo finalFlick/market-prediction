@@ -95,3 +95,12 @@ The implementation should expose enough logs, metrics, audit records, UI state, 
 - [ ] Validation expectations are covered by tests, smoke checks, or documented manual verification.
 - [ ] Source traceability remains accurate after implementation.
 - [ ] Required docs, decisions, and session log entries are updated.
+
+## Session Audit Note - 2026-04-26
+
+This session exposed two durable Cursor-harness lessons:
+
+- Hooks and skills are helpful but fail-open/advisory unless they are verified with `tests/cursor_harness/` and documented fallback commands.
+- `.cursor/hooks/README.md` had stale prompt-context-router match semantics; it must match the tested router behavior so agents do not reason from incorrect docs.
+
+The follow-up in this session updates `.cursor` docs/rules/routing and adds `component-first.mdc` so frontend work gets the same styleguide-first guidance even when semantic skill/rule triggering is imperfect.

@@ -1,10 +1,20 @@
-"""Per-run `run_id` context (structlog contextvars; § Component 3)."""
+"""Per-run `run_id` context (structlog contextvars; § Component 3).
+
+Isolation guard
+---------------
+Call ``assert_run_context(run_id)`` at the top of every writer that persists
+state for a specific run.  If the active context run_id does not match, it
+raises ``RunIsolationViolation`` (Day-0 Invariant 5).  Passing ``run_id=None``
+(system-level writes with no active run) always succeeds.
+"""
 
 from __future__ import annotations
 
 from contextvars import ContextVar
 
 import structlog
+
+from runs.exceptions import RunIsolationViolation
 
 RUN_ID: ContextVar[str | None] = ContextVar("run_id", default=None)
 COMMAND_ID: ContextVar[str | None] = ContextVar("command_id", default=None)
@@ -55,3 +65,19 @@ def clear_run_context() -> None:
 
 def get_run_id() -> str | None:
     return RUN_ID.get()
+
+
+def assert_run_context(run_id: str | None) -> None:
+    """Raise ``RunIsolationViolation`` if *run_id* does not match the active context.
+
+    Writers that persist state for a specific run MUST call this at the top of
+    the write path.  If ``run_id`` is ``None`` (system-level write with no
+    active run) the check is skipped.
+    """
+    if run_id is None:
+        return
+    active = RUN_ID.get()
+    if active is not None and active != run_id:
+        raise RunIsolationViolation(
+            f"writer run_id={run_id!r} does not match active context run_id={active!r}"
+        )

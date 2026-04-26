@@ -13,11 +13,26 @@ alwaysApply: false
   layers or `--no-dev` install).
 - Each Dockerfile installs project deps, then copies code, then sets the
   user — in that order — so layer caching works.
+- Python service images build from the shared local `trading-base` image.
+  Build it with `docker build -f Dockerfile.base -t trading-base .` before
+  service builds, or add an explicit CI/compose base-image step.
 - Healthchecks are defined in `docker-compose.yml` for `redis`, `backend`,
   and `frontend`. The trading-engine container has a process-level liveness
   check via the orchestrator.
 - The `trading-net` network is `external: true`. The host already runs
   `ollama` and `hermes` on it (see [`docs/INFRASTRUCTURE.md`](mdc:docs/INFRASTRUCTURE.md)).
+
+## Windows Docker Desktop dev loop
+
+When bind-mounting the repo on Windows/WSL2, never expose host-only dependency
+or cache directories inside `/app`. `docker-compose.dev.yml` must mask:
+`.venv`, `.git`, `.mypy_cache`, `.ruff_cache`, `.pytest_cache`, `.deepeval`,
+`agent-transcripts`, `frontend/node_modules`, `frontend/.next`, and
+`trading_lab.egg-info`.
+
+Measured consequence from 2026-04-26: without masks, `/app` exposed ~3 GB and
+pytest collection took 15+ minutes; with masks, `/app` was ~5.7 MB and the
+inner-loop unit suite passed in ~53 seconds.
 
 ## Hostnames inside the network
 
@@ -36,6 +51,8 @@ Containers address each other by **service name**, never `localhost`:
 - Baking secrets into images. `.env` is mounted at runtime.
 - Hard-coded `localhost` URLs in container code.
 - Calling `docker compose up` from a hook (the user does this).
+- Removing dev bind-mount masks without replacing them with an equivalent
+  Windows-safe strategy.
 
 ## Build verification
 

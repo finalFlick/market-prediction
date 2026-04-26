@@ -2,21 +2,10 @@
 # Reuses the base image conventions of the trading-engine but ships only the
 # read-only HTTP surface and its dependencies.
 
-FROM python:3.11-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential libgomp1 curl \
-        && rm -rf /var/lib/apt/lists/*
+FROM trading-base AS prod
 
 RUN useradd --create-home --uid 1000 api
 WORKDIR /app
-
-COPY pyproject.toml README.md ./
-RUN pip install --upgrade pip && pip install -e .
 
 COPY data ./data
 COPY research ./research
@@ -25,6 +14,7 @@ COPY risk ./risk
 COPY backtests ./backtests
 COPY execution ./execution
 COPY monitoring ./monitoring
+COPY runs ./runs
 COPY backend ./backend
 
 RUN chown -R api:api /app

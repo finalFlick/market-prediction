@@ -1,0 +1,5 @@
+FROM trading-base
+
+RUN pip install jupyterlab ipykernel
+
+CMD ["tail", "-f", "/dev/null"]

@@ -18,10 +18,19 @@ keys, and never talks to an exchange.
 - File naming: `kebab-case.tsx` for files, `PascalCase` for components.
 - Numeric cells render through `formatNumber` / `formatPct` / `formatDate`
   in `frontend/lib/utils.ts`. Numbers are right-aligned and monospace.
+- Shared components are **styleguide-first**. Read
+  `.cursor/rules/component-first.mdc` and
+  `specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md`
+  before adding `frontend/components/**/*.tsx`.
+- Product pages may only use shared components that are demoed in `/styleguide`
+  and marked `production`, unless the feature ticket explicitly marks the page
+  partial.
 
 ## Visual rules
 
-- Dark theme by default (`html.dark`). Brand color: `hsl(160 84% 50%)`.
+- Dark cyberpunk hacker theme by default (`html.dark`): terminal-dense panels,
+  neon telemetry, monospaced market data, and functional motion only.
+- Brand color: `hsl(160 84% 50%)`.
 - Charts use **TradingView Lightweight Charts only** (no Chart.js, no D3).
 - Tables use **TanStack Table**. Sortable defaults must be explicit so
   reloads are stable.
@@ -33,8 +42,12 @@ keys, and never talks to an exchange.
 - Embedding API keys, tokens, or secrets in client code.
 - Surfacing LLM responses as actionable trading signals.
 - Importing from any `backend/` Python module (frontend is its own app).
+- Adding a reusable component directly to a product page without a styleguide
+  demo and deterministic local fixture.
 
 ## Tests
 
 A new page must boot in the standalone Next image used by CI. See
 [`docker.mdc`](mdc:.cursor/rules/docker.mdc).
+Component changes also need styleguide demo evidence and component tests when
+the behavior is non-trivial.

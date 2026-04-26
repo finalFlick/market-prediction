@@ -38,6 +38,7 @@ Cross-stage shortcuts (e.g. a strategy calling the broker directly) are
 |---------------------------------------|---------------------------------------------|
 | How do I run it?                      | [`RUNNING.md`](RUNNING.md)                  |
 | How do I work on it?                  | [`WORKFLOW.md`](WORKFLOW.md)                |
+| Contributing / public fork CI       | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) |
 | What is the tech stack?               | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
 | What does the data look like?         | [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md)  |
 | What rules govern my code?            | [`docs/CODING_STANDARDS.md`](docs/CODING_STANDARDS.md) |
@@ -47,6 +48,16 @@ Cross-stage shortcuts (e.g. a strategy calling the broker directly) are
 | Full system design                    | [`docs/DESIGN.md`](docs/DESIGN.md)          |
 | Cursor rules (always-on guidance)     | [`.cursor/rules/`](.cursor/rules)           |
 | How does context get auto-injected?   | [`.cursor/hooks/README.md`](.cursor/hooks/README.md) |
+
+## Repository visibility
+
+This project is hosted in a **public** GitHub repository. Treat the default
+threat model as including **fork pull requests**, **workflow abuse**, and
+**attempts to exfiltrate CI secrets** — not only a trusted operator on a
+private machine. CI must not expose repository or organization secrets to
+jobs that execute untrusted code from forks. Maintainer settings (branch
+rulesets, secret scanning, default workflow permissions) are documented in
+[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
 
 ## Hard rules (do not violate)
 

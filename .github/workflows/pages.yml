@@ -1,4 +1,5 @@
 # Build and deploy MkDocs to GitHub Pages (Actions artifact). Isolated from main app CI.
+# Runs on push to main only (not fork PRs) — see docs/CONTRIBUTING.md.
 name: pages
 
 on:

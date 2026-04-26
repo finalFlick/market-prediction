@@ -2,14 +2,17 @@
 
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package.json ./
-RUN --mount=type=cache,target=/root/.npm npm install --no-audit --no-fund
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
 
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Server components call the API from inside the docker network; keep in sync
+# with docker-compose `environment` and `api.ts` default.
+ENV NEXT_PUBLIC_API_URL=http://backend:8000
 RUN npm run build
 
 FROM node:20-alpine AS runner

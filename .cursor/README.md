@@ -5,6 +5,15 @@ This is the project's Cursor harness: every file here is either
 docs / state, not auto-loaded). The README labels each so future you
 isn't fooled.
 
+**Public GitHub repo:** `trading-lab` is **public**. Fork PRs are in scope for
+threat modeling. Do **not** suggest `pull_request_target` that checks out the
+PR head ref and runs arbitrary code with repo secrets unless a maintainer has
+explicitly reviewed the pattern (that combination is a common secret-theft
+vector). Self-hosted Actions runners on a public repo must **not** run
+untrusted fork workflows; if self-hosted jobs are ever added, gate them to
+non-fork events (e.g. `push` to `main` only) and document in `DECISIONS.md`.
+See [`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md).
+
 ## Layout
 
 ```
@@ -30,6 +39,7 @@ Frontmatter fields: `description` (≤ 15 words), `globs` (file-scope), `alwaysA
 | `coding-standards.mdc`  | `**/*.py`                      | no          |
 | `backend.mdc`           | `backend/**/*.py`              | no          |
 | `frontend.mdc`          | `frontend/**/*.{ts,tsx}`       | no          |
+| `component-first.mdc`   | frontend + styleguide docs     | no          |
 | `docker.mdc`            | `**/Dockerfile`, `compose*.yml`| no          |
 | `testing.mdc`           | `tests/**`, `ai_evals/**`      | no          |
 | `evaluation.mdc`        | `backtests/**`, `research/models/**` | no    |
@@ -45,6 +55,10 @@ Frontmatter fields: `description` (≤ 15 words), `globs` (file-scope), `alwaysA
 Frontmatter fields: `name` (=folder name), `description`. Cursor invokes
 a skill when the user request semantically matches its description.
 [Cursor docs](https://www.trycursor.com/docs/context/skills).
+
+Skills are not a hard guarantee. If a request clearly needs one and it did not
+appear to trigger, invoke the skill manually by reading its `SKILL.md` and
+following the procedure.
 
 | Skill              | Use when…                                       |
 |--------------------|-------------------------------------------------|
@@ -82,6 +96,10 @@ The `risk`, `evaluation`, `monitoring`, and `reviewer` agents are **gates**, not
 Python 3.11+, stdlib-only, and safe-on-crash (each wraps `main()` in a
 try/except so a bug never silently blocks the agent — except where
 `failClosed: true` is intentional).
+
+Most hooks are guardrails, not proof. After changing hooks, rules, or routing,
+run `pytest tests/cursor_harness -q` and inspect the actual behavior instead of
+assuming Cursor fired the hook.
 
 | Event                  | Script                      | failClosed | Purpose                                         |
 |------------------------|-----------------------------|------------|-------------------------------------------------|
