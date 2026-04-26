@@ -208,6 +208,28 @@ Status values: `proposed | accepted | superseded`.
   - Any future LLM “insight” panel must use the same non-actionable
     disclaimer as `NekoObservationCard`.
 
+## DEC-013 — Spec handoffs and build-time font policy (process)
+
+- **Date**: 2026-04-26
+- **Status**: accepted
+- **Context**: Shipping FEATURE-0045 additively alongside paused
+  FEATURE-0034 showed a gap: no rule required an addendum on the
+  sibling spec. Separately, `next/font/google` can fail in restricted
+  environments without a documented escape hatch.
+- **Decision**:
+  1. **Sibling-spec addenda.** When a feature implements code that
+     another in-flight or paused spec will need to register (e.g.
+     styleguide), append an *Implementation addendum* to that spec
+     in `specs/…` per `.cursor/rules/spec-sessions.mdc` and
+     `spec-format.mdc` (ticket id consistency in platform task files).
+  2. **Offline builds.** Prefer `next/font/local` and vendored
+     `.woff2` under `frontend/public/fonts/` when CI cannot reach
+     Google Fonts; document in `DECISIONS.md` if vendoring is policy,
+     not a one-off.
+- **Consequences**: Cursor rules `spec-sessions.mdc`, `spec-format.mdc`,
+  and `frontend.mdc` carry the normative text; this decision is the
+  project-level record.
+
 ## How to add a decision
 
 1. Pick the next `DEC-NNN` number.

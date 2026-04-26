@@ -214,6 +214,13 @@ If the user reports a non-trivial bug, enter spec session in
   the spec is the source of truth, not the code.
 - **Never** mark a task complete until its tests pass and its
   acceptance criteria are demonstrably met.
+- **Additive work vs a sibling spec.** If implementation lands
+  additively while a related spec or epic is **paused** or
+  **in flight**, append a short *Implementation addendum* to that
+  spec's ticket, epic, or `tasks.md` in `specs/…` describing the
+  **merge handoff** (e.g. styleguide registration, import paths, fixture
+  deltas). Do not change the paused spec's core scope; record only how
+  the new work plugs in when the other feature merges.
 
 ---
 

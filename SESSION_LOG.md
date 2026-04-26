@@ -16,6 +16,18 @@ Format:
 
 ---
 
+## 2026-04-26 — DEC-013 + Cursor rules (spec addenda, feature id check, local fonts)
+
+- **Agent**: Developer
+- **Goal**: Ratify the proposal in
+  `.cursor/state/proposed/2026-04-26-additive-feature-addenda-and-font-fallback.md`
+  by editing `spec-sessions.mdc`, `spec-format.mdc`, `frontend.mdc`, and
+  `DECISIONS.md` (DEC-013); remove the proposal file.
+- **Done**: `spec-sessions.mdc`, `spec-format.mdc`, `frontend.mdc` + **DEC-013** in
+  `DECISIONS.md`; proposal file removed. (See latest `main` for commit.)
+- **Verified**: n/a (markdown only).
+- **Blocked / next**: none.
+
 ## 2026-04-26 — Neko Quant identity layer (FEATURE-0045, DEC-011/012)
 
 - **Agent**: Developer

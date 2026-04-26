@@ -13,6 +13,11 @@ keys, and never talks to an exchange.
 
 - App Router (Next.js 15+). Server components by default; mark client
   islands with `"use client"` only when needed (charts, tables, forms).
+- **`next/font/google` (e.g. Inter, JetBrains Mono).** The build must
+  reach Google Fonts (or a cached result). In **air-gapped** or
+  **restricted** CI, switch to `next/font/local` with
+  `frontend/public/fonts/*.woff2` and record the choice in
+  `DECISIONS.md` if vendoring is a deliberate policy.
 - **Dynamic-route async params (Next 15+).** `params` and `searchParams`
   on dynamic-route page/layout/route components are typed as
   `Promise<{...}>` and must be `await`ed. CI's `npm run build` fails

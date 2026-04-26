@@ -143,3 +143,15 @@ When you edit any spec file, check the others in the same folder:
 
 If a change makes the three documents inconsistent, fix the
 inconsistency before moving on. The spec is a contract between phases.
+
+## Platform feature tickets and indices (`specs/trading-lab-platform/tasks/**`)
+
+When authoring or renaming files such as
+`my_feature_00NN.md` and rows in
+`specs/trading-lab-platform/tasks.md`:
+
+- **Cross-check FEATURE ids.** Every `FEATURE-00NN` in the same plan,
+  follow-up list, body text, and `tasks.md` table row must refer to
+  the **same** number for the **same** capability. Inconsistent
+  numbering before scaffolding new ticket files is a spec defect; fix
+  the plan or index, then create files.
