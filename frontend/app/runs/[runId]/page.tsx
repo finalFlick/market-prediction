@@ -9,12 +9,13 @@ import { formatDate, formatNumber, formatPct } from "@/lib/utils";
 export default async function RunDetailPage({
   params,
 }: {
-  params: { runId: string };
+  params: Promise<{ runId: string }>;
 }) {
+  const { runId } = await params;
   const [health, run, backtest] = await Promise.all([
     safe(() => api.health()),
-    safe(() => api.run(params.runId)),
-    safe(() => api.backtest(params.runId)),
+    safe(() => api.run(runId)),
+    safe(() => api.backtest(runId)),
   ]);
 
   if (!run) {
@@ -31,7 +32,7 @@ export default async function RunDetailPage({
 
   return (
     <main>
-      <Header health={health} title={`Run — ${params.runId}`} />
+      <Header health={health} title={`Run — ${runId}`} />
       <div className="p-6 space-y-6">
         {/* Summary */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -140,7 +141,7 @@ export default async function RunDetailPage({
           <p>
             Risk audit rows:{" "}
             <code className="text-mint">
-              SELECT * FROM ha_risk_decisions WHERE run_id = &apos;{params.runId}&apos;
+              SELECT * FROM ha_risk_decisions WHERE run_id = &apos;{runId}&apos;
             </code>
           </p>
           <p className="mt-1">
@@ -149,7 +150,7 @@ export default async function RunDetailPage({
             </Link>
             {" · "}
             <Link
-              href={`/runs/compare?ids=${params.runId}`}
+              href={`/runs/compare?ids=${runId}`}
               className="text-mint hover:underline"
             >
               Compare this run

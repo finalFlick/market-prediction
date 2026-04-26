@@ -16,6 +16,22 @@ Format:
 
 ---
 
+## 2026-04-26 — PR #3 Next 15 dynamic route params (CI build)
+
+- **Agent**: Developer
+- **Goal**: Fix failing `npm run build` on PR #3 after Next 15 upgrade (`params`
+  must be `Promise` on dynamic app routes).
+- **Done**:
+  - `frontend/app/backtests/[runId]/page.tsx` and
+    `frontend/app/runs/[runId]/page.tsx`: `params: Promise<{ runId: string }>` +
+    `await params`.
+  - `frontend/next.config.mjs`: drop deprecated `experimental.typedRoutes`
+    (typed routes remain off by default on Next 15).
+- **Verified**: Local `npm run build` not re-run after ENOSPC on `npm install`;
+  change matches Next 15 App Router contract; only PR-scoped files staged.
+- **Blocked / next**: Push and confirm GitHub Actions frontend job green;
+  then admin-merge PR #3.
+
 ## 2026-04-26 — PR #3 CI unblock + Dependabot (next 15 / postcss)
 
 - **Agent**: Developer

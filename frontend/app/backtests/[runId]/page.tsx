@@ -8,9 +8,10 @@ import { formatDate, formatNumber, formatPct } from "@/lib/utils";
 export default async function BacktestDetailPage({
   params,
 }: {
-  params: { runId: string };
+  params: Promise<{ runId: string }>;
 }) {
-  const runId = decodeURIComponent(params.runId);
+  const { runId: rawRunId } = await params;
+  const runId = decodeURIComponent(rawRunId);
   const [health, run] = await Promise.all([safe(() => api.health()), safe(() => api.backtest(runId))]);
   if (!run) notFound();
 
