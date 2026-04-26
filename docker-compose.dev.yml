@@ -4,6 +4,19 @@
 # Windows + Docker Desktop (WSL2) was 15+ minutes for the unit suite.
 
 services:
+  # One-shot: populate trading-node-modules before frontend starts. Skips quickly
+  # when node_modules/.bin/next already exists (volume warm). Inline guard on
+  # frontend remains for `docker compose up frontend` without init.
+  frontend-init:
+    image: node:20-alpine
+    working_dir: /app
+    command: >
+      sh -c "test -x node_modules/.bin/next || npm ci --include=dev --no-audit --no-fund"
+    volumes:
+      - ./frontend:/app
+      - trading-node-modules:/app/node_modules
+    restart: "no"
+
   backend:
     command: >
       uvicorn backend.api.app:app --host 0.0.0.0 --port 8000
@@ -69,6 +82,11 @@ services:
       - "8888:8888"
 
   frontend:
+    depends_on:
+      backend:
+        condition: service_started
+      frontend-init:
+        condition: service_completed_successfully
     command: >
       sh -c "test -x node_modules/.bin/next || npm ci --include=dev --no-audit --no-fund;
       npm run dev"
