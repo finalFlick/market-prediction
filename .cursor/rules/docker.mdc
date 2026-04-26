@@ -14,11 +14,15 @@ alwaysApply: false
 - Each Dockerfile installs project deps, then copies code, then sets the
   user — in that order — so layer caching works.
 - Python service images build from the shared local `trading-base` image.
-  Build it with   `python dev.py base` before local service builds (same as
+  Build it with `python dev.py base` before local service builds (same as
   `docker build -f Dockerfile.base -t trading-base .`). CI builds
   `trading-base:latest` as the first step of the `docker` job in
-  `.github/workflows/ci.yml` (same runner as backend/engine) with GHA cache
-  scope `trading-base` so `FROM trading-base` layers stay warm.
+  `.github/workflows/ci.yml` (same runner as backend/engine). On `main`
+  pushes that touch `Dockerfile.base` or `pyproject.toml`, the
+  `trading-base.yml` workflow publishes
+  `ghcr.io/<owner>/trading-lab-base:<sha>|:latest` and writes a `:cache`
+  ref via `cache-to: type=registry`. PR runs do **not** read that cache
+  (see "CI multi-step buildx" below).
 - Healthchecks are defined in `docker-compose.yml` for `redis`, `backend`,
   and `frontend`. The trading-engine container has a process-level liveness
   check via the orchestrator.
@@ -36,6 +40,49 @@ or cache directories inside `/app`. `docker-compose.dev.yml` must mask:
 Measured consequence from 2026-04-26: without masks, `/app` exposed ~3 GB and
 pytest collection took 15+ minutes; with masks, `/app` was ~5.7 MB and the
 inner-loop unit suite passed in ~53 seconds.
+
+## CI multi-step buildx (`FROM <local-image>` chains)
+
+The `docker` job builds `trading-base` and then `engine` / `backend` /
+`frontend`, each via `docker/build-push-action@v6` with `load: true`.
+Several plausible-looking shapes for this **do not work**; PR #17 burned
+five iterations before landing the working one. The current shape is:
+
+- `docker/setup-buildx-action@v3` with `driver: docker` (host BuildKit,
+  shares the image store with the local Docker daemon).
+- No `cache-from` / `cache-to`. `trading-base` is rebuilt from cold pip
+  install on every PR run (~3-5 min). Acceptable until a warm path is
+  designed.
+
+Lessons (do not repeat in this repo):
+
+- The default `docker-container` buildx driver runs BuildKit in its own
+  container with an isolated image store. `load: true` writes to the
+  host Docker daemon, but the next buildx step in the same container
+  cannot see it; `FROM trading-base` then resolves via `docker.io` and
+  401s. Solution: `driver: docker` for these multi-step chains.
+- `cache-from: type=registry,ref=…/trading-lab-base:cache` aborts the
+  build on **both** 403 (unauthenticated) and 404 (cache miss). There
+  is no soft-miss mode. `ignore-error=true` is **not** a real BuildKit
+  option (silently ignored). Adding `docker/login-action@v3` only
+  converts 403 → 404, which still aborts.
+- `build-contexts: trading-base=docker-image://trading-base:latest`
+  does **not** redirect resolution to the local Docker daemon — it still
+  resolves via the registry. It is not a substitute for the `docker`
+  driver here.
+- `driver: docker` does not support `cache-from/to: type=gha`. That
+  cost is intentional; the alternative (re-introducing
+  `docker-container` plus a working warm-cache path) cost more cycles in
+  PR #17 than the cold rebuild costs per PR.
+
+Trade-offs that **are** acceptable to revisit later, in their own PR:
+
+- Switching back to `docker-container` and using `cache-from:
+  type=registry,ref=…:cache` once `trading-base.yml` has populated the
+  ref on `main`. The fundamentals above will still apply: BuildKit must
+  be authenticated (registry creds), the ref must already exist, and
+  cross-step `FROM <local>` chains will need an alternate source of
+  truth (e.g. push intermediates to a local registry on the runner).
 
 ## Hostnames inside the network
 

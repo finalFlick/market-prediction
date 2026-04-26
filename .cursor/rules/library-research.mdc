@@ -81,6 +81,49 @@ merged.
   minimum Python (`requires-python`) without an explicit
   `DECISIONS.md` entry justifying the exception.
 
+## Reviewing Dependabot npm PRs
+
+Dependabot opens PRs against `frontend/package.json` + `package-lock.json`.
+Two recurring failure patterns from this repo cost real cycles; check for
+them before approving or admin-merging:
+
+1. **`npm ci` fails with `Missing: @<pkg>/<platform>-<arch>@<ver> from
+   lock file`.** Dependabot regenerates the lockfile via
+   `npm install --package-lock-only`, which can drop platform-specific
+   `optionalDependencies` shards (`@esbuild/*`, `@next/swc-*`,
+   `@rollup/*`, etc.) that `npm ci` then refuses to skip. Resolution
+   paths, in order of preference:
+   - Comment `@dependabot recreate` on the PR; sometimes the second
+     regen produces a complete lockfile.
+   - Locally, on a machine with disk headroom, `cd frontend && npm
+     install` (real install, not `--package-lock-only`), then commit and
+     `git push --force-with-lease` to the Dependabot branch. Dependabot
+     will abandon further auto-updates on that branch but the PR stays
+     mergeable.
+   - As a last resort, replace `npm ci` with `npm install --no-audit
+     --no-fund` in the CI step. Land that as a separate `ci(...)` PR,
+     not bundled with the dep bump.
+2. **The advisory keys on a transitive bundled version, not the direct
+   devDep.** Bumping `package.json` is then a no-op for Dependabot's
+   alert state. Verify with `rg '"<package>":' frontend/package-lock.json
+   -B2 -A1`. If a top-level package (e.g. `next`) bundles the vulnerable
+   version internally, the fix is a `package.json` `overrides` block,
+   not a direct devDep bump:
+   ```json
+   "overrides": {
+     "<package>": "^<patched-min-version>"
+   }
+   ```
+   Pair the override with a real `npm install` so the lockfile resolves
+   the transitive copies to the patched version. Document the override
+   choice in `DECISIONS.md` if it pins below the latest stable.
+
+Coupled-major bumps (e.g. `next` 15 → 16) require a coordinated upgrade
+of related peers (`react` / `react-dom` / `eslint-config-next` /
+`@types/react*`). Dependabot does not pair these. If the Dependabot PR
+touches only the framework version, **do not merge**: close it and open
+a hand-curated upgrade PR using the framework's official codemod.
+
 ## What the hook does
 
 `check_dependency_research.py` runs on `beforeShellExecution` and
