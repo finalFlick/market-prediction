@@ -1493,6 +1493,53 @@ isolation, or order placement rules.
 
 ---
 
+## Addendum: Public GitHub repository and CI trust model (2026-04-26)
+
+The `trading-lab` source repository is hosted as a **public** GitHub project.
+The default threat model includes **fork pull requests**, **malicious
+workflow edits**, and **attempts to steal CI credentials**. This addendum
+extends Requirements **40**, **46**, **51**, and non-functional **Security**
+without changing Requirement 40.3 (no Docker registry push in v1) or
+Requirement 40.1’s preference for **hosted** GitHub Actions runners for
+routine PR gates (self-hosted runners remain deferred unless re-approved in
+`DECISIONS.md` with explicit fork-isolation rules).
+
+### Requirement E — Public-repo CI and secrets
+
+**E.1 (ubiquitous)**  
+THE SYSTEM SHALL document in `docs/CONTRIBUTING.md` that workflows triggered by
+**fork** pull requests MUST NOT receive repository or organization secrets in
+jobs that execute untrusted code from the fork ref.
+
+**E.2 (ubiquitous)**  
+THE SYSTEM SHALL configure GitHub Actions workflows with **least-privilege**
+`permissions` for the `GITHUB_TOKEN` (at minimum `contents: read` unless a job
+documented in `docs/CONTRIBUTING.md` requires additional scopes).
+
+**E.3 (conditional)**  
+IF a maintainer adds a self-hosted GitHub Actions runner THEN THE SYSTEM SHALL
+record the decision in `DECISIONS.md` and SHALL restrict runner-attached jobs
+to events that do not execute arbitrary code from forks (e.g. `push` to
+protected branches only), unless an approved security design proves
+equivalent isolation.
+
+**E.4 (ubiquitous)**  
+THE SYSTEM SHALL enable or document enablement of GitHub **secret scanning**
+and **push protection** for the public repository (see maintainer checklist in
+`docs/CONTRIBUTING.md`).
+
+**E.5 (ubiquitous)**  
+THE SYSTEM SHALL keep automated dependency and static analysis signals
+(Dependabot, CodeQL) configured via committed `.github/` configuration where
+applicable, without bypassing the library-research discipline in Requirement 47.
+
+**Traceability:** FEATURE-0039 (CI/CD and quality gates), FEATURE-0040
+(secrets and security controls), FEATURE-0003 (contribution and harness
+governance). Steering: `PROJECT_CONTEXT.md`, `.cursor/README.md`,
+`.cursor/rules/security.mdc`.
+
+---
+
 ## Requirements Review Checklist
 
 Run before marking Phase 1 approved:

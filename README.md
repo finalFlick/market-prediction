@@ -16,6 +16,10 @@ management.
 > [`docs/UI_REQUIREMENTS.md`](docs/UI_REQUIREMENTS.md),
 > [`AGENTS.md`](AGENTS.md).
 
+Contributions are welcome. This repo is **public** — see
+[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) for fork PR and CI security
+expectations.
+
 ## Pipeline
 
 ```
@@ -55,7 +59,7 @@ python -m execution.runner --broker paper --strategy strategies.examples.momentu
 
 ```bash
 docker network create trading-net 2>/dev/null || true     # one-time
-docker build -f Dockerfile.base -t trading-base .          # shared Python base
+python dev.py base                                       # shared Python base image
 docker compose build
 docker compose up -d
 docker compose logs -f trading-engine
@@ -90,6 +94,7 @@ Windows filesystem entries through the WSL2 mount bridge.
 Useful commands:
 
 ```bash
+python dev.py base                          # rebuild trading-base after dependency changes
 python dev.py logs backend
 python dev.py exec backend -- pytest -q -m "not slow and not integration"
 python dev.py jupyter                       # http://localhost:8888

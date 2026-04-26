@@ -133,6 +133,20 @@ tickets fully complete unless the feature's validation expectations are met.
 - `ruff check dev.py` → all checks passed.
 - `mypy --strict --explicit-package-bases dev.py` → success.
 
+## Addendum: OpenAPI Swagger UI themed to operator console (2026-04-26)
+
+- **Scope:** FastAPI `/docs` serves Swagger UI with a vendored dark stylesheet
+  that mirrors the cyberpunk operator palette in
+  `frontend/tailwind.config.ts` (see FEATURE-0034 design direction).
+- **Code:** [`backend/api/static/swagger-trading-lab.css`](../backend/api/static/swagger-trading-lab.css),
+  [`backend/api/app.py`](../backend/api/app.py) (`docs_url=None`, `StaticFiles` on `/static`,
+  `get_swagger_ui_html` + `syntaxHighlight.theme: obsidian`).
+- **Tests:** [`tests/e2e/test_api_app.py`](../tests/e2e/test_api_app.py) (`test_swagger_docs_serves_themed_html`,
+  `test_swagger_theme_css_is_served`).
+- **Note:** ReDoc at `/redoc` is unchanged (default light theme) until a
+  dedicated task themes it. Full `/styleguide` route remains FEATURE-0034
+  scope.
+
 ## Addendum: No-key MVP slice (2026-04-25)
 
 **Scope (aligned with `simple-no-key-mvp` implementation plan):**
@@ -233,6 +247,9 @@ live runs may be geo/network dependent; unit tests mock HTTP).
 
 ## Open Questions
 
+- (Resolved 2026-04-26) **Repository visibility:** the GitHub remote is **public**;
+  fork PR and CI expectations are captured in `requirements.md` / `design.md`
+  addenda (2026-04-26) and `docs/CONTRIBUTING.md`.
 - Should the repo later mirror specs/ into .kiro/ for external Kiro tooling, or is specs/ the permanent canonical location?
 - Which command should be canonical for the final backtest smoke gate: pytest tests/e2e -q plus python -m backtests.smoke, or only the workflow rule variant?
 - Should v1.x Schwab OAuth and v1.1 live-broker enablement remain in this broad platform spec or split into smaller follow-up specs before implementation?
@@ -255,3 +272,50 @@ live runs may be geo/network dependent; unit tests mock HTTP).
 - design.md was analyzed for MVP-0 sequencing, 23 components, domain/data models, API, testing, deployment, observability, and risk/security sections.
 - The previous placeholder tasks.md was replaced because it contained template variables and did not represent the approved design.
 - No .kiro/steering files were available in this repo; .cursor rules and specs/README.md are the active steering system.
+
+---
+
+## Addendum: Public GitHub repository — maintainer checklist (2026-04-26)
+
+**Resolved:** The canonical GitHub remote for this project is **public**
+(`finalFlick/market-prediction` at time of writing). The threat model includes
+**fork PRs** and **workflow abuse**.
+
+### Maintainer checklist (GitHub UI + repo config)
+
+Re-verify after org moves, visibility changes, or new secrets:
+
+- [ ] **Rulesets** (or branch protection) on `main`: required status checks from
+      `ci`, `CodeQL`, and Pages where applicable; block force-push.
+- [ ] **Actions → Workflow permissions**: default `GITHUB_TOKEN` read-only org-
+      wide or per-repo; workflows elevate only scoped permissions (see
+      `.github/workflows/ci.yml` `permissions` block).
+- [ ] **Secret scanning** + **Push protection** enabled for the public repo.
+- [ ] **Dependabot** security and version updates enabled (config:
+      `.github/dependabot.yml`).
+- [ ] **Code scanning** (CodeQL) enabled from `.github/workflows/codeql.yml`.
+- [ ] **CODEOWNERS** accurate for `@finalFlick` or successor handles
+      (`.github/CODEOWNERS`).
+- [ ] **Fork PR audit:** no job running arbitrary code from `pull_request` forks
+      uses repository secrets; avoid `pull_request_target` + untrusted checkout
+      without a documented, reviewed exception.
+
+### Feature mapping
+
+| Area | Feature ticket |
+|------|----------------|
+| CI gates, least-privilege Actions, composite setup | FEATURE-0039 |
+| Secrets, scanning, contributor security docs | FEATURE-0040 |
+| Contribution loop, Cursor harness alignment | FEATURE-0003 |
+
+### Spec documents updated with this addendum
+
+- `requirements.md` — Addendum **Requirement E** (public repo CI and secrets).
+- `design.md` — Addendum **Public GitHub repository — CI/CD trust zones**.
+- `tasks.md` — this checklist.
+
+### Traceability matrix row (additive)
+
+| Requirement / Design Area | Epic | Feature Tickets |
+|---|---|---|
+| Addendum E (2026-04-26) public GitHub, fork CI, Dependabot, CodeQL | Deployment, Security, and CI; Platform Foundation | FEATURE-0039, FEATURE-0040, FEATURE-0003 |

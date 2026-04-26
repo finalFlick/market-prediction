@@ -5,6 +5,15 @@ This is the project's Cursor harness: every file here is either
 docs / state, not auto-loaded). The README labels each so future you
 isn't fooled.
 
+**Public GitHub repo:** `trading-lab` is **public**. Fork PRs are in scope for
+threat modeling. Do **not** suggest `pull_request_target` that checks out the
+PR head ref and runs arbitrary code with repo secrets unless a maintainer has
+explicitly reviewed the pattern (that combination is a common secret-theft
+vector). Self-hosted Actions runners on a public repo must **not** run
+untrusted fork workflows; if self-hosted jobs are ever added, gate them to
+non-fork events (e.g. `push` to `main` only) and document in `DECISIONS.md`.
+See [`docs/CONTRIBUTING.md`](../docs/CONTRIBUTING.md).
+
 ## Layout
 
 ```

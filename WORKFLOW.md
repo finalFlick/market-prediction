@@ -17,6 +17,10 @@ until step 6 passes. The full version lives in
 
 If a task is too large for one PR, split it. Track sub-PRs in `TODO.md`.
 
+This repository is **public** on GitHub. Contributors and agents: read
+[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) for fork PR and CI security
+expectations before changing `.github/workflows/` or adding repository secrets.
+
 ## Definition of done
 
 - [ ] Acceptance criteria met (with evidence: commands run + their results).

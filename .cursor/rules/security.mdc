@@ -13,6 +13,12 @@ alwaysApply: true
 - `.env.example` documents the required keys; `.env` is in `.gitignore`.
 - CI scans the diff for high-entropy strings; commits flagged by the secret
   scanner are blocked.
+- **Public repository:** GitHub Actions workflows MUST NOT pass repository or
+  organization secrets into jobs that execute code from **fork** pull
+  requests (untrusted ref). Prefer `permissions: contents: read` at the
+  workflow level; use GitHub **environments** with required reviewers only for
+  maintainer-only steps (e.g. deploy, registry push). Enable secret scanning
+  and push protection in repo settings. See `docs/CONTRIBUTING.md`.
 - Logs MUST NOT contain raw API keys. The logging configuration in
   `monitoring/logger.py` redacts known fields (`api_key`, `api_secret`,
   `signature`, `passphrase`).

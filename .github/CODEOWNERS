@@ -1,0 +1,11 @@
+# Default owner for review (matches github.com/finalFlick/market-prediction).
+# Adjust paths or handles if maintainers change — see docs/CONTRIBUTING.md.
+
+* @finalFlick
+
+/risk/ @finalFlick
+/execution/ @finalFlick
+/configs/risk.yaml @finalFlick
+/.github/workflows/ @finalFlick
+/.github/actions/ @finalFlick
+/specs/trading-lab-platform/ @finalFlick

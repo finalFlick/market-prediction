@@ -17,7 +17,7 @@ docker network create trading-net          # one-time, shared with ollama/hermes
 Use this workflow for iterative Python/TS edits without full rebuilds.
 
 ```bash
-docker build -f Dockerfile.base -t trading-base .  # first time or after pyproject changes
+python dev.py base   # first time or after pyproject.toml / Dockerfile.base changes
 python dev.py up
 ```
 
@@ -26,8 +26,18 @@ This starts:
 - `backend` with `uvicorn --reload`
 - `trading-engine` shared code execution loop
 - `research` idle container for training/Jupyter use
-- `frontend` in HMR mode (`next dev`)
+- `frontend-init` (one-shot): runs `npm ci` into the `trading-node-modules` volume
+  when `node_modules` is cold, then exits; skipped quickly when dependencies are
+  already present
+- `frontend` in HMR mode (`next dev`), after `frontend-init` completes successfully
 - `redis`, `duckdb`, and required volumes
+
+**First-start cost:** the first `python dev.py up` on a fresh machine (or after
+`python dev.py reset-deps`) may spend a few minutes in `frontend-init` while
+`npm ci` fills `trading-node-modules`. Later `up` runs reuse the volume and the
+init step returns almost immediately. If you start only `frontend` without the
+full stack, the inline `npm ci` guard in the frontend command still bootstraps
+`node_modules` as a fallback.
 
 Day-to-day workflow:
 
@@ -103,6 +113,7 @@ docker compose logs -f trading-engine
 |----------------|-------------------------------------------------------|
 | frontend       | http://localhost:3000                                 |
 | backend (API)  | http://localhost:8000/api/system/health               |
+| backend OpenAPI | http://localhost:8000/docs (Swagger UI, themed to match the operator console palette) |
 | redis          | localhost:6379                                        |
 | ollama (ext.)  | http://ollama:11434 (inside `trading-net`)            |
 
@@ -178,3 +189,9 @@ npm install
 npm run dev                                # http://localhost:3000
 npm run lint && npm run typecheck && npm run build
 ```
+
+## GitHub (maintainers)
+
+This repo is **public**. Branch protection, Actions token defaults, secret
+scanning, and fork-safe CI expectations are documented in
+[`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) (maintainer checklist included).

@@ -16,6 +16,94 @@ Format:
 
 ---
 
+## 2026-04-26 — GitHub maintainer settings via `gh` API
+
+- **Agent**: Developer
+- **Goal**: Apply repo security and `main` branch protection per
+  `gh_cli_maintainer_settings` plan (MCP cannot toggle these).
+- **Done**:
+  - `PATCH repos/finalFlick/market-prediction` — secret scanning + push
+    protection **enabled**.
+  - `PUT .../vulnerability-alerts` — **204** (Dependabot alerts on).
+  - `PUT .../automated-security-fixes` — **200** `enabled: true` (security
+    update PRs on); `security_and_analysis.dependabot_security_updates` now
+    **enabled**.
+  - `PUT .../branches/main/protection` — required checks (with `\u00b7` in JSON
+    to avoid PowerShell corrupting middots), `require_code_owner_reviews: true`,
+    1 approval, strict status checks, no force-push, conversation resolution on.
+- **Verified**:
+  - `gh api repos/finalFlick/market-prediction --jq '.security_and_analysis'`
+    → secret_scanning + push_protection enabled; dependabot_security_updates
+    enabled.
+  - `gh api -i .../vulnerability-alerts` → **204 No Content**.
+  - `gh api -i .../automated-security-fixes` → **200** body `enabled: true`.
+  - `gh api .../branches/main/protection --jq ...` → contexts include
+    `lint · ruff`, …, `Analyze`; `code_owner_review: true`.
+- **Blocked / next**:
+  - `gh auth refresh -s repo,security_events,workflow` was started for optional
+    scope; **`repo` alone sufficed** — cancel device flow if still pending.
+  - Merge workflow files to `main` so every required check name exists on
+    default branch; first green `main` run validates protection.
+
+## 2026-04-26 — Public GitHub guidance and CI hardening
+
+- **Agent**: Developer
+- **Goal**: Record public-repo threat model in steering docs; add maintainer
+  contributor guide; Dependabot, CodeQL, CODEOWNERS, composite Python CI setup;
+  append `specs/trading-lab-platform` addenda (Requirement E + design/tasks).
+- **Done**:
+  - Steering: [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md),
+    [`.cursor/README.md`](.cursor/README.md),
+    [`.cursor/rules/security.mdc`](.cursor/rules/security.mdc),
+    [`WORKFLOW.md`](WORKFLOW.md), [`README.md`](README.md),
+    [`RUNNING.md`](RUNNING.md) (maintainers pointer).
+  - [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) (fork PR + maintainer checklist).
+  - GitHub: [`.github/dependabot.yml`](.github/dependabot.yml),
+    [`.github/workflows/codeql.yml`](.github/workflows/codeql.yml),
+    [`.github/CODEOWNERS`](.github/CODEOWNERS),
+    [`.github/actions/setup-trading-lab-python/action.yml`](.github/actions/setup-trading-lab-python/action.yml),
+    updated [`.github/workflows/ci.yml`](.github/workflows/ci.yml),
+    comment on [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+  - Spec addenda: [`requirements.md`](specs/trading-lab-platform/requirements.md),
+    [`design.md`](specs/trading-lab-platform/design.md),
+    [`tasks.md`](specs/trading-lab-platform/tasks.md); audit note on
+    [FEATURE-0039](specs/trading-lab-platform/tasks/deployment-security-ci/cicd_quality_gates_0039.md).
+- **Verified**:
+  - `py -3.12 -m pytest tests/cursor_harness -q` → 131 passed
+  - `py -3.12 -m ruff check .` → all checks passed
+  - `py -3.12 -m pytest -q -m "not slow and not integration and not e2e"` →
+    collection `MemoryError` on this host (environment); not attributed to this
+    doc/CI-only change set
+  - `py -3.12 -m ruff format --check .` / `mypy --strict` → pre-existing issues in
+    other paths (unchanged by this session)
+- **Blocked / next**: Enable GitHub Rulesets, secret scanning, and Dependabot
+  alerts in repo Settings if not already on; confirm `@finalFlick` in CODEOWNERS.
+
+## 2026-04-26 — Swagger `/docs` themed to operator styleguide
+
+- **Agent**: Developer
+- **Goal**: Align FastAPI OpenAPI Swagger UI with FEATURE-0034 / Tailwind
+  operator-console palette (dark, token-matched) without new dependencies.
+- **Done**:
+  - Added [`backend/api/static/swagger-trading-lab.css`](backend/api/static/swagger-trading-lab.css)
+    with `.swagger-ui` overrides synced to `frontend/tailwind.config.ts`.
+  - Updated [`backend/api/app.py`](backend/api/app.py): `docs_url=None`,
+    `StaticFiles` on `/static`, custom `GET /docs` via `get_swagger_ui_html`
+    and `syntaxHighlight.theme: obsidian`.
+  - Extended [`tests/e2e/test_api_app.py`](tests/e2e/test_api_app.py) with
+    Swagger HTML and CSS smoke tests.
+  - Documented `/docs` in [`RUNNING.md`](RUNNING.md); addenda in
+    [`specs/trading-lab-platform/tasks.md`](specs/trading-lab-platform/tasks.md)
+    and [`FEATURE-0034`](specs/trading-lab-platform/tasks/frontend-operator-experience/style_guide_component_library_0034.md).
+- **Verified**:
+  - `py -3.12 -m pytest tests/e2e/test_api_app.py -q` → 9 passed
+  - `py -3.12 -m ruff check backend/api/app.py tests/e2e/test_api_app.py` →
+    all checks passed
+  - `py -3.12 -m mypy --strict backend/api/app.py tests/e2e/test_api_app.py` →
+    success
+  - `py -3.12 -m pytest -q` → `294 passed, 3 warnings in 234.42s`
+- **Blocked / next**: Theme `/redoc` in a follow-up if operators want parity.
+
 ## 2026-04-26 — dev-speed docker, MVP-0 run UI audit, and Cursor workflow hardening
 
 - **Agent**: Developer

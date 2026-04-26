@@ -88,6 +88,16 @@ The implementation should expose enough logs, metrics, audit records, UI state, 
 - Update DECISIONS.md if implementation changes architecture, risk posture, phase scope, or release gates.
 - Update SESSION_LOG.md with verification evidence when implementation work lands.
 
+## Session Audit Note — 2026-04-26
+
+Public-repo CI posture advanced per platform addendum (2026-04-26): committed
+`.github/dependabot.yml`, `.github/workflows/codeql.yml`, composite
+`.github/actions/setup-trading-lab-python/`, least-privilege `permissions` on
+`ci.yml`, `docs/CONTRIBUTING.md`, and `.github/CODEOWNERS`. Maintainer Rulesets /
+secret-scanning toggles remain **manual** (documented in CONTRIBUTING). See
+`specs/trading-lab-platform/tasks.md` addendum and `requirements.md` / `design.md`
+addenda for traceability.
+
 ## Done Means
 
 - [ ] The feature outcome is implemented or explicitly marked as deferred according to its phase.
