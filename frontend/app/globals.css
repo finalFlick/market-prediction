@@ -1,6 +1,13 @@
+@import "../styles/neko.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Body chrome anchored to Catppuccin Mocha (Base / Text / Surface2).
+ * Source: https://github.com/catppuccin/palette (palette.json v1.8.0, MIT).
+ */
 
 html,
 body {
@@ -8,11 +15,12 @@ body {
 }
 
 body {
-  background-color: hsl(220 13% 7%);
-  color: hsl(220 9% 96%);
+  background-color: #1e1e2e; /* base */
+  color: #cdd6f4; /* text */
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 ::selection {
-  background: hsl(160 84% 50% / 0.35);
+  background: #585b70; /* surface2 — per Catppuccin style guide (~30% in practice via overlay) */
+  color: #cdd6f4;
 }

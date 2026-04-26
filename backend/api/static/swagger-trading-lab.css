@@ -1,0 +1,281 @@
+/*
+ * Swagger UI overrides — Catppuccin Mocha.
+ *
+ * Loaded after the default Swagger UI 5.x CDN stylesheet, so it overrides
+ * only colors / borders / typography while leaving the base layout intact.
+ *
+ * Palette source (verbatim hex values, do not edit colors here without
+ * also editing `frontend/tailwind.config.ts`):
+ *   https://github.com/catppuccin/palette  (palette.json v1.8.0, MIT)
+ *   https://catppuccin.com/palette
+ */
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background: #1e1e2e; /* base */
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui {
+  color: #cdd6f4; /* text */
+  background: transparent;
+}
+
+.swagger-ui .topbar {
+  background: #181825; /* mantle */
+  border-bottom: 1px solid #585b70; /* surface2 */
+}
+
+.swagger-ui .topbar .download-url-wrapper .select-label {
+  color: #a6adc8; /* subtext0 */
+}
+
+.swagger-ui .topbar .download-url-wrapper input[type="text"] {
+  background: #45475a; /* surface1 */
+  border: 1px solid #585b70; /* surface2 */
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .info,
+.swagger-ui .info .title,
+.swagger-ui .info h1,
+.swagger-ui .info h2,
+.swagger-ui .info h3,
+.swagger-ui .info h4,
+.swagger-ui .info h5 {
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .info .description,
+.swagger-ui .info p,
+.swagger-ui .info li,
+.swagger-ui .info .base-url {
+  color: #a6adc8; /* subtext0 */
+}
+
+.swagger-ui .scheme-container {
+  background: #313244; /* surface0 */
+  box-shadow: none;
+  border: 1px solid #585b70; /* surface2 */
+}
+
+.swagger-ui .filter .operation-filter-input {
+  border: 1px solid #585b70; /* surface2 */
+  background: #45475a; /* surface1 */
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .opblock-tag {
+  color: #cdd6f4; /* text */
+  border-bottom: 1px solid #585b70; /* surface2 */
+}
+
+.swagger-ui .opblock-tag small {
+  color: #a6adc8; /* subtext0 */
+}
+
+.swagger-ui .opblock {
+  border: 1px solid #585b70; /* surface2 */
+  background: #313244; /* surface0 */
+  border-radius: 6px;
+  margin: 0 0 12px;
+  box-shadow: none;
+}
+
+.swagger-ui .opblock .opblock-summary {
+  border-color: #585b70; /* surface2 */
+}
+
+.swagger-ui .opblock .opblock-summary-method {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
+  min-width: 72px;
+}
+
+/*
+ * HTTP method colors follow Catppuccin "Mark" / accent semantics:
+ *   GET    → Blue   (links / primary)
+ *   POST   → Green  (success / safe-positive)
+ *   PUT    → Peach  (constants / write)
+ *   PATCH  → Mauve  (keyword / modify)
+ *   DELETE → Red    (errors)
+ */
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+  background: #89b4fa; /* blue */
+  color: #11111b; /* crust (text on accent) */
+}
+
+.swagger-ui .opblock.opblock-post .opblock-summary-method {
+  background: #a6e3a1; /* green */
+  color: #11111b; /* crust */
+}
+
+.swagger-ui .opblock.opblock-put .opblock-summary-method {
+  background: #fab387; /* peach */
+  color: #11111b; /* crust */
+}
+
+.swagger-ui .opblock.opblock-patch .opblock-summary-method {
+  background: #cba6f7; /* mauve */
+  color: #11111b; /* crust */
+}
+
+.swagger-ui .opblock.opblock-delete .opblock-summary-method {
+  background: #f38ba8; /* red */
+  color: #11111b; /* crust */
+}
+
+.swagger-ui .opblock .opblock-summary-path,
+.swagger-ui .opblock .opblock-summary-description {
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .opblock-body {
+  background: #181825; /* mantle */
+  border-top: 1px solid #585b70; /* surface2 */
+}
+
+.swagger-ui .opblock-description-wrapper p,
+.swagger-ui .opblock-description-wrapper,
+.swagger-ui .parameter__name,
+.swagger-ui .parameter__type,
+.swagger-ui label {
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .parameter__extension,
+.swagger-ui .parameter__in {
+  color: #a6adc8; /* subtext0 */
+}
+
+.swagger-ui input[type="text"],
+.swagger-ui input[type="password"],
+.swagger-ui input[type="search"],
+.swagger-ui input[type="email"],
+.swagger-ui textarea,
+.swagger-ui select {
+  background: #45475a; /* surface1 */
+  border: 1px solid #585b70; /* surface2 */
+  color: #cdd6f4; /* text */
+  border-radius: 4px;
+}
+
+.swagger-ui input[type="text"]:focus,
+.swagger-ui textarea:focus,
+.swagger-ui select:focus {
+  outline: 2px solid #89b4fa; /* blue */
+  outline-offset: 1px;
+}
+
+.swagger-ui .btn {
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.swagger-ui .btn.cancel {
+  background: #45475a; /* surface1 */
+  border-color: #585b70; /* surface2 */
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .btn.execute {
+  background: #89b4fa; /* blue */
+  border-color: #89b4fa; /* blue */
+  color: #11111b; /* crust */
+  font-weight: 600;
+}
+
+.swagger-ui .btn.execute:hover {
+  filter: brightness(1.08);
+}
+
+.swagger-ui .responses-inner h4,
+.swagger-ui .responses-inner h5,
+.swagger-ui .tab li {
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .response-col_status,
+.swagger-ui .response-col_links {
+  color: #a6adc8; /* subtext0 */
+}
+
+.swagger-ui table thead tr th,
+.swagger-ui table thead tr td {
+  background: #45475a; /* surface1 */
+  border-bottom: 1px solid #585b70; /* surface2 */
+  color: #cdd6f4; /* text */
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.swagger-ui table tbody tr td {
+  border-bottom: 1px solid #585b70; /* surface2 */
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .model-box,
+.swagger-ui .model,
+.swagger-ui .renderedMarkdown code,
+.swagger-ui .microlight,
+.swagger-ui .highlight-code pre {
+  background: #11111b; /* crust */
+  color: #cdd6f4; /* text */
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  border: 1px solid #585b70; /* surface2 */
+}
+
+.swagger-ui .prop-type,
+.swagger-ui .prop-format {
+  color: #94e2d5; /* teal */
+}
+
+.swagger-ui .model-title,
+.swagger-ui .model-hint {
+  color: #a6adc8; /* subtext0 */
+}
+
+.swagger-ui section.models {
+  border: 1px solid #585b70; /* surface2 */
+  background: #313244; /* surface0 */
+}
+
+.swagger-ui section.models.is-open h4 {
+  border-bottom: 1px solid #585b70; /* surface2 */
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .dialog-ux .modal-ux {
+  background: #181825; /* mantle */
+  border: 1px solid #585b70; /* surface2 */
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .dialog-ux .modal-ux-header h3 {
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .errors-wrapper {
+  background: rgba(243, 139, 168, 0.12); /* red @ 12% */
+  border: 1px solid #f38ba8; /* red */
+  color: #cdd6f4; /* text */
+}
+
+.swagger-ui .loading-container .loading::after {
+  color: #94e2d5; /* teal */
+}
+
+/* Neko Quant /docs terminal watermark (read-only, presentation-only) */
+.swagger-ui .info::before {
+  content: "neko@market:~$ /docs\A";
+  white-space: pre;
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.3;
+  color: #a6adc8; /* subtext0 */
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+}

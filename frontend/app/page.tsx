@@ -21,6 +21,7 @@ export default async function OverviewPage() {
     <main>
       <Header health={health} title="System Overview" />
       <div className="p-6 space-y-6">
+        <p className="text-xs text-mauve/90 font-mono -mt-2">Neko&apos;s market notes</p>
         <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader>

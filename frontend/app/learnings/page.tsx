@@ -1,6 +1,7 @@
 import { Header } from "@/components/nav/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api, safe } from "@/lib/api";
+import { nekoVoice } from "@/lib/neko-voice";
 import { formatNumber, formatDate } from "@/lib/utils";
 
 export default async function LearningsPage() {
@@ -18,7 +19,7 @@ export default async function LearningsPage() {
         {!rows || rows.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-sm text-muted-foreground">
-              No scoreboard data yet. Run a backtest to populate lever scores.
+              {nekoVoice.empty("learnings")}
             </CardContent>
           </Card>
         ) : (

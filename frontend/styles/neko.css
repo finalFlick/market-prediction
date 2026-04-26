@@ -1,0 +1,26 @@
+/* Neko Quant — terminal-aesthetic helpers (does not replace tokens.css). */
+
+@keyframes neko-scanline {
+  0% {
+    opacity: 0.95;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.92;
+  }
+}
+
+.neko-scanline {
+  animation: neko-scanline 4.5s ease-in-out infinite;
+}
+
+.neko-mascot-glow {
+  text-shadow: 0 0 8px rgba(203, 166, 247, 0.15);
+}
+
+/* Paw / progress affordance on focused interactive fields (opt-in). */
+.neko-cursor {
+  cursor: crosshair;
+}

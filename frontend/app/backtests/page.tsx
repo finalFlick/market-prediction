@@ -4,6 +4,7 @@ import { Header } from "@/components/nav/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { api, safe } from "@/lib/api";
+import { nekoVoice } from "@/lib/neko-voice";
 import { formatDate, formatNumber, formatPct } from "@/lib/utils";
 
 export default async function BacktestLabPage() {
@@ -65,7 +66,7 @@ export default async function BacktestLabPage() {
             {(backtests ?? []).length === 0 ? (
               <tr>
                 <TD colSpan={9} className="text-center text-muted-foreground py-6">
-                  No backtests recorded yet.
+                  {nekoVoice.empty("backtests")}
                 </TD>
               </tr>
             ) : null}

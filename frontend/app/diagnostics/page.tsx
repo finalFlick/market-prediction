@@ -1,6 +1,8 @@
+import { NekoEasterEgg } from "@/components/identity/neko-easter-egg";
 import { Header } from "@/components/nav/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api, safe } from "@/lib/api";
+import { nekoVoice } from "@/lib/neko-voice";
 
 export default async function DiagnosticsPage() {
   const [health, metrics, backtests] = await Promise.all([
@@ -21,13 +23,15 @@ export default async function DiagnosticsPage() {
           backtests. Drift detection runs on the engine; alerts surface here.
         </p>
 
+        <NekoEasterEgg className="max-w-2xl" />
+
         <Card>
           <CardHeader>
             <CardTitle>Engine metrics (gauge + counter snapshot)</CardTitle>
           </CardHeader>
           <CardContent className="font-mono text-sm space-y-1">
             {rows.length === 0 ? (
-              <span className="text-muted-foreground">no metrics published yet</span>
+              <span className="text-muted-foreground">{nekoVoice.empty("diagnostics")}</span>
             ) : (
               rows.map(([k, v]) => (
                 <div key={k} className="flex justify-between border-b border-border/50 py-0.5">
@@ -66,7 +70,7 @@ export default async function DiagnosticsPage() {
               </div>
             ))}
             {(backtests ?? []).length === 0 ? (
-              <p className="text-muted-foreground">no backtests yet</p>
+              <p className="text-muted-foreground">{nekoVoice.empty("backtests")}</p>
             ) : null}
           </CardContent>
         </Card>

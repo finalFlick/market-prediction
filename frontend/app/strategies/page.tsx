@@ -4,6 +4,7 @@ import { Header } from "@/components/nav/header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api, safe } from "@/lib/api";
+import { nekoVoice } from "@/lib/neko-voice";
 import { formatDate } from "@/lib/utils";
 
 const statusVariant = (status: string) =>
@@ -61,7 +62,7 @@ export default async function StrategiesPage() {
             );
           })}
           {(strategies ?? []).length === 0 ? (
-            <p className="text-sm text-muted-foreground">No strategies registered yet.</p>
+            <p className="text-sm text-muted-foreground">{nekoVoice.empty("strategies")}</p>
           ) : null}
         </div>
       </div>

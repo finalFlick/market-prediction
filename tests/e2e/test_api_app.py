@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.api.app import create_app
+from backend.api.app import _SWAGGER_CSS_URL, create_app
 
 
 @pytest.fixture(scope="module")
@@ -44,3 +44,23 @@ def test_health(client: TestClient) -> None:
 def test_get_endpoints_return_2xx(client: TestClient, path: str) -> None:
     r = client.get(path)
     assert r.status_code == 200, f"{path} -> {r.status_code} {r.text}"
+
+
+@pytest.mark.e2e
+def test_swagger_docs_serves_themed_html(client: TestClient) -> None:
+    r = client.get("/docs")
+    assert r.status_code == 200
+    body = r.text.lower()
+    assert "swagger-ui" in body
+    # default Swagger CDN base stylesheet must still be present
+    assert "swagger-ui-dist" in body
+    # and our operator-console override must be appended after it
+    assert _SWAGGER_CSS_URL in r.text
+
+
+@pytest.mark.e2e
+def test_swagger_theme_css_is_served(client: TestClient) -> None:
+    r = client.get(_SWAGGER_CSS_URL)
+    assert r.status_code == 200
+    assert "text/css" in (r.headers.get("content-type") or "")
+    assert b".swagger-ui" in r.content

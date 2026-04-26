@@ -3,6 +3,7 @@ import { Header } from "@/components/nav/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { api, safe } from "@/lib/api";
+import { nekoVoice } from "@/lib/neko-voice";
 import { formatDate } from "@/lib/utils";
 
 const STATUS_VARIANT: Record<string, "success" | "danger" | "warning" | "default"> = {
@@ -26,7 +27,7 @@ export default async function RunsPage() {
         {!runs || runs.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-sm text-muted-foreground">
-              No runs yet. Submit a run via CLI:{" "}
+              {nekoVoice.empty("runs")} Submit a run via CLI:{" "}
               <code className="text-mint">python -m runs.submit</code> or the worker.
             </CardContent>
           </Card>

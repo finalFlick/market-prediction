@@ -2,6 +2,7 @@ import { Header } from "@/components/nav/header";
 import { Badge } from "@/components/ui/badge";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { api, safe } from "@/lib/api";
+import { nekoVoice } from "@/lib/neko-voice";
 import { formatDate } from "@/lib/utils";
 
 const variantFor = (status: string) =>
@@ -60,7 +61,7 @@ export default async function SignalsPage() {
             {(signals ?? []).length === 0 ? (
               <tr>
                 <TD colSpan={7} className="text-center text-muted-foreground py-6">
-                  No signals registered yet.
+                  {nekoVoice.empty("signals")}
                 </TD>
               </tr>
             ) : null}

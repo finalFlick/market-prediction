@@ -24,3 +24,12 @@ export function formatDate(value: string | Date | null | undefined): string {
   if (Number.isNaN(d.getTime())) return "—";
   return d.toISOString().replace("T", " ").slice(0, 19) + "Z";
 }
+
+/** Compact “paw meter” for playful research UI (not operator alerts). */
+export function formatPawConfidence(value: number): string {
+  const v = Math.max(0, Math.min(1, value));
+  const steps = 5;
+  const n = Math.min(steps, Math.max(0, Math.round(v * steps)));
+  const pct = Math.round(v * 100);
+  return `${"🐾".repeat(n)}${n < steps ? "░" : ""} ${pct}%`;
+}
