@@ -51,7 +51,7 @@ jobs:
             ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:${{ github.sha }}
             ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:latest
           cache-from: |
-            type=registry,ref=ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:cache,ignore-error=true
+            type=registry,ref=ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:cache
             type=gha,scope=trading-base
           cache-to: |
             type=registry,ref=ghcr.io/${{ steps.owner.outputs.name }}/trading-lab-base:cache,mode=max
