@@ -80,7 +80,8 @@ Immediate follow-ups:
 - [x] **Triage Dependabot** — clean PRs merged; closed majors per `library-research.mdc`.
 - [x] **Postcss** — bump merged (#9, `8.5.12` on `frontend` devDep).
 - [x] **DEC-015** — major upgrades deferred to hand-curated work.
-- [ ] **Optional** — remove local `backup/chore-gov-pre-slim` / `stash@{0}` when you no longer need the pre-slim WIP snapshot.
+- [x] **Removed** local `backup/chore-gov-pre-slim` and `stash@{0}` (Phase E.2 of PR queue cleanup).
+- [x] **Postcss CVE-2026-41305** patched via `overrides.postcss = "^8.5.12"` in `frontend/package.json`; transitive next@15.5.15 copy resolved to 8.5.12.
 
 ### Handoff (future agents)
 
