@@ -25,7 +25,7 @@ until step 6 passes.
 | 2    | `git status`, `rg <symbol>`; list the files you will edit.                |
 | 3    | Smallest possible diff. No drive-by refactors in feature PRs.             |
 | 4    | `pytest -q` (always) and `pytest -q -m "not slow and not integration"` ok in inner loop. |
-| 5    | `ruff check .` and `mypy --strict .`                                      |
+| 5    | `ruff check .`, `ruff format --check .` (or `ruff format .`), `mypy --strict .` |
 | 6    | `pytest tests/e2e -q` and at least one backtest smoke run.                |
 
 If a task is too large for a single PR, split it. Track sub-PRs in `TODO.md`.
@@ -75,3 +75,35 @@ Remove-Item .git\COMMIT_MSG.txt
 ```
 
 Chain independent commands with `;` (PowerShell), not `&&`.
+
+**Variable interpolation in strings.** PowerShell parses `$name:` as a
+**drive reference**, not `${name}` followed by `:`. A loop like
+`Write-Host "PR $n: green"` fails with `Variable reference is not valid`.
+Use `${n}` or `$($n)`:
+
+```powershell
+Write-Host "PR ${n}: green"        # OK
+Write-Host "PR $($n) is green"     # OK
+Write-Host "PR $n: green"          # PARSE ERROR
+```
+
+## Self-CODEOWNER PR merges
+
+When the only CODEOWNER for a path is also the PR author, GitHub rejects
+`gh pr review --approve` with `Can not approve your own pull request`.
+For solo-dev repos this means classic "require review" branch protection
+is unmergeable without help. Options, in order of preference:
+
+1. Drop `required_pull_request_reviews` from branch protection on
+   trusted branches; rely on required CI checks as the gate. Use
+   `gh pr merge <num> --auto --squash` so PRs land themselves on green.
+2. If reviews must stay required, use `gh pr merge <num> --squash --admin`
+   (only available when `enforce_admins: false`). Document the reason in
+   `SESSION_LOG.md`.
+3. Add a second human reviewer or a bot account to CODEOWNERS — only
+   sensible for org-owned repos.
+
+Auto-merge requires `allow_auto_merge: true` at the repo level (off by
+default on user-owned public repos). Merge queue (rulesets `merge_queue`
+rule type) is **org-only**; user-owned repos cannot enable it via API or
+UI even on public free tier.

@@ -118,6 +118,17 @@ them before approving or admin-merging:
    the transitive copies to the patched version. Document the override
    choice in `DECISIONS.md` if it pins below the latest stable.
 
+   **`EOVERRIDE` gotcha.** The override range must be ≥ the direct
+   dependency's range, or `npm install` fails with
+   `Override for <pkg>@<direct-range> conflicts with direct dependency`.
+   Match the direct devDep's pinned range:
+
+   ```jsonc
+   // frontend/package.json
+   "devDependencies": { "postcss": "^8.5.12" },
+   "overrides":       { "postcss": "^8.5.12" }   // not ^8.5.10
+   ```
+
 Coupled-major bumps (e.g. `next` 15 → 16) require a coordinated upgrade
 of related peers (`react` / `react-dom` / `eslint-config-next` /
 `@types/react*`). Dependabot does not pair these. If the Dependabot PR
