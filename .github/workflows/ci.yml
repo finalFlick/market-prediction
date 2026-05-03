@@ -167,7 +167,7 @@ jobs:
         with:
           driver: docker
       - name: build trading-base (shared Python layers)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile.base
@@ -175,7 +175,7 @@ jobs:
           load: true
           tags: trading-base:latest
       - name: build trading-engine
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: Dockerfile
@@ -183,7 +183,7 @@ jobs:
           load: true
           tags: trading-lab/engine:ci
       - name: build backend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: backend/Dockerfile
@@ -191,7 +191,7 @@ jobs:
           load: true
           tags: trading-lab/backend:ci
       - name: build frontend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./frontend
           file: frontend/Dockerfile
