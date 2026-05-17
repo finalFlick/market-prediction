@@ -46,7 +46,7 @@ dev = [
     "pytest-asyncio>=0.23",
     "ruff>=0.4",
     "mypy>=1.10",
-    "types-PyYAML==6.0.12.20260408",
+    "types-PyYAML==6.0.12.20260510",
     "ipykernel>=6.29",
     "jupyter>=1.0",
     "matplotlib>=3.8",
